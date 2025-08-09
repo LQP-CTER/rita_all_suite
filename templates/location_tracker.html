@@ -55,12 +55,15 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        /* SỬA LỖI CSS: Đảm bảo form và các thành phần bên trong hiển thị đúng */
         .create-link-form {
             display: flex;
             gap: 1rem;
+            align-items: center; /* Căn giữa các item theo chiều dọc */
         }
         .create-link-form input[type="url"] {
             flex-grow: 1;
+            width: 100%; /* Đảm bảo input chiếm hết không gian còn lại */
             padding: 0.85rem 1.25rem;
             background-color: #1e1e2e;
             border: 1px solid #3a3a5a;
@@ -68,6 +71,7 @@
             color: #e0e0e0;
             font-size: 1rem;
             transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box;
         }
         .create-link-form input[type="url"]:focus {
             outline: none;
@@ -75,6 +79,7 @@
             box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.2);
         }
         .create-link-form button {
+            flex-shrink: 0; /* Ngăn nút bị co lại */
             padding: 0.85rem 1.75rem;
             background: linear-gradient(90deg, #68d391, #34d399);
             color: #1a1a2e;
@@ -204,7 +209,7 @@
     
     <div class="tracker-card">
         <h2 class="card-title">Tạo Link Mới</h2>
-        <form method="POST" action="">
+        <form method="POST" action="" class="create-link-form">
             {% csrf_token %}
             <input type="url" name="url" placeholder="Dán đường dẫn gốc vào đây..." required>
             <button type="submit">Tạo Link</button>
@@ -276,7 +281,6 @@
         </div>
     </div>
 </div>
-<footer class="site-footer"> <p>Copyright © 2025 Lequyphat</p> </footer>
 {% endblock %}
 
 {% block extra_js %}
@@ -297,15 +301,11 @@
     }
 
     function copyToClipboard(elementId) {
-        // SỬA LỖI: Lấy nội dung text từ thẻ SPAN bên trong
         const textToCopy = document.getElementById(elementId).querySelector('span').innerText;
-        
-        // Sử dụng API Clipboard hiện đại và an toàn hơn
         navigator.clipboard.writeText(textToCopy).then(function() {
             alert('Đã sao chép link!');
         }, function(err) {
             console.error('Không thể sao chép: ', err);
-            alert('Lỗi: Không thể sao chép link.');
         });
     }
 
