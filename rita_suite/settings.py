@@ -18,10 +18,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # Lấy DEBUG từ biến môi trường. Mặc định là False cho production.
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-# Cấu hình để đọc tên miền được cho phép từ biến môi trường
+# SỬA LỖI: Cấu hình để đọc tên miền được cho phép từ biến môi trường
 ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS')
 if ALLOWED_HOSTS_ENV:
-    # Tách chuỗi thành một danh sách các tên miền
+    # Tách chuỗi thành một danh sách các tên miền, ví dụ: "domain1.com,domain2.com"
     ALLOWED_HOSTS = ALLOWED_HOSTS_ENV.split(',')
 else:
     ALLOWED_HOSTS = []
