@@ -18,7 +18,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # Lấy DEBUG từ biến môi trường. Mặc định là False cho production.
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-# SỬA LỖI: Cấu hình để đọc tên miền được cho phép từ biến môi trường
+# Cấu hình để đọc tên miền được cho phép từ biến môi trường
 ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS')
 if ALLOWED_HOSTS_ENV:
     # Tách chuỗi thành một danh sách các tên miền, ví dụ: "domain1.com,domain2.com"
@@ -116,8 +116,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# SỬA LỖI: Thêm STATICFILES_DIRS để Django biết tìm file static ở đâu khi develop
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Thư mục Render sẽ dùng để thu thập file static
+# SỬA LỖI: Thêm STATIC_ROOT để Django biết nơi thu thập tất cả file static khi deploy
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 
 # Media files (User uploaded content)
 MEDIA_URL = '/media/'
