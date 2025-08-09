@@ -29,17 +29,16 @@ def register(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            Profile.objects.create(user=user) # Tạo profile cho người dùng mới
+            # SỬA LỖI: Dùng get_or_create để tránh lỗi UNIQUE constraint
+            Profile.objects.get_or_create(user=user)
             login(request, user)
             messages.success(request, "Đăng ký thành công!")
             return redirect('core:chat_view')
         else:
-            # Gửi lỗi của form ra message để hiển thị
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{form.fields[field].label}: {error}")
     
-    # Nếu là GET request hoặc form không hợp lệ, render lại trang
     form = RegistrationForm()
     context = {
         'registration_form': form,
@@ -61,10 +60,8 @@ def login_view(request):
             next_url = request.GET.get('next', 'core:chat_view')
             return redirect(next_url)
         else:
-            # Nếu form không hợp lệ, gửi thông báo lỗi chung
             messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.")
     
-    # Nếu là GET request hoặc đăng nhập thất bại, render lại trang
     form = LoginForm()
     context = {
         'login_form': form,
