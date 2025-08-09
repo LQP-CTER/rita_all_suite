@@ -306,8 +306,8 @@ def api_get_tracker_data(request):
         for log in link.logs.all():
             logs_data.append({
                 'timestamp': log.timestamp.strftime("%H:%M:%S, %d/%m/%Y"),
-                'latitude': f"{log.latitude:.5f}",
-                'longitude': f"{log.longitude:.5f}",
+                'latitude': log.latitude,
+                'longitude': log.longitude,
             })
         
         data.append({
