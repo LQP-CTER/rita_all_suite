@@ -546,8 +546,13 @@ document.addEventListener('DOMContentLoaded', function () {
             noLinksMsg.classList.remove('hidden');
         }
 
+        // Keep track of existing IDs to remove old ones
+        const existingIds = new Set(Array.from(historyList.querySelectorAll('.history-item')).map(el => el.id));
+
         linksData.forEach(link => {
-            let historyItem = document.getElementById(`history-item-${link.id}`);
+            const itemId = `history-item-${link.id}`;
+            existingIds.delete(itemId); // Mark this ID as still present
+            let historyItem = document.getElementById(itemId);
             
             if (!historyItem) {
                 const newLinkHtml = `
@@ -575,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <p class="info-text italic no-logs-msg">Chưa có lượt click nào.</p>
                     </div>`;
                 historyList.insertAdjacentHTML('afterbegin', newLinkHtml);
-                historyItem = document.getElementById(`history-item-${link.id}`);
+                historyItem = document.getElementById(itemId);
             }
 
             const logCountEl = historyItem.querySelector('.log-count');
@@ -607,6 +612,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (noLogsMsgItem) noLogsMsgItem.classList.remove('hidden');
             }
         });
+
+        // Remove links that are no longer in the data
+        existingIds.forEach(idToRemove => {
+            const elementToRemove = document.getElementById(idToRemove);
+            if (elementToRemove) {
+                elementToRemove.remove();
+            }
+        });
     }
 
     // --- Form Submission ---
@@ -615,6 +628,12 @@ document.addEventListener('DOMContentLoaded', function () {
         createLinkForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
+            // Append checkbox value manually
+            const consentCheckbox = this.nextElementSibling.querySelector('input[name="require_consent"]');
+            if (consentCheckbox && consentCheckbox.checked) {
+                formData.append('require_consent', 'on');
+            }
+
             try {
                 const response = await fetch(this.action, {
                     method: 'POST',
@@ -625,6 +644,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 if(response.ok) {
                     this.reset();
+                    if (consentCheckbox) consentCheckbox.checked = false;
                     fetchTrackerData();
                 }
             } catch (error) {

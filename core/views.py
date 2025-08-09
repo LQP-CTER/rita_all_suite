@@ -4,6 +4,7 @@ import threading
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import TikTokVideo, ChatHistory, Profile, TrackingLink, LocationLog
 from .forms import RegistrationForm, LoginForm, ProfileUpdateForm
@@ -303,6 +304,7 @@ def track_and_redirect(request, tracking_id):
     # Render trang yêu cầu quyền mới (tracker_consent.html)
     return render(request, 'tracker_consent.html', context)
 
+@csrf_exempt
 @require_POST
 def save_location(request):
     """
@@ -316,7 +318,7 @@ def save_location(request):
         latitude = data.get('latitude')
         longitude = data.get('longitude')
 
-        if not all([tracking_id, latitude, longitude]):
+        if not all([tracking_id, latitude is not None, longitude is not None]):
             return JsonResponse({'status': 'error', 'message': 'Dữ liệu không đầy đủ.'}, status=400)
 
         link = TrackingLink.objects.get(tracking_id=tracking_id)
