@@ -13,6 +13,12 @@ whitenoise
 # Image processing library (for ImageField)
 Pillow
 
+# --- DATABASE LIBRARIES FOR PRODUCTION ---
+# Connects to Postgres database
+psycopg2-binary
+# Parses database URL from environment variable
+dj-database-url
+
 # Google AI and related libraries
 google-generativeai==0.8.5
 google-ai-generativelanguage==0.6.15
