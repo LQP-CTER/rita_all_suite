@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import TikTokVideo, ChatHistory, Profile, TrackingLink, LocationLog
 from .forms import RegistrationForm, LoginForm, ProfileUpdateForm
-from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth import login, logout, update_session_auth_hash, authenticate
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .ai_utils import get_gemini_response
@@ -26,40 +26,57 @@ def register(request):
     if request.user.is_authenticated:
         return redirect('core:chat_view')
     if request.method == 'POST':
-        registration_form = RegistrationForm(request.POST)
-        if registration_form.is_valid():
-            user = registration_form.save()
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            Profile.objects.create(user=user) # Tạo profile cho người dùng mới
             login(request, user)
+            messages.success(request, "Đăng ký thành công!")
             return redirect('core:chat_view')
-    else:
-        registration_form = RegistrationForm()
+        else:
+            # Gửi lỗi của form ra message để hiển thị
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{form.fields[field].label}: {error}")
+    
+    # Nếu là GET request hoặc form không hợp lệ, render lại trang
+    form = RegistrationForm()
     context = {
-        'registration_form': registration_form,
+        'registration_form': form,
         'login_form': LoginForm()
     }
     return render(request, 'login.html', context)
 
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('core:chat_view')
+    
     if request.method == 'POST':
-        login_form = LoginForm(request, data=request.POST)
-        if login_form.is_valid():
-            user = login_form.get_user()
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             login(request, user)
+            messages.success(request, f"Chào mừng {user.username} quay trở lại!")
             next_url = request.GET.get('next', 'core:chat_view')
             return redirect(next_url)
-    else:
-        login_form = LoginForm()
+        else:
+            # Nếu form không hợp lệ, gửi thông báo lỗi chung
+            messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.")
+    
+    # Nếu là GET request hoặc đăng nhập thất bại, render lại trang
+    form = LoginForm()
     context = {
-        'login_form': login_form,
+        'login_form': form,
         'registration_form': RegistrationForm()
     }
     return render(request, 'login.html', context)
 
+
 @login_required
 def logout_view(request):
     logout(request)
+    messages.info(request, "Bạn đã đăng xuất thành công.")
     return redirect('core:homepage')
 
 @login_required
@@ -252,17 +269,19 @@ def api_delete_tiktok_history(request):
 
 @login_required
 def location_tracker_dashboard(request):
-    """Hiển thị trang dashboard để tạo link và xem kết quả."""
     if request.method == 'POST':
         original_url = request.POST.get('url')
         if original_url:
-            # Tạo link mới và gán cho người dùng hiện tại
             TrackingLink.objects.create(user=request.user, original_url=original_url)
             return redirect('core:location_tracker_dashboard')
             
-    # Chỉ lấy các link do người dùng hiện tại tạo
     links = TrackingLink.objects.filter(user=request.user).order_by('-created_at').prefetch_related('logs')
     
+    for link in links:
+        for log in link.logs.all():
+            log.lat_str = format(log.latitude, '.5f')
+            log.lon_str = format(log.longitude, '.5f')
+
     context = {
         'links': links,
         'base_url': request.build_absolute_uri('/')
@@ -270,14 +289,12 @@ def location_tracker_dashboard(request):
     return render(request, 'location_tracker.html', context)
 
 def track_and_redirect(request, tracking_id):
-    """View trung gian: tìm link, render trang lấy vị trí."""
     link = get_object_or_404(TrackingLink, tracking_id=tracking_id)
     return render(request, 'tracker_page.html', {'link': link})
 
 @csrf_exempt
 @require_POST
 def save_location(request):
-    """API endpoint để lưu vị trí được gửi từ client."""
     try:
         data = json.loads(request.body)
         tracking_id = data.get('tracking_id')
@@ -298,7 +315,6 @@ def save_location(request):
 
 @login_required
 def api_get_tracker_data(request):
-    """API mới để lấy dữ liệu tracker và tự động làm mới."""
     links = TrackingLink.objects.filter(user=request.user).order_by('-created_at').prefetch_related('logs')
     data = []
     for link in links:
@@ -320,9 +336,7 @@ def api_get_tracker_data(request):
 @login_required
 @require_POST
 def api_delete_tracking_link(request, pk):
-    """API để xóa một link theo dõi cụ thể."""
     try:
-        # Lấy link thuộc về người dùng hiện tại để đảm bảo bảo mật
         link_to_delete = get_object_or_404(TrackingLink, pk=pk, user=request.user)
         link_to_delete.delete()
         return JsonResponse({'status': 'success', 'message': 'Đã xóa link thành công.'})
