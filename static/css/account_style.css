@@ -1,0 +1,416 @@
+/*
+ * Rita AI Suite - Giao diện trang Đăng nhập (Neon Aurora V1 - Fixed)
+ * Mô tả: Giữ lại layout trượt, điều chỉnh để vừa form đăng ký dài hơn.
+ */
+
+/* 1. Biến màu và các kiểu gốc
+-------------------------------------------------- */
+:root {
+    --font-family-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --color-bg-deep-space: #00000a;
+    --color-bg-glass-dark: rgba(16, 22, 42, 0.7);
+    --color-bg-glass-light: rgba(255, 255, 255, 0.1);
+    --color-border-glass: rgba(138, 158, 255, 0.25);
+    --color-text-primary: #f0f8ff;
+    --color-text-secondary: #a9b8c5;
+    --color-accent-neon-blue: #00bfff;
+    --color-accent-glow: rgba(0, 191, 255, 0.5);
+    --color-accent-purple: #8a2be2;
+}
+
+/* 2. Cấu hình chung
+-------------------------------------------------- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  font-size: 16px;
+  line-height: 1.5em;
+  margin: 0;
+  background-color: var(--color-bg-deep-space);
+}
+
+button,
+input,
+select {
+  font-family: var(--font-family-sans);
+  background-color: transparent;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+}
+
+input::placeholder {
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.1rem;
+  color: var(--color-text-secondary);
+}
+
+/* 3. Hiệu ứng chuyển động
+-------------------------------------------------- */
+@keyframes bounceLeft {
+  0% { transform: translate3d(100%, -50%, 0); }
+  50% { transform: translate3d(-20px, -50%, 0); }
+  100% { transform: translate3d(0, -50%, 0); }
+}
+
+@keyframes bounceRight {
+  0% { transform: translate3d(0, -50%, 0); }
+  50% { transform: translate3d(calc(100% + 20px), -50%, 0); }
+  100% { transform: translate3d(100%, -50%, 0); }
+}
+
+@keyframes showSignUp {
+  100% {
+    opacity: 1;
+    visibility: visible;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes aurora-glow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 4. Nền trang và Container chính
+-------------------------------------------------- */
+.user {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  background:
+      radial-gradient(ellipse at center, var(--color-accent-glow), transparent 60%),
+      radial-gradient(ellipse at bottom left, rgba(138, 43, 226, 0.4), transparent 70%),
+      var(--color-bg-deep-space);
+  background-size: 200% 200%;
+  animation: aurora-glow 20s ease infinite;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  width: 60px;
+  height: 60px;
+  background-image: url('https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-glass);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+  z-index: 100;
+}
+
+#live-clock-container {
+  position: absolute;
+  top: 48px;
+  right: 40px;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  text-shadow: 0 0 8px var(--color-accent-glow);
+  z-index: 100;
+}
+
+.user_options-container {
+  position: relative;
+  width: 80%;
+  max-width: 850px;
+}
+
+.user_options-text {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--color-bg-glass-dark);
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--color-border-glass);
+  border-radius: 5px;
+}
+
+/* 5. Khối văn bản và Nút
+-------------------------------------------------- */
+.user_options-registered,
+.user_options-unregistered {
+  width: 50%;
+  padding: 60px 45px;
+  color: var(--color-text-primary);
+  font-weight: 300;
+  text-align: center;
+}
+
+.user_registered-title,
+.user_unregistered-title {
+  margin-bottom: 15px;
+  font-size: 1.7rem;
+  font-weight: 500;
+  line-height: 1.2em;
+  text-shadow: 0 0 8px var(--color-accent-glow);
+}
+
+.user_unregistered-text,
+.user_registered-text {
+  font-size: 0.85rem;
+  line-height: 1.5em;
+  color: var(--color-text-secondary);
+}
+
+.user_registered-login,
+.user_unregistered-signup {
+  margin-top: 30px;
+  border: 1px solid var(--color-accent-neon-blue);
+  border-radius: 25px;
+  padding: 12px 35px;
+  color: var(--color-accent-neon-blue);
+  text-transform: uppercase;
+  line-height: 1em;
+  letter-spacing: 0.15rem;
+  font-weight: 400;
+  transition: all 0.3s ease-in-out;
+}
+
+.user_registered-login:hover,
+.user_unregistered-signup:hover {
+  color: var(--color-bg-deep-space);
+  background-color: var(--color-accent-neon-blue);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+/* 6. Form Đăng nhập và Đăng ký
+-------------------------------------------------- */
+.user_options-forms {
+  position: absolute;
+  top: 50%;
+  left: 30px;
+  width: calc(50% - 30px);
+  /* SỬA LỖI: Tăng chiều cao tối thiểu để chứa form đăng ký */
+  min-height: 620px;
+  background: var(--color-bg-glass-light);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border-glass);
+  border-radius: 5px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transform: translate3d(100%, -50%, 0);
+  transition: transform 0.4s ease-in-out;
+}
+
+.user_options-forms .forms_title {
+  margin-bottom: 30px; /* Giảm khoảng cách */
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  letter-spacing: 0.1rem;
+  text-align: center;
+}
+
+.user_options-forms .forms_field {
+  margin-bottom: 18px; /* Giảm khoảng cách */
+  position: relative;
+}
+
+.user_options-forms .forms_field-input {
+  width: 100%;
+  border-bottom: 1px solid var(--color-border-glass);
+  padding: 8px 10px 8px 5px;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05rem;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.user_options-forms .forms_field-input:focus {
+  border-color: var(--color-accent-neon-blue);
+}
+
+.user_options-forms label {
+    display: block;
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+
+.user_options-forms select,
+.user_options-forms input[type="date"] {
+    width: 100%;
+    padding: 8px 5px;
+    background: transparent;
+    border-bottom: 1px solid var(--color-border-glass);
+    color: var(--color-text-primary);
+    font-size: 0.9rem;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+.user_options-forms select option {
+    background: var(--color-bg-deep-space);
+    color: var(--color-text-primary);
+}
+
+.user_options-forms .forms_buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px; /* Giảm khoảng cách */
+}
+
+.user_options-forms .forms_buttons-action {
+  background: linear-gradient(45deg, var(--color-accent-neon-blue), var(--color-accent-purple));
+  border-radius: 25px;
+  padding: 12px 40px;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.user_options-forms .forms_buttons-action:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+/* 7. Cấu trúc các Form
+-------------------------------------------------- */
+.user_options-forms .user_forms-signup,
+.user_options-forms .user_forms-login {
+  position: absolute;
+  top: 50px; /* Điều chỉnh vị trí */
+  left: 40px;
+  width: calc(100% - 80px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.user_options-forms .user_forms-signup {
+  transform: translate3d(120px, 0, 0);
+}
+
+.user_options-forms .user_forms-signup .forms_buttons {
+  justify-content: flex-end;
+}
+
+.user_options-forms .user_forms-login {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 8. Kích hoạt hiệu ứng
+-------------------------------------------------- */
+.user_options-forms.bounceLeft {
+  animation: bounceLeft 0.8s forwards;
+}
+.user_options-forms.bounceLeft .user_forms-signup {
+  animation: showSignUp 0.9s forwards;
+}
+.user_options-forms.bounceLeft .user_forms-login {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(-120px, 0, 0);
+}
+.user_options-forms.bounceRight {
+  animation: bounceRight 0.8s forwards;
+}
+
+/* 9. Thông báo lỗi và thành công
+-------------------------------------------------- */
+.message-container {
+    padding: 0;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.85rem;
+    height: 20px;
+}
+.message.success { color: #28a745; }
+.message.error { color: #dc3545; }
+.field-error {
+    color: #ff6b6b;
+    font-size: 0.75rem;
+    position: absolute;
+    bottom: -16px;
+    left: 0;
+}
+.messages {
+    position: absolute;
+    top: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    width: 90%;
+    max-width: 500px;
+}
+.alert {
+    padding: 15px; margin-bottom: 15px; border-radius: 8px;
+    color: #fff; font-size: 15px; text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: var(--color-bg-glass-dark);
+    border: 1px solid var(--color-border-glass);
+}
+.alert-success { border-left: 5px solid #28a745; }
+.alert-error { border-left: 5px solid #dc3545; }
+
+/* 10. Responsive 990px
+-------------------------------------------------- */
+@media screen and (max-width: 990px) {
+  .user_options-container { width: 95%; }
+  .user_options-text {
+    flex-direction: column;
+    text-align: center;
+  }
+  .user_options-registered,
+  .user_options-unregistered {
+    width: 100%;
+    padding: 40px 30px;
+  }
+  .user_options-forms {
+    position: relative;
+    left: auto; top: auto;
+    transform: none;
+    width: 100%;
+    margin-top: 20px;
+    min-height: auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    transition: none;
+    background: var(--color-bg-glass-dark);
+  }
+  .user_options-forms.bounceLeft,
+  .user_options-forms.bounceRight { animation: none; }
+  .user_options-forms .user_forms-signup,
+  .user_options-forms .user_forms-login {
+    position: relative;
+    top: auto; left: auto;
+    width: 100%;
+    padding: 30px;
+    transform: none;
+  }
+  .user_options-forms .user_forms-login { display: none; }
+  .user_options-forms.bounceLeft .user_forms-login {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+  .user_options-forms.bounceLeft .user_forms-signup { display: none; }
+  body::before {
+    top: 15px; left: 15px; width: 50px; height: 50px;
+  }
+  #live-clock-container {
+    top: 28px; right: 15px; font-size: 0.9rem;
+  }
+}

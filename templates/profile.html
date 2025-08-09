@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hồ sơ của bạn{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/profile_style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1>Hồ sơ cá nhân</h1>
+
+    {% if messages %}
+        <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="profile-forms-grid">
+        <!-- Card thông tin cá nhân -->
+        <div class="profile-form-card">
+            <div class="card-header">
+                <h2>Thông tin cá nhân</h2>
+                <button id="edit-profile-btn" class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
+                    Chỉnh sửa
+                </button>
+            </div>
+
+            <!-- Chế độ xem (mặc định) -->
+            <div id="view-profile-info">
+                <div class="info-group">
+                    <label>Họ và tên</label>
+                    <p>{{ user.profile.full_name|default:"Chưa cập nhật" }}</p>
+                </div>
+                <div class="info-group">
+                    <label>Ngày sinh</label>
+                    <p>{{ user.profile.date_of_birth|date:"d/m/Y"|default:"Chưa cập nhật" }}</p>
+                </div>
+                <div class="info-group">
+                    <label>Email</label>
+                    <p>{{ user.email }}</p>
+                </div>
+            </div>
+
+            <!-- Chế độ chỉnh sửa (ẩn) -->
+            <form id="edit-profile-form" method="post" action="{% url 'profile' %}" class="hidden">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="update_profile">
+                
+                {{ profile_form.as_p }}
+                
+                <div class="form-actions">
+                    <button type="button" id="cancel-edit-btn" class="btn btn-secondary">Hủy</button>
+                    <button type="submit" class="btn">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Card thay đổi mật khẩu -->
+        <div class="profile-form-card">
+            <h2>Thay đổi mật khẩu</h2>
+            <form method="post" action="{% url 'profile' %}">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="change_password">
+                
+                {{ password_form.as_p }}
+                
+                <button type="submit" class="btn">Đổi mật khẩu</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,166 @@
+/* --- Bố cục chính --- */
+.analyzer-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    color: #e0e0e0;
+    /* Thêm các thuộc tính để giới hạn chiều cao và tạo layout flex */
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 80px - 4rem); /* Chiều cao viewport trừ header và padding */
+}
+
+.analyzer-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    flex-shrink: 0; /* Ngăn co lại */
+}
+.analyzer-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+.analyzer-header p {
+    font-size: 1.1rem;
+    color: #a0a0b8;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* --- Khu vực nhập liệu --- */
+.input-section {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-shrink: 0; /* Ngăn co lại */
+}
+#tiktok-url-input {
+    flex-grow: 1;
+    padding: 14px 18px;
+    font-size: 1rem;
+    background-color: #2c2c3e;
+    border: 1px solid #4f4f6a;
+    border-radius: 8px;
+    color: #e0e0e0;
+}
+#analyze-btn {
+    padding: 14px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #8a2be2, #6a1b9a);
+    color: white;
+    cursor: pointer;
+}
+#analyze-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* --- Chỉ báo loading --- */
+.loading-indicator {
+    text-align: center;
+    padding: 2rem;
+    flex-shrink: 0;
+}
+.spinner {
+    border: 4px solid #4f4f6a;
+    border-top: 4px solid #8a2be2;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- Wrapper cho kết quả --- */
+.results-wrapper {
+    overflow-y: auto; /* Thêm thanh cuộn dọc khi nội dung tràn */
+    padding-right: 15px; /* Khoảng trống cho thanh cuộn */
+    margin-right: -15px; /* Bù lại padding để nội dung không bị lệch */
+    flex-grow: 1; /* Cho phép wrapper lấp đầy không gian còn lại */
+}
+
+/* --- Bố cục kết quả --- */
+.results-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (min-width: 992px) {
+    .results-grid {
+        grid-template-columns: 400px 1fr;
+    }
+}
+
+.result-card {
+    background-color: #1e1e2f;
+    border-radius: 12px;
+    padding: 25px 30px;
+    border: 1px solid #3a3a5a;
+}
+.result-card h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #3a3a5a;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+.result-card h3 {
+    margin-top: 0;
+}
+
+/* --- Thẻ thông tin video --- */
+.video-card img#video-cover {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+.video-details h3 { font-size: 1.2rem; line-height: 1.4; }
+.video-details p { color: #a0a0b8; margin: 0.5rem 0 1.5rem; }
+.video-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+.stat-item { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.btn-download { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 8px; background-color: #8a2be2; color: white; text-decoration: none; font-weight: 600; }
+
+/* --- Chi tiết phân tích & Transcript --- */
+.analysis-details { display: flex; flex-direction: column; gap: 2rem; }
+.transcript-text { max-height: 250px; overflow-y: auto; background-color: #2c2c3e; padding: 15px; border-radius: 8px; line-height: 1.7; }
+#analysis-output { max-height: 280px; overflow-y: auto; padding-right: 10px; }
+#analysis-output .topics-list { padding-left: 20px; }
+#analysis-output .topics-list li { margin-bottom: 8px; }
+
+/* --- CSS cho thanh cuộn tùy chỉnh --- */
+.results-wrapper::-webkit-scrollbar,
+.transcript-text::-webkit-scrollbar,
+#analysis-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.results-wrapper::-webkit-scrollbar-track,
+.transcript-text::-webkit-scrollbar-track,
+#analysis-output::-webkit-scrollbar-track {
+    background: #1e1e2f;
+    border-radius: 4px;
+}
+
+.results-wrapper::-webkit-scrollbar-thumb,
+.transcript-text::-webkit-scrollbar-thumb,
+#analysis-output::-webkit-scrollbar-thumb {
+    background-color: #4f4f6a;
+    border-radius: 4px;
+}
+
+.results-wrapper::-webkit-scrollbar-thumb:hover,
+.transcript-text::-webkit-scrollbar-thumb:hover,
+#analysis-output::-webkit-scrollbar-thumb:hover {
+    background-color: #6a6a8c;
+}

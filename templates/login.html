@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RITA - Đăng nhập & Đăng ký</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
+</head>
+<body>
+    <section class="user">
+        <div class="user_options-container">
+            <div class="user_options-text">
+                <div class="user_options-unregistered">
+                    <h2 class="user_unregistered-title">Chưa có tài khoản?</h2>
+                    <p class="user_unregistered-text">Tạo một tài khoản để bắt đầu hành trình khám phá cùng Rita.</p>
+                    <button class="user_unregistered-signup" id="signup-button">Đăng ký</button>
+                </div>
+                <div class="user_options-registered">
+                    <h2 class="user_registered-title">Đã có tài khoản?</h2>
+                    <p class="user_registered-text">Chào mừng trở lại! Đăng nhập để tiếp tục.</p>
+                    <button class="user_registered-login" id="login-button">Đăng nhập</button>
+                </div>
+            </div>
+            
+            <div class="user_options-forms" id="user_options-forms">
+                <!-- Form Đăng nhập -->
+                <div class="user_forms-login">
+                    <h2 class="forms_title">Đăng nhập</h2>
+                    <!-- SỬA LỖI: Cập nhật action URL với namespace 'core' và đúng tên view -->
+                    <form class="forms_form" method="post" action="{% url 'core:login_view' %}">
+                        {% csrf_token %}
+                        <fieldset class="forms_fieldset">
+                            {% for field in login_form %}
+                                <div class="forms_field">
+                                    {{ field }}
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                        <div class="forms_buttons">
+                            <button type="submit" class="forms_buttons-action">Đăng nhập</button>
+                        </div>
+                        {% if login_form.non_field_errors %}
+                            <div class="message-container message error">{{ login_form.non_field_errors.0 }}</div>
+                        {% endif %}
+                    </form>
+                </div>
+
+                <!-- Form Đăng ký -->
+                <div class="user_forms-signup">
+                    <h2 class="forms_title">Đăng ký</h2>
+                    <!-- SỬA LỖI: Cập nhật action URL với namespace 'core' -->
+                    <form class="forms_form" method="post" action="{% url 'core:register' %}">
+                        {% csrf_token %}
+                        <fieldset class="forms_fieldset">
+                             {% for field in registration_form %}
+                                 <div class="forms_field">
+                                     {{ field }}
+                                     {% if field.errors %}
+                                         <div class="field-error">{{ field.errors.0 }}</div>
+                                     {% endif %}
+                                 </div>
+                             {% endfor %}
+                        </fieldset>
+                        <div class="forms_buttons">
+                            <button type="submit" class="forms_buttons-action">Tạo tài khoản</button>
+                        </div>
+                         {% if registration_form.non_field_errors %}
+                             <div class="message-container message error">{{ registration_form.non_field_errors.0 }}</div>
+                         {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="{% static 'js/account_script.js' %}"></script>
+</body>
+</html>
