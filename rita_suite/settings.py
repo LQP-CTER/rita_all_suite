@@ -41,6 +41,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Thêm WhiteNoiseMiddleware để phục vụ file static
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -116,9 +118,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-# SỬA LỖI: Thêm STATICFILES_DIRS để Django biết tìm file static ở đâu khi develop
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-# SỬA LỖI: Thêm STATIC_ROOT để Django biết nơi thu thập tất cả file static khi deploy
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 
 # Media files (User uploaded content)
