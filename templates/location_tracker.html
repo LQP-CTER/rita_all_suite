@@ -27,94 +27,12 @@
             padding: 1rem;
         }
 
-        .tracker-title-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2.5rem;
-        }
-
         .tracker-title {
             font-size: 2.8rem;
             font-weight: 700;
             text-align: center;
-            margin: 0;
+            margin-bottom: 2.5rem;
             color: #e0e0e0;
-        }
-
-        /* --- Nút và Modal Hướng dẫn --- */
-        .help-btn {
-            background-color: #3a3a5a;
-            color: #e0e0e0;
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .help-btn:hover {
-            background-color: #4a4a6a;
-        }
-        .help-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-        .help-modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        .help-modal-card {
-            background: #1e1e2e;
-            border: 1px solid #3a3a5a;
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
-        .help-modal-card h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 1.5rem;
-        }
-        .help-modal-card p {
-            color: #a0a0d0;
-            line-height: 1.6;
-            margin-bottom: 1rem;
-        }
-        .help-modal-card strong {
-            color: #68d391;
-        }
-        .help-modal-close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            color: #a0a0d0;
-            font-size: 1.5rem;
-            cursor: pointer;
         }
 
         .tracker-card {
@@ -282,14 +200,11 @@
 
 {% block content %}
 <div class="tracker-container">
-    <div class="tracker-title-wrapper">
-        <h1 class="tracker-title">Công cụ Theo dõi Vị trí</h1>
-        <button id="help-btn" class="help-btn" aria-label="Hướng dẫn">?</button>
-    </div>
+    <h1 class="tracker-title">Công cụ Theo dõi Vị trí</h1>
     
     <div class="tracker-card">
         <h2 class="card-title">Tạo Link Mới</h2>
-        <form method="POST" action="" class="create-link-form">
+        <form method="POST" action="">
             {% csrf_token %}
             <input type="url" name="url" placeholder="Dán đường dẫn gốc vào đây..." required>
             <button type="submit">Tạo Link</button>
@@ -361,53 +276,119 @@
         </div>
     </div>
 </div>
-
-<!-- Modal Hướng dẫn -->
-<div id="help-modal" class="help-modal-overlay">
-    <div class="help-modal-card">
-        <button id="help-modal-close-btn" class="help-modal-close-btn">&times;</button>
-        <h3>Hướng dẫn sử dụng</h3>
-        <p><strong>Bước 1: Tạo Link</strong><br>Dán một đường link bất kỳ vào ô "Tạo Link Mới" và nhấn nút "Tạo Link".</p>
-        <p><strong>Bước 2: Gửi Link</strong><br>Sao chép "Link Theo dõi" vừa được tạo và gửi cho người bạn muốn biết vị trí.</p>
-        <p><strong>Bước 3: Theo dõi</strong><br>Khi người nhận nhấp vào link, vị trí của họ <strong>(nếu được cho phép)</strong> sẽ được ghi lại và hiển thị trong bảng "Nhật ký Vị trí". Bảng sẽ tự động cập nhật sau mỗi 5 giây.</p>
-    </div>
-</div>
-
-<footer class="site-footer"> <p>Copyright © 2025 Lequyphat</p> </footer>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // --- Các hàm hiện có (getCookie, copyToClipboard, deleteTrackingLink, updateDashboard, fetchTrackerData) ---
-    function getCookie(name) { /* ... */ }
-    function copyToClipboard(elementId) { /* ... */ }
-    async function deleteTrackingLink(linkId) { /* ... */ }
-    function updateDashboard(linksData) { /* ... */ }
-    async function fetchTrackerData() { /* ... */ }
-    
-    // Tự động làm mới mỗi 5 giây
-    setInterval(fetchTrackerData, 5000);
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
-    // --- LOGIC MỚI CHO MODAL HƯỚNG DẪN ---
-    const helpBtn = document.getElementById('help-btn');
-    const helpModal = document.getElementById('help-modal');
-    const closeModalBtn = document.getElementById('help-modal-close-btn');
-
-    if (helpBtn && helpModal && closeModalBtn) {
-        helpBtn.addEventListener('click', () => {
-            helpModal.classList.add('visible');
+    function copyToClipboard(elementId) {
+        // SỬA LỖI: Lấy nội dung text từ thẻ SPAN bên trong
+        const textToCopy = document.getElementById(elementId).querySelector('span').innerText;
+        
+        // Sử dụng API Clipboard hiện đại và an toàn hơn
+        navigator.clipboard.writeText(textToCopy).then(function() {
+            alert('Đã sao chép link!');
+        }, function(err) {
+            console.error('Không thể sao chép: ', err);
+            alert('Lỗi: Không thể sao chép link.');
         });
+    }
 
-        closeModalBtn.addEventListener('click', () => {
-            helpModal.classList.remove('visible');
-        });
+    async function deleteTrackingLink(linkId) {
+        if (!confirm('Bạn có chắc chắn muốn xóa link theo dõi này không? Mọi dữ liệu nhật ký liên quan cũng sẽ bị xóa vĩnh viễn.')) {
+            return;
+        }
 
-        // Đóng modal khi click ra ngoài
-        helpModal.addEventListener('click', (event) => {
-            if (event.target === helpModal) {
-                helpModal.classList.remove('visible');
+        try {
+            const response = await fetch(`/api/location-tracker/delete/${linkId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                document.getElementById(`history-item-${linkId}`).remove();
+                alert(data.message);
+            } else {
+                alert(data.error || 'Đã có lỗi xảy ra.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa link:', error);
+            alert('Không thể kết nối đến máy chủ.');
+        }
+    }
+
+    function updateDashboard(linksData) {
+        linksData.forEach(link => {
+            const historyItem = document.getElementById(`history-item-${link.id}`);
+            if (!historyItem) return;
+
+            const logCountEl = historyItem.querySelector('.log-count');
+            if (logCountEl) {
+                logCountEl.innerText = link.log_count;
+            }
+
+            const tableBody = historyItem.querySelector(`#log-table-body-${link.id}`);
+            const tableWrapper = historyItem.querySelector('.logs-table-wrapper');
+            const noLogsMsg = historyItem.querySelector('.no-logs-msg');
+
+            if (tableBody) {
+                let newTbodyContent = '';
+                link.logs.forEach(log => {
+                    const latDisplay = typeof log.latitude === 'number' ? log.latitude.toFixed(5) : 'N/A';
+                    const lonDisplay = typeof log.longitude === 'number' ? log.longitude.toFixed(5) : 'N/A';
+                    
+                    newTbodyContent += `
+                        <tr>
+                            <td>${log.timestamp}</td>
+                            <td>${latDisplay}</td>
+                            <td>${lonDisplay}</td>
+                            <td><a href="https://www.google.com/maps?q=${log.latitude},${log.longitude}" target="_blank">Xem</a></td>
+                        </tr>
+                    `;
+                });
+                tableBody.innerHTML = newTbodyContent;
+            }
+            
+            if (link.log_count > 0) {
+                if (tableWrapper) tableWrapper.style.display = 'block';
+                if (noLogsMsg) noLogsMsg.style.display = 'none';
+            } else {
+                if (tableWrapper) tableWrapper.style.display = 'none';
+                if (noLogsMsg) noLogsMsg.style.display = 'block';
             }
         });
     }
+
+    async function fetchTrackerData() {
+        try {
+            const response = await fetch("{% url 'core:api_get_tracker_data' %}");
+            const data = await response.json();
+            if (data.links) {
+                updateDashboard(data.links);
+            }
+        } catch (error) {
+            console.error("Lỗi khi làm mới dữ liệu:", error);
+        }
+    }
+
+    // Tự động làm mới mỗi 5 giây
+    setInterval(fetchTrackerData, 5000);
 </script>
 {% endblock %}
