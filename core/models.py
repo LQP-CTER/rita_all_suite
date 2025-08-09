@@ -55,6 +55,10 @@ class TrackingLink(models.Model):
     original_url = models.URLField(max_length=2000, verbose_name="URL Gốc")
     tracking_id = models.CharField(max_length=15, unique=True, blank=True, verbose_name="ID Theo dõi")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
+    
+    # --- ĐÃ THÊM TRƯỜNG MỚI ---
+    # Trường này sẽ lưu trạng thái `True` nếu người dùng bật tùy chọn "Bắt buộc"
+    require_consent = models.BooleanField(default=False, verbose_name="Bắt buộc cấp quyền")
 
     def save(self, *args, **kwargs):
         if not self.tracking_id:

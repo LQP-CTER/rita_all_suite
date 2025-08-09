@@ -47,7 +47,7 @@
             </div>
 
             <!-- Chế độ chỉnh sửa (ẩn) -->
-            <form id="edit-profile-form" method="post" action="{% url 'profile' %}" class="hidden">
+            <form id="edit-profile-form" method="post" action="{% url 'core:profile_view' %}" class="hidden">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="update_profile">
                 
@@ -63,7 +63,7 @@
         <!-- Card thay đổi mật khẩu -->
         <div class="profile-form-card">
             <h2>Thay đổi mật khẩu</h2>
-            <form method="post" action="{% url 'profile' %}">
+            <form method="post" action="{% url 'core:profile_view' %}">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="change_password">
                 

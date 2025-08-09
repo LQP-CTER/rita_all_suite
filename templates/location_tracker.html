@@ -20,101 +20,19 @@
         body::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 10px; border: 2px solid #1a1a2e; }
         body::-webkit-scrollbar-thumb:hover { background-color: #68d391; }
 
-        /* --- GIAO DIỆN MỚI --- */
+        /* --- GIAO DIỆN CHUNG --- */
         .tracker-container {
             max-width: 1100px;
             margin: 2rem auto;
             padding: 1rem;
         }
 
-        .tracker-title-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2.5rem;
-        }
-
         .tracker-title {
             font-size: 2.8rem;
             font-weight: 700;
             text-align: center;
-            margin: 0;
+            margin-bottom: 2.5rem;
             color: #e0e0e0;
-        }
-
-        /* --- Nút và Modal Hướng dẫn --- */
-        .help-btn {
-            background-color: #3a3a5a;
-            color: #e0e0e0;
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .help-btn:hover {
-            background-color: #4a4a6a;
-        }
-        .help-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-        .help-modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        .help-modal-card {
-            background: #1e1e2e;
-            border: 1px solid #3a3a5a;
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
-        .help-modal-card h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 1.5rem;
-        }
-        .help-modal-card p {
-            color: #a0a0d0;
-            line-height: 1.6;
-            margin-bottom: 1rem;
-        }
-        .help-modal-card strong {
-            color: #68d391;
-        }
-        .help-modal-close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            color: #a0a0d0;
-            font-size: 1.5rem;
-            cursor: pointer;
         }
 
         .tracker-card {
@@ -137,6 +55,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        /* --- FORM TẠO LINK & CÔNG TẮC --- */
         .create-link-form {
             display: flex;
             gap: 1rem;
@@ -170,7 +89,57 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(104, 211, 145, 0.3);
         }
+        .consent-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #3a3a5a;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #34d399;
+        }
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        .consent-toggle label {
+            color: #c0c0e0;
+            cursor: pointer;
+        }
 
+        /* --- DANH SÁCH LỊCH SỬ --- */
         .history-item {
             background-color: #1e1e2e;
             padding: 1.5rem;
@@ -178,9 +147,7 @@
             margin-bottom: 1.5rem;
             border: 1px solid #3a3a5a;
         }
-        .history-item:last-child {
-            margin-bottom: 0;
-        }
+        .history-item:last-child { margin-bottom: 0; }
         .info-header {
             display: flex;
             justify-content: space-between;
@@ -220,9 +187,7 @@
             color: #e0e0e0;
             font-size: 0.9rem;
         }
-        .link-text strong {
-            color: #a0a0d0;
-        }
+        .link-text strong { color: #a0a0d0; }
         .copy-btn {
             padding: 0.4rem 0.8rem;
             background-color: #3a3a5a;
@@ -234,10 +199,13 @@
             flex-shrink: 0;
             transition: background-color 0.2s;
         }
-        .copy-btn:hover {
-            background-color: #4a4a6a;
+        .copy-btn:hover { background-color: #4a4a6a; }
+        .copy-btn.copied {
+            background-color: #34d399;
+            color: #1a1a2e;
         }
 
+        /* --- BẢNG LOGS --- */
         .logs-table-wrapper {
             max-height: 220px;
             overflow-y: auto;
@@ -248,7 +216,6 @@
         .logs-table-wrapper::-webkit-scrollbar { width: 6px; }
         .logs-table-wrapper::-webkit-scrollbar-track { background: transparent; }
         .logs-table-wrapper::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 6px; }
-        
         .logs-table {
             width: 100%;
             font-size: 0.9rem;
@@ -262,60 +229,141 @@
             color: #a0a0d0;
             position: sticky;
             top: 0;
+            z-index: 1;
         }
-        .logs-table tbody tr {
-            border-bottom: 1px solid #3a3a5a;
-        }
-        .logs-table tbody tr:last-child {
-            border-bottom: none;
-        }
+        .logs-table tbody tr { border-bottom: 1px solid #3a3a5a; }
+        .logs-table tbody tr:last-child { border-bottom: none; }
         .logs-table a {
             color: #68d391;
             text-decoration: none;
             font-weight: 500;
         }
-        .logs-table a:hover {
-            text-decoration: underline;
+        .logs-table a:hover { text-decoration: underline; }
+
+        /* --- MODAL XÁC NHẬN --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
         }
+        .modal-overlay:not(.hidden) {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal-content {
+            background: #1e1e2e;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #3a3a5a;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 500px;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay:not(.hidden) .modal-content { transform: scale(1); }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #3a3a5a;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            color: #e0e0e0;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #a0a0d0;
+            cursor: pointer;
+        }
+        .modal-body {
+            color: #c0c0e0;
+            margin-bottom: 2rem;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        .modal-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary {
+            background-color: #4a4a6a;
+            color: #e0e0e0;
+        }
+        .btn-secondary:hover { background-color: #5a5a7a; }
+        .btn-danger {
+            background-color: #e53e3e;
+            color: #fff;
+        }
+        .btn-danger:hover { background-color: #c53030; }
+
+        /* --- UTILITY --- */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .italic { font-style: italic; }
     </style>
 {% endblock %}
 
 {% block content %}
 <div class="tracker-container">
-    <div class="tracker-title-wrapper">
-        <h1 class="tracker-title">Công cụ Theo dõi Vị trí</h1>
-        <button id="help-btn" class="help-btn" aria-label="Hướng dẫn">?</button>
-    </div>
+    <h1 class="tracker-title">Công cụ Theo dõi Vị trí</h1>
     
     <div class="tracker-card">
         <h2 class="card-title">Tạo Link Mới</h2>
-        <form method="POST" action="" class="create-link-form">
+        <form id="create-link-form" method="POST" action="{% url 'core:location_tracker_dashboard' %}" class="create-link-form">
             {% csrf_token %}
             <input type="url" name="url" placeholder="Dán đường dẫn gốc vào đây..." required>
             <button type="submit">Tạo Link</button>
         </form>
+        <div class="consent-toggle">
+            <label class="switch">
+                <input type="checkbox" name="require_consent" form="create-link-form">
+                <span class="slider"></span>
+            </label>
+            <label>Bắt buộc cấp quyền vị trí để tiếp tục</label>
+        </div>
     </div>
 
     <div class="tracker-card">
         <h2 class="card-title">Lịch sử Links</h2>
-        <div class="history-list">
+        <div id="history-list" class="history-list">
             {% for link in links %}
             <div class="history-item" id="history-item-{{ link.id }}">
                 <div class="info-header">
                     <p class="info-text">Tạo lúc: {{ link.created_at|date:"H:i, d/m/Y" }}</p>
-                    <button class="delete-btn" onclick="deleteTrackingLink({{ link.id }})">Xóa</button>
+                    <button class="delete-btn" data-link-id="{{ link.id }}">Xóa</button>
                 </div>
                 <div class="link-display">
-                    <p class="link-text"><strong>Gốc:</strong> <a href="{{ link.original_url }}" target="_blank" class="text-blue-400 hover:underline">{{ link.original_url }}</a></p>
+                    <p class="link-text"><strong>Gốc:</strong> <a href="{{ link.original_url }}" target="_blank">{{ link.original_url }}</a></p>
                 </div>
                 <div class="link-display">
-                    <p id="link-{{ link.tracking_id }}" class="link-text"><strong>Theo dõi:</strong> <span class="text-green-400">{{ base_url }}t/{{ link.tracking_id }}/</span></p>
-                    <button onclick="copyToClipboard('link-{{ link.tracking_id }}')" class="copy-btn">Copy</button>
+                    {% with full_tracking_url=base_url|add:'t/'|add:link.tracking_id|add:'/' %}
+                    <p class="link-text"><strong>Theo dõi:</strong> <span>{{ full_tracking_url }}</span></p>
+                    <button class="copy-btn" data-link="{{ full_tracking_url }}">Copy</button>
+                    {% endwith %}
                 </div>
                 
-                <h3 class="font-semibold text-gray-300 mt-4 mb-2">Nhật ký Vị trí (<span class="log-count">{{ link.logs.count }}</span> lượt):</h3>
-                {% if link.logs.all %}
-                <div class="logs-table-wrapper">
+                <h3 class="logs-title">Nhật ký Vị trí (<span class="log-count">{{ link.logs.count }}</span> lượt):</h3>
+                <div class="logs-table-wrapper {% if not link.logs.all %}hidden{% endif %}">
                     <table class="logs-table">
                         <thead>
                             <tr>
@@ -337,23 +385,7 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="info-text italic no-logs-msg" style="display: none;">Chưa có lượt click nào.</p>
-                {% else %}
-                <div class="logs-table-wrapper" style="display: none;">
-                     <table class="logs-table">
-                        <thead>
-                            <tr>
-                                <th>Thời gian</th>
-                                <th>Vĩ độ</th>
-                                <th>Kinh độ</th>
-                                <th>Bản đồ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="log-table-body-{{ link.id }}"></tbody>
-                    </table>
-                </div>
-                <p class="info-text italic no-logs-msg">Chưa có lượt click nào.</p>
-                {% endif %}
+                <p class="info-text italic no-logs-msg {% if link.logs.all %}hidden{% endif %}">Chưa có lượt click nào.</p>
             </div>
             {% empty %}
             <p id="no-links-msg" class="info-text text-center">Chưa có link nào được tạo.</p>
@@ -362,14 +394,20 @@
     </div>
 </div>
 
-<!-- Modal Hướng dẫn -->
-<div id="help-modal" class="help-modal-overlay">
-    <div class="help-modal-card">
-        <button id="help-modal-close-btn" class="help-modal-close-btn">&times;</button>
-        <h3>Hướng dẫn sử dụng</h3>
-        <p><strong>Bước 1: Tạo Link</strong><br>Dán một đường link bất kỳ vào ô "Tạo Link Mới" và nhấn nút "Tạo Link".</p>
-        <p><strong>Bước 2: Gửi Link</strong><br>Sao chép "Link Theo dõi" vừa được tạo và gửi cho người bạn muốn biết vị trí.</p>
-        <p><strong>Bước 3: Theo dõi</strong><br>Khi người nhận nhấp vào link, vị trí của họ <strong>(nếu được cho phép)</strong> sẽ được ghi lại và hiển thị trong bảng "Nhật ký Vị trí". Bảng sẽ tự động cập nhật sau mỗi 5 giây.</p>
+<!-- Modal xác nhận xóa -->
+<div id="delete-confirm-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Xác nhận Xóa</h3>
+            <button id="modal-close-btn" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Bạn có chắc chắn muốn xóa link theo dõi này không? Mọi dữ liệu nhật ký liên quan cũng sẽ bị xóa vĩnh viễn.</p>
+        </div>
+        <div class="modal-footer">
+            <button id="modal-cancel-btn" class="modal-btn btn-secondary">Hủy</button>
+            <button id="modal-confirm-delete-btn" class="modal-btn btn-danger">Xóa</button>
+        </div>
     </div>
 </div>
 
@@ -378,36 +416,226 @@
 
 {% block extra_js %}
 <script>
-    // --- Các hàm hiện có (getCookie, copyToClipboard, deleteTrackingLink, updateDashboard, fetchTrackerData) ---
-    function getCookie(name) { /* ... */ }
-    function copyToClipboard(elementId) { /* ... */ }
-    async function deleteTrackingLink(linkId) { /* ... */ }
-    function updateDashboard(linksData) { /* ... */ }
-    async function fetchTrackerData() { /* ... */ }
-    
-    // Tự động làm mới mỗi 5 giây
-    setInterval(fetchTrackerData, 5000);
+document.addEventListener('DOMContentLoaded', function () {
+    // --- Helper Functions ---
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
-    // --- LOGIC MỚI CHO MODAL HƯỚNG DẪN ---
-    const helpBtn = document.getElementById('help-btn');
-    const helpModal = document.getElementById('help-modal');
-    const closeModalBtn = document.getElementById('help-modal-close-btn');
+    // --- Modal Handling ---
+    const modal = document.getElementById('delete-confirm-modal');
+    const confirmDeleteBtn = document.getElementById('modal-confirm-delete-btn');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+    const closeBtn = document.getElementById('modal-close-btn');
 
-    if (helpBtn && helpModal && closeModalBtn) {
-        helpBtn.addEventListener('click', () => {
-            helpModal.classList.add('visible');
-        });
+    function showModal() {
+        if(modal) modal.classList.remove('hidden');
+    }
 
-        closeModalBtn.addEventListener('click', () => {
-            helpModal.classList.remove('visible');
-        });
+    function hideModal() {
+        if(modal) modal.classList.add('hidden');
+    }
 
-        // Đóng modal khi click ra ngoài
-        helpModal.addEventListener('click', (event) => {
-            if (event.target === helpModal) {
-                helpModal.classList.remove('visible');
+    if(modal) {
+        cancelBtn.addEventListener('click', hideModal);
+        closeBtn.addEventListener('click', hideModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                hideModal();
             }
         });
     }
+
+    // --- Core Logic ---
+    function initEventListeners() {
+        const historyList = document.getElementById('history-list');
+
+        if (historyList) {
+            historyList.addEventListener('click', function(event) {
+                const target = event.target;
+
+                // Copy Button
+                if (target.classList.contains('copy-btn')) {
+                    const linkToCopy = target.dataset.link;
+                    navigator.clipboard.writeText(linkToCopy).then(() => {
+                        const originalText = target.textContent;
+                        target.textContent = 'Đã chép!';
+                        target.classList.add('copied');
+                        setTimeout(() => {
+                            target.textContent = originalText;
+                            target.classList.remove('copied');
+                        }, 2000);
+                    });
+                }
+
+                // Delete Button
+                if (target.classList.contains('delete-btn')) {
+                    const linkId = target.dataset.linkId;
+                    if (confirmDeleteBtn) {
+                        confirmDeleteBtn.dataset.linkId = linkId;
+                        showModal();
+                    }
+                }
+            });
+        }
+    }
+
+    // Attach listener to the confirm delete button
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async function() {
+            const linkId = this.dataset.linkId;
+            if (!linkId) return;
+
+            try {
+                const response = await fetch(`/api/location-tracker/delete/${linkId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    const itemToRemove = document.getElementById(`history-item-${linkId}`);
+                    if(itemToRemove) itemToRemove.remove();
+                } else {
+                    console.error(data.error || 'Đã có lỗi xảy ra.');
+                }
+            } catch (error) {
+                console.error('Lỗi khi xóa link:', error);
+            } finally {
+                hideModal();
+            }
+        });
+    }
+    
+    // --- Real-time Data Fetching ---
+    async function fetchTrackerData() {
+        try {
+            const response = await fetch("{% url 'core:api_get_tracker_data' %}");
+            if (!response.ok) return;
+            const data = await response.json();
+            if (data.links) {
+                updateDashboard(data.links);
+            }
+        } catch (error) {
+            // console.error("Lỗi khi làm mới dữ liệu:", error);
+        }
+    }
+
+    function updateDashboard(linksData) {
+        const historyList = document.getElementById('history-list');
+        const noLinksMsg = document.getElementById('no-links-msg');
+
+        if (!historyList) return;
+
+        if (linksData.length > 0 && noLinksMsg) {
+            noLinksMsg.classList.add('hidden');
+        } else if (linksData.length === 0 && noLinksMsg) {
+            noLinksMsg.classList.remove('hidden');
+        }
+
+        linksData.forEach(link => {
+            let historyItem = document.getElementById(`history-item-${link.id}`);
+            
+            if (!historyItem) {
+                const newLinkHtml = `
+                    <div class="history-item" id="history-item-${link.id}">
+                        <div class="info-header">
+                            <p class="info-text">Tạo lúc: ${link.created_at}</p>
+                            <button class="delete-btn" data-link-id="${link.id}">Xóa</button>
+                        </div>
+                        <div class="link-display">
+                            <p class="link-text"><strong>Gốc:</strong> <a href="${link.original_url}" target="_blank">${link.original_url}</a></p>
+                        </div>
+                        <div class="link-display">
+                            <p class="link-text"><strong>Theo dõi:</strong> <span>${link.full_tracking_url}</span></p>
+                            <button class="copy-btn" data-link="${link.full_tracking_url}">Copy</button>
+                        </div>
+                        <h3 class="logs-title">Nhật ký Vị trí (<span class="log-count">0</span> lượt):</h3>
+                        <div class="logs-table-wrapper hidden">
+                            <table class="logs-table">
+                                <thead>
+                                    <tr><th>Thời gian</th><th>Vĩ độ</th><th>Kinh độ</th><th>Bản đồ</th></tr>
+                                </thead>
+                                <tbody id="log-table-body-${link.id}"></tbody>
+                            </table>
+                        </div>
+                        <p class="info-text italic no-logs-msg">Chưa có lượt click nào.</p>
+                    </div>`;
+                historyList.insertAdjacentHTML('afterbegin', newLinkHtml);
+                historyItem = document.getElementById(`history-item-${link.id}`);
+            }
+
+            const logCountEl = historyItem.querySelector('.log-count');
+            if (logCountEl) logCountEl.innerText = link.log_count;
+
+            const tableBody = historyItem.querySelector(`#log-table-body-${link.id}`);
+            const tableWrapper = historyItem.querySelector('.logs-table-wrapper');
+            const noLogsMsgItem = historyItem.querySelector('.no-logs-msg');
+
+            if (tableBody) {
+                let newTbodyContent = '';
+                link.logs.forEach(log => {
+                    newTbodyContent += `
+                        <tr>
+                            <td>${log.timestamp}</td>
+                            <td>${log.latitude.toFixed(5)}</td>
+                            <td>${log.longitude.toFixed(5)}</td>
+                            <td><a href="https://www.google.com/maps?q=${log.latitude},${log.longitude}" target="_blank">Xem</a></td>
+                        </tr>`;
+                });
+                tableBody.innerHTML = newTbodyContent;
+            }
+            
+            if (link.log_count > 0) {
+                if (tableWrapper) tableWrapper.classList.remove('hidden');
+                if (noLogsMsgItem) noLogsMsgItem.classList.add('hidden');
+            } else {
+                if (tableWrapper) tableWrapper.classList.add('hidden');
+                if (noLogsMsgItem) noLogsMsgItem.classList.remove('hidden');
+            }
+        });
+    }
+
+    // --- Form Submission ---
+    const createLinkForm = document.getElementById('create-link-form');
+    if(createLinkForm) {
+        createLinkForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: new URLSearchParams(formData),
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                });
+                if(response.ok) {
+                    this.reset();
+                    fetchTrackerData();
+                }
+            } catch (error) {
+                console.error("Lỗi khi tạo link:", error);
+            }
+        });
+    }
+
+    // --- Initial Load ---
+    initEventListeners();
+    setInterval(fetchTrackerData, 5000);
+});
 </script>
 {% endblock %}

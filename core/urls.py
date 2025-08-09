@@ -1,3 +1,5 @@
+# D:\LQP\Code\Python\Rita_All_Django\core\urls.py
+
 from django.urls import path
 from . import views
 
@@ -9,6 +11,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login_view'),
     path('logout/', views.logout_view, name='logout_view'),
+    # Đã sửa lỗi: đổi tên từ 'profile' thành 'profile_view' để khớp với base.html
     path('profile/', views.profile_view, name='profile_view'),
     path('about/', views.about_view, name='about_view'),
     

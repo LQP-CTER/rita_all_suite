@@ -7,8 +7,45 @@
     <title>RITA - Đăng nhập & Đăng ký</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
+    <style>
+        /* CSS cho khu vực hiển thị thông báo */
+        .messages-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            width: 90%;
+            max-width: 500px;
+        }
+        .message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            color: #fff;
+            text-align: center;
+        }
+        .message.success {
+            background-color: #28a745;
+        }
+        .message.error {
+            background-color: #dc3545;
+        }
+        .message.info {
+            background-color: #17a2b8;
+        }
+    </style>
 </head>
 <body>
+    <!-- Khu vực hiển thị thông báo -->
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <section class="user">
         <div class="user_options-container">
             <div class="user_options-text">
@@ -28,7 +65,6 @@
                 <!-- Form Đăng nhập -->
                 <div class="user_forms-login">
                     <h2 class="forms_title">Đăng nhập</h2>
-                    <!-- SỬA LỖI: Cập nhật action URL với namespace 'core' và đúng tên view -->
                     <form class="forms_form" method="post" action="{% url 'core:login_view' %}">
                         {% csrf_token %}
                         <fieldset class="forms_fieldset">
@@ -41,34 +77,24 @@
                         <div class="forms_buttons">
                             <button type="submit" class="forms_buttons-action">Đăng nhập</button>
                         </div>
-                        {% if login_form.non_field_errors %}
-                            <div class="message-container message error">{{ login_form.non_field_errors.0 }}</div>
-                        {% endif %}
                     </form>
                 </div>
 
                 <!-- Form Đăng ký -->
                 <div class="user_forms-signup">
                     <h2 class="forms_title">Đăng ký</h2>
-                    <!-- SỬA LỖI: Cập nhật action URL với namespace 'core' -->
                     <form class="forms_form" method="post" action="{% url 'core:register' %}">
                         {% csrf_token %}
                         <fieldset class="forms_fieldset">
                              {% for field in registration_form %}
                                  <div class="forms_field">
                                      {{ field }}
-                                     {% if field.errors %}
-                                         <div class="field-error">{{ field.errors.0 }}</div>
-                                     {% endif %}
                                  </div>
                              {% endfor %}
                         </fieldset>
                         <div class="forms_buttons">
                             <button type="submit" class="forms_buttons-action">Tạo tài khoản</button>
                         </div>
-                         {% if registration_form.non_field_errors %}
-                             <div class="message-container message error">{{ registration_form.non_field_errors.0 }}</div>
-                         {% endif %}
                     </form>
                 </div>
             </div>
