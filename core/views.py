@@ -1,3 +1,4 @@
+# File: Rita_All_Django/core/views.py
 import json
 import logging
 import threading
@@ -159,14 +160,32 @@ def perform_analysis_in_background(video_pk):
 @require_POST
 def api_chat(request):
     try:
-        data = json.loads(request.body)
-        user_input = data.get('message')
-        search_web = data.get('search_web', True)
-        if not user_input:
-            return JsonResponse({'error': 'Message is required'}, status=400)
-        ChatHistory.objects.create(user=request.user, role='user', content=user_input)
-        response_text = get_gemini_response(user_input, user=request.user, search_web=search_web)
+        # Handle multipart/form-data
+        user_input = request.POST.get('message', '')
+        search_web = request.POST.get('search_web', 'true').lower() == 'true'
+        uploaded_files = request.FILES.getlist('files')
+
+        if not user_input and not uploaded_files:
+            return JsonResponse({'error': 'Message or file is required'}, status=400)
+            
+        # Create user message in history
+        history_content = user_input
+        if uploaded_files:
+            file_names = ", ".join([f.name for f in uploaded_files])
+            history_content += f"\n(Đã đính kèm: {file_names})"
+        ChatHistory.objects.create(user=request.user, role='user', content=history_content.strip())
+
+        # Process files and get response from AI
+        response_text = get_gemini_response(
+            user_input=user_input,
+            user=request.user,
+            files=uploaded_files, # Pass files to the AI utility
+            search_web=search_web
+        )
+        
+        # Create bot response in history
         ChatHistory.objects.create(user=request.user, role='model', content=response_text)
+        
         return JsonResponse({'response': response_text})
     except Exception as e:
         logger.error(f"Lỗi trong api_chat: {e}")

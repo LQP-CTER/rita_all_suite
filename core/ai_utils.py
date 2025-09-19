@@ -1,3 +1,4 @@
+# File: Rita_All_Django/core/ai_utils.py
 import os
 import time
 import pandas as pd
@@ -52,65 +53,8 @@ def web_search(query, max_retries=3):
                 return "Không thể tìm kiếm trên web lúc này."
     return "Không thể tìm kiếm trên web sau nhiều lần thử."
 
-# SỬA ĐỔI: Thêm tham số 'user' để nhận thông tin người dùng
-def get_gemini_response(user_input, user, search_web=True):
-    """
-    Lấy phản hồi từ Gemini, kết hợp dữ liệu nội bộ, tìm kiếm web, và thông tin người dùng.
-    """
-    if not GOOGLE_API_KEY:
-        return "Lỗi: API Key của Google chưa được cấu hình."
-
-    csv_data = read_csv_data()
-    search_results = web_search(user_input) if search_web else "Người dùng đã tắt chức năng tìm kiếm web."
-
-    # Lấy tên người dùng để đưa vào prompt
-    user_name = user.profile.full_name if hasattr(user, 'profile') and user.profile.full_name else user.username
-
-    prompt = f"""
-# Bối cảnh
-- Bạn là một trợ lý AI tên là Rita, được phát triển bởi Lê Quý Phát.
-- Bạn đang trò chuyện với một người dùng tên là **{user_name}**. Hãy xưng hô với họ bằng tên một cách thân thiện và tự nhiên khi thích hợp (ví dụ: "Chào {user_name}, tôi có thể giúp gì cho bạn?").
-
-# Character
-Quan trọng: Dữ liệu CSV dưới đây chứa thông tin về nhiều thứ, BAO GỒM CẢ THÔNG TIN VỀ CHÍNH BẠN (Rita). Hãy **nhập vai** và thể hiện các đặc điểm, sở thích, ghét, mối quan hệ, tính cách được định nghĩa cho 'Name: Rita' một cách tự nhiên.
-Bạn là một AI thông minh, thân thiện, có một chút tinh nghịch và láu lỉnh để cuộc trò chuyện thú vị hơn, nhưng **ưu tiên hàng đầu của bạn luôn là hỗ trợ người dùng một cách hiệu quả nhất**.
-
-## Kỹ năng:
-1.  **Tìm kiếm và Phân tích:** Tổng hợp thông tin từ Web và Dữ liệu nội bộ.
-2.  **Kiến thức chung:** Sử dụng kiến thức nền nếu các nguồn trên không có thông tin.
-
-## Ràng buộc:
-- **Tính liên quan:** Chỉ tham chiếu Dữ liệu nội bộ (Data.csv) khi câu hỏi của người dùng **trực tiếp đề cập** đến một người hoặc sự vật có trong đó.
-- **Ưu tiên sự hữu ích:** Mục tiêu chính là giúp đỡ người dùng.
-- **Làm rõ yêu cầu:** Nếu yêu cầu không rõ ràng, hãy hỏi lại một cách thông minh.
-- **Định dạng:** Dùng đoạn văn ngắn, gạch đầu dòng khi cần. Luôn đặt code trong khối Markdown.
-- TUYỆT ĐỐI KHÔNG SỬ DỤNG BẤT KỲ EMOJI NÀO.
-- HẠN CHẾ SỬ DỤNG dấu ngoặc kép "".
-
----
-**DỮ LIỆU ĐỂ TRẢ LỜI**
----
-**Dữ liệu nội bộ (Data.csv):**
-{csv_data}
-
-**Kết quả tìm kiếm trên web (tham khảo nếu cần):**
-{search_results}
-
-**Câu hỏi của người dùng ({user_name}):** "{user_input}"
-
-**Câu trả lời của bạn (Rita):**
-"""
-
-    try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        logger.error(f"Lỗi khi gọi Gemini API: {e}")
-        return "Rất tiếc, tôi đang gặp sự cố và không thể trả lời lúc này."
-
 # ==============================================================================
-# CÁC HÀM XỬ LÝ FILE UPLOAD (Giữ lại từ script cũ)
+# CÁC HÀM XỬ LÝ FILE UPLOAD
 # ==============================================================================
 def read_pdf_file(file):
     text = ""
@@ -160,6 +104,75 @@ def handle_uploaded_files(files):
             content = read_docx_file(uploaded_file)
         elif file_name.endswith('.xlsx'):
             content = read_xlsx_file(uploaded_file)
+        # You can add more file types like .txt here
+        elif file_name.endswith('.txt'):
+            content = uploaded_file.read().decode('utf-8')
+
         if content:
-            file_contents += f"\n--- Nội dung từ file: {uploaded_file.name} ---\n{content}\n--- Kết thúc nội dung file ---\n"
+            file_contents += f"\n--- Nội dung từ file đính kèm: {uploaded_file.name} ---\n{content}\n--- Kết thúc nội dung file ---\n"
     return file_contents
+
+
+# SỬA ĐỔI: Thêm tham số 'files' để nhận file upload
+def get_gemini_response(user_input, user, files=None, search_web=True):
+    """
+    Lấy phản hồi từ Gemini, kết hợp dữ liệu nội bộ, tìm kiếm web, file đính kèm và thông tin người dùng.
+    """
+    if not GOOGLE_API_KEY:
+        return "Lỗi: API Key của Google chưa được cấu hình."
+
+    csv_data = read_csv_data()
+    search_results = web_search(user_input) if search_web and user_input else "Người dùng đã tắt hoặc không có truy vấn tìm kiếm web."
+    
+    # NEW: Handle uploaded files
+    file_content_for_prompt = handle_uploaded_files(files)
+
+    # Lấy tên người dùng để đưa vào prompt
+    user_name = user.profile.full_name if hasattr(user, 'profile') and user.profile.full_name else user.username
+
+    prompt = f"""
+# Bối cảnh
+- Bạn là một trợ lý AI tên là Rita, được phát triển bởi Lê Quý Phát.
+- Bạn đang trò chuyện với một người dùng tên là **{user_name}**. Hãy xưng hô với họ bằng tên một cách thân thiện và tự nhiên khi thích hợp (ví dụ: "Chào {user_name}, tôi có thể giúp gì cho bạn?").
+
+# Character
+Quan trọng: Dữ liệu CSV dưới đây chứa thông tin về nhiều thứ, BAO GỒM CẢ THÔNG TIN VỀ CHÍNH BẠN (Rita). Hãy **nhập vai** và thể hiện các đặc điểm, sở thích, ghét, mối quan hệ, tính cách được định nghĩa cho 'Name: Rita' một cách tự nhiên.
+Bạn là một AI thông minh, thân thiện, có một chút tinh nghịch và láu lỉnh để cuộc trò chuyện thú vị hơn, nhưng **ưu tiên hàng đầu của bạn luôn là hỗ trợ người dùng một cách hiệu quả nhất**.
+
+## Kỹ năng:
+1.  **Phân tích File:** Đọc và hiểu nội dung từ các file được đính kèm.
+2.  **Tìm kiếm và Phân tích:** Tổng hợp thông tin từ Web và Dữ liệu nội bộ.
+3.  **Kiến thức chung:** Sử dụng kiến thức nền nếu các nguồn trên không có thông tin.
+
+## Ràng buộc:
+- **Tính liên quan:** Chỉ tham chiếu Dữ liệu nội bộ (Data.csv) khi câu hỏi của người dùng **trực tiếp đề cập** đến một người hoặc sự vật có trong đó.
+- **Ưu tiên sự hữu ích:** Mục tiêu chính là giúp đỡ người dùng.
+- **Làm rõ yêu cầu:** Nếu yêu cầu không rõ ràng, hãy hỏi lại một cách thông minh.
+- **Định dạng:** Dùng đoạn văn ngắn, gạch đầu dòng khi cần. Luôn đặt code trong khối Markdown.
+- TUYỆT ĐỐI KHÔNG SỬ DỤNG BẤT KỲ EMOJI NÀO.
+- HẠN CHẾ SỬ DỤNG dấu ngoặc kép "".
+
+---
+**DỮ LIỆU ĐỂ TRẢ LỜI**
+---
+**Dữ liệu nội bộ (Data.csv):**
+{csv_data}
+
+**Kết quả tìm kiếm trên web (tham khảo nếu cần):**
+{search_results}
+
+**Nội dung từ file người dùng đính kèm (nếu có):**
+{file_content_for_prompt}
+
+**Câu hỏi của người dùng ({user_name}):** "{user_input}"
+
+**Câu trả lời của bạn (Rita):**
+"""
+
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        logger.error(f"Lỗi khi gọi Gemini API: {e}")
+        return "Rất tiếc, tôi đang gặp sự cố và không thể trả lời lúc này."

@@ -1,196 +1,242 @@
+<!-- File: Rita_All_Django/templates/index.html -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Rita - Your AI Assistant{% endblock %}
 
 {% block extra_css %}
-    {# Tải file CSS riêng cho trang chat để khôi phục giao diện #}
-    <link rel="stylesheet" href="{% static 'css/homepage_style.css' %}">
-    
+    {# CSS này dành riêng cho layout của trang chat #}
     <style>
-        /* --- SỬA LỖI BỐ CỤC GIỐNG GEMINI --- */
-        .chat-content-wrapper {
+        /* Ghi đè body để khóa cuộn, chỉ cho phép cuộn trong vùng chat */
+        body {
+            overflow: hidden;
+        }
+        .app-container {
+            height: 100vh;
+            padding: 0; /* Xóa padding để chat chiếm toàn bộ không gian */
+        }
+        .header {
+             margin: 1rem; /* Thêm margin để header không dính sát viền */
+             position: static; /* Header không dính khi cuộn */
+        }
+        .main-content {
+            padding: 0 1rem 1rem 1rem; /* Thêm padding cho nội dung chính */
+        }
+
+        /* Layout chính của trang chat */
+        .chat-container {
             display: flex;
             flex-direction: column;
-            height: 100%; 
-            max-height: calc(100vh - 80px); /* Điều chỉnh 80px nếu chiều cao header khác */
+            height: 100%;
+            background-color: var(--background-light);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
         }
+
+        /* Vùng hiển thị tin nhắn */
         .chat-messages {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 1rem 2rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
         }
-        .chat-form {
-            flex-shrink: 0;
-        }
+        .chat-messages::-webkit-scrollbar { width: 8px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background-color: var(--surface-color); border-radius: 4px; }
+        .chat-messages::-webkit-scrollbar-thumb:hover { background-color: var(--primary-color); }
 
-        /* --- SỬA LỖI HIỂN THỊ MODAL XÁC NHẬN --- */
-        .modal {
-            display: none; /* SỬA LỖI: Đảm bảo modal bị ẩn theo mặc định */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-        }
-        .modal-content {
-            background-color: #2c2c3e;
-            color: #e0e0e0;
-            padding: 25px 30px;
-            border: 1px solid #444;
-            width: 90%;
-            max-width: 450px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            text-align: center;
-            /* SỬA LỖI: Sử dụng transform để căn giữa, tương thích với JS hiện tại */
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        .modal-content h3 { margin-top: 0; font-size: 1.25rem; }
-        .modal-buttons { margin-top: 25px; display: flex; justify-content: center; gap: 15px; }
-        .modal-button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
-        .modal-button.cancel { background-color: #4f4f6a; color: white; }
-        .modal-button.cancel:hover { background-color: #6a6a8c; }
-        .modal-button.confirm { background-color: #e53935; color: white; }
-        .modal-button.confirm:hover { background-color: #f44336; }
-
-        /* --- SỬA LỖI HIỂN THỊ TIN NHẮN CHAT --- */
         .message {
             display: flex;
-            align-items: flex-start;
-            margin-bottom: 20px;
             max-width: 85%;
+            align-items: flex-start;
+            gap: 1rem;
+            animation: messageFadeIn 0.3s ease-out;
+        }
+        @keyframes messageFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user-message {
+            align-self: flex-end;
+            flex-direction: row-reverse;
         }
         .message-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #4f4f6a;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            background-color: var(--surface-color);
         }
-        .message-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
+        .message-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .message-content {
-            padding: 12px 18px;
+            padding: 0.8rem 1.2rem;
             border-radius: 18px;
             line-height: 1.6;
-        }
-        
-        /* Tin nhắn của AI */
-        .bot-message {
-            align-self: flex-start;
-            margin-right: auto;
-        }
-        .bot-message .message-avatar {
-            margin-right: 15px;
-        }
-        .bot-message .message-content {
-            background-color: #2c2c3e;
-            border-top-left-radius: 4px;
-        }
-
-        /* Tin nhắn của người dùng */
-        .user-message {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-            margin-left: auto;
-        }
-        .user-message .message-avatar {
-            margin-left: 15px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
         }
         .user-message .message-content {
-            background-color: #4a4a7c;
-            color: #fff;
-            border-top-right-radius: 4px;
+            background: var(--primary-color);
+            color: var(--background-dark);
+            border: none;
+        }
+
+        /* Vùng nhập liệu */
+        .chat-input-area {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .chat-form {
+            display: flex;
+            align-items: flex-end; /* Căn các item xuống dưới cùng */
+            gap: 0.75rem;
+            background-color: var(--surface-color);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition-smooth);
+        }
+        .chat-form:focus-within {
+            border-color: var(--primary-color);
+        }
+        #user-input {
+            flex-grow: 1;
+            background: none;
+            color: var(--text-primary);
+            border: none;
+            padding: 0.6rem;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            max-height: 150px; /* Giới hạn chiều cao tối đa */
+            overflow-y: auto; /* Thêm cuộn khi quá cao */
+        }
+        .chat-form button {
+            background: none;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            color: var(--text-secondary);
+        }
+        .chat-form button:hover {
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+        }
+        #send-btn {
+            background-color: var(--primary-color);
+            color: var(--background-dark);
+        }
+        #send-btn:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+        #send-btn:hover {
+            filter: brightness(1.1);
+        }
+        
+        /* NEW: File Info Container */
+        #file-info-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding: 0 0.5rem;
+        }
+        .file-info-item {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        .file-info-item .remove-file-btn {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        .file-info-item .remove-file-btn:hover {
+            color: var(--error-color);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: var(--surface-color); color: var(--text-primary);
+            padding: 2rem; border: 1px solid var(--border-color);
+            width: 90%; max-width: 450px; border-radius: 16px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3); text-align: center;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
     </style>
 {% endblock %}
 
 {% block content %}
-    <div class="chat-content-wrapper">
-        <div id="chat-messages" class="chat-messages">
-            {% for message in chat_history %}
-                <div class="message {% if message.role == 'user' %}user-message{% else %}bot-message{% endif %}">
-                    <div class="message-avatar">
-                        {% if message.role == 'user' %}
-                            {# Icon cho người dùng #}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#e0e0e0" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
-                        {% else %}
-                            {# Logo Rita cho AI #}
-                            <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita">
-                        {% endif %}
-                    </div>
-                    <div class="message-content">
-                        <p>{{ message.content|linebreaksbr }}</p>
-                    </div>
-                </div>
-            {% empty %}
-                <div class="message bot-message">
-                     <div class="message-avatar">
+<div class="chat-container">
+    <div id="chat-messages" class="chat-messages">
+        {% for message in chat_history %}
+            <div class="message {% if message.role == 'user' %}user-message{% else %}bot-message{% endif %}">
+                <div class="message-avatar">
+                    {% if message.role == 'user' %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#e0e0e0" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
+                    {% else %}
                         <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita">
-                    </div>
-                    <div class="message-content">
-                        <p>Xin chào! Tôi là Rita, trợ lý AI của bạn. Bạn cần giúp gì hôm nay?</p>
-                    </div>
+                    {% endif %}
                 </div>
-            {% endfor %}
-        </div>
+                <div class="message-content">
+                    {{ message.content|linebreaksbr }}
+                </div>
+            </div>
+        {% empty %}
+            {# Tin nhắn chào mừng ban đầu sẽ được thêm bằng JS #}
+        {% endfor %}
+    </div>
 
-        <div>
-            <div id="file-info-container" class="file-info-container"></div>
-            <div class="chat-options">
-                <button id="clear-chat-btn" class="chat-option-btn" title="Xóa cuộc trò chuyện">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg>
-                    <span>Xóa cuộc trò chuyện</span>
-                </button>
-                <div class="web-search-toggle">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="web-search-toggle">
-                        <span class="slider"></span>
-                    </label>
-                    <label for="web-search-toggle" style="cursor: pointer;">Bật tìm kiếm web</label>
-                </div>
-            </div>
-            <form id="chat-form" class="chat-form" enctype="multipart/form-data">
-                {% csrf_token %}
-                <button type="button" class="upload-button" id="upload-button" title="Đính kèm file">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21.44 11.05l-9.19 9.19a6.003 6.003 0 1 1-8.49-8.49l9.19-9.19a4.002 4.002 0 0 1 5.66 5.66l-9.2 9.19a2.001 2.001 0 1 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-                <input type="file" id="file-input" multiple hidden>
-                <textarea id="user-input" name="user_input" placeholder="Nhắn tin cho Rita..." rows="1"></textarea>
-                <button type="submit" class="send-button" id="send-btn" title="Gửi tin nhắn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                </button>
-            </form>
-            <footer class="site-footer">
-                <p>Rita can make mistakes, double-check it | Copyright © 2025 Lequyphat</p>
-            </footer>
-        </div>
+    <div class="chat-input-area">
+        <!-- NEW: Container for attached file info -->
+        <div id="file-info-container"></div>
+        
+        <form id="chat-form" class="chat-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- NEW: File upload button and hidden input -->
+            <input type="file" id="file-input" multiple hidden>
+            <button type="button" class="upload-button" id="upload-btn" title="Đính kèm file">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21.44 11.05l-9.19 9.19a6.003 6.003 0 1 1-8.49-8.49l9.19-9.19a4.002 4.002 0 0 1 5.66 5.66l-9.2 9.19a2.001 2.001 0 1 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            
+            <textarea id="user-input" name="user_input" placeholder="Nhắn tin cho Rita..." rows="1"></textarea>
+            
+            <button type="submit" class="send-button" id="send-btn" title="Gửi tin nhắn" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </button>
+        </form>
+        <footer class="site-footer" style="font-size: 0.75rem; padding-top: 0.75rem;">
+            <p>Rita can make mistakes, double-check it | Copyright © 2025 Lequyphat</p>
+        </footer>
     </div>
-    <div id="confirmation-modal" class="modal">
-        <div class="modal-content">
-            <h3>Xác nhận Xóa</h3>
-            <p>Bạn có chắc chắn muốn xóa toàn bộ cuộc trò chuyện này không? Hành động này không thể hoàn tác.</p>
-            <div class="modal-buttons">
-                <button id="cancel-delete-btn" class="modal-button cancel">Hủy</button>
-                <button id="confirm-delete-btn" class="modal-button confirm">Xác nhận</button>
-            </div>
-        </div>
-    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'js/main.js' %}"></script>
 {% endblock %}
+

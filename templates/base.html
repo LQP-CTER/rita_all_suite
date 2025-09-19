@@ -1,3 +1,4 @@
+<!-- File: Rita_All_Django/templates/base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="vi">
@@ -9,9 +10,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Link to the single, consolidated CSS file -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
     <link rel="icon" href="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" type="image/x-icon">
     
+    <!-- Block for page-specific extra CSS -->
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -29,11 +34,11 @@
                 </a>
                 
                 <nav class="nav-menu-desktop">
-                    <a href="{% url 'core:chat_view' %}" class="nav-link">Chat</a>
-                    <a href="{% url 'core:tiktok_analyzer_view' %}" class="nav-link">TikTok Analyzer</a>
-                    <a href="{% url 'core:location_tracker_dashboard' %}" class="nav-link">Location Tracker</a>
-                    <a href="{% url 'core:web_scraper_view' %}" class="nav-link">Web Scraper</a>
-                    <a href="{% url 'core:about_view' %}" class="nav-link">About</a>
+                    <a href="{% url 'core:chat_view' %}" class="nav-link {% if request.resolver_match.url_name == 'chat_view' %}active{% endif %}">Chat</a>
+                    <a href="{% url 'core:tiktok_analyzer_view' %}" class="nav-link {% if request.resolver_match.url_name == 'tiktok_analyzer_view' %}active{% endif %}">TikTok Analyzer</a>
+                    <a href="{% url 'core:location_tracker_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'location_tracker_dashboard' %}active{% endif %}">Location Tracker</a>
+                    <a href="{% url 'core:web_scraper_view' %}" class="nav-link {% if request.resolver_match.url_name == 'web_scraper_view' %}active{% endif %}">Web Scraper</a>
+                    <a href="{% url 'core:about_view' %}" class="nav-link {% if request.resolver_match.url_name == 'about_view' %}active{% endif %}">About</a>
                 </nav>
 
                 <div class="user-menu">
@@ -65,3 +70,4 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+

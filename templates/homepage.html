@@ -1,173 +1,121 @@
+<!-- Rita_All_Django/templates/homepage.html -->
 {% load static %}
 <!DOCTYPE html>
-<html lang="vi" >
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>Rita AI Suite - Trợ lý AI của bạn</title>
-    <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'>
     <link rel="stylesheet" href="{% static 'css/homepage_style.css' %}">
     <link rel="icon" href="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" type="image/x-icon">
 </head>
 <body>
-    <!-- Nền trang -->
-    <div class="bg-effects">
-        <div class="glow top-right"></div>
-        <div class="glow bottom-left"></div>
-    </div>
+    <div class="page-wrapper">
+        <!-- Background Effects -->
+        <div class="bg-effects">
+            <div class="glow top-left"></div>
+            <div class="glow bottom-right"></div>
+        </div>
 
-    <!-- Menu điều hướng -->
-    <nav id="navbar">
-        <div class="container">
-            <div class="nav-wrapper">
-                <!-- SỬA LỖI: Cập nhật URL với namespace 'core' -->
-                <a href="{% url 'core:homepage' %}" class="logo">
-                    <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita Logo" class="logo-image">
-                    <div class="logo-text">Rita AI Suite</div>
-                </a>
-
-                <!-- Menu Desktop -->
-                <div class="nav-menu-desktop">
-                    <a href="#about" class="nav-link">Giới thiệu</a>
-                    <a href="#services" class="nav-link">Tính năng</a>
-                    <a href="#contact" class="nav-link">Liên hệ</a>
-                    <!-- SỬA LỖI: Cập nhật URL với namespace 'core' -->
-                    <a href="{% url 'core:login_view' %}" class="nav-btn">Đăng nhập</a>
-                </div>
-
-                <!-- Nút Menu Mobile -->
-                <div class="mobile-menu-button-wrapper">
-                    <button id="mobile-menu-button" aria-label="Toggle menu">
-                        <div class="hamburger-wrapper">
-                            <span class="hamburger-line" id="line1"></span>
-                            <span class="hamburger-line" id="line2"></span>
-                            <span class="hamburger-line" id="line3"></span>
-                        </div>
+        <!-- Navigation Menu -->
+        <nav id="navbar">
+            <div class="container">
+                <div class="nav-wrapper">
+                    <a href="{% url 'core:homepage' %}" class="logo">
+                        <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita Logo" class="logo-image">
+                        <span>Rita AI Suite</span>
+                    </a>
+                    <div class="nav-menu-desktop">
+                        <a href="#features" class="nav-link">Tính năng</a>
+                        <a href="#about" class="nav-link">Giới thiệu</a>
+                        <a href="{% url 'core:login_view' %}" class="nav-btn">Đăng nhập</a>
+                    </div>
+                    <button id="mobile-menu-button" class="mobile-menu-button" aria-label="Toggle menu">
+                        <span></span>
+                        <span></span>
                     </button>
                 </div>
             </div>
-
-            <!-- Menu Mobile -->
-            <div id="mobile-menu" class="mobile-menu-container">
-                <div class="mobile-menu-links">
-                    <a href="#about" class="mobile-nav-link">Giới thiệu</a>
-                    <a href="#services" class="mobile-nav-link">Tính năng</a>
-                    <a href="#contact" class="mobile-nav-link">Liên hệ</a>
-                    <!-- SỬA LỖI: Cập nhật URL với namespace 'core' -->
-                    <a href="{% url 'core:login_view' %}" class="mobile-nav-link nav-btn-mobile">Đăng nhập / Đăng ký</a>
-                </div>
-            </div>
+        </nav>
+        <div id="mobile-menu" class="mobile-menu">
+            <a href="#features" class="nav-link">Tính năng</a>
+            <a href="#about" class="nav-link">Giới thiệu</a>
+            <a href="{% url 'core:login_view' %}" class="nav-btn">Đăng nhập</a>
         </div>
-    </nav>
 
-    <!-- Nội dung chính -->
-    <main>
-        <!-- Phần Hero -->
-        <section id="home" class="hero-section">
-            <div class="container">
-                <div class="hero-content">
-                    <h1 class="hero-title">
-                        Nền tảng AI cho Tương lai
-                    </h1>
-                    <p class="hero-subtitle">
-                        Trải nghiệm sức mạnh của các công cụ AI thế hệ mới, từ chatbot thông minh đến phân tích video tự động.
-                    </p>
-                    <div class="hero-buttons">
-                        <!-- SỬA LỖI: Cập nhật URL với namespace 'core' -->
-                        <a href="{% url 'core:register' %}" class="btn btn-primary">Bắt đầu miễn phí</a>
-                        <a href="#about" class="btn btn-outline">Tìm hiểu thêm</a>
-                    </div>
-                </div>
-            </div>
-            <div class="hero-scroll-indicator">
-                <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                </svg>
-            </div>
-        </section>
 
-        <!-- Phần Giới thiệu -->
-        <section id="about" class="content-section">
-            <div class="container">
-                <div class="section-header">
-                    <span class="section-tagline">Về Rita</span>
-                    <h2 class="section-title">Giao diện AI thế hệ mới</h2>
-                    <div class="section-divider"></div>
-                </div>
-                <div class="grid md:grid-cols-2 gap-8 items-center">
-                    <div class="card">
-                        <h3>Thiết kế tương lai</h3>
-                        <p>Hệ thống của chúng tôi sử dụng các kỹ thuật tiên tiến như glassmorphism, gradient tinh tế và các điểm nhấn neon để tạo ra giao diện của tương lai.</p>
-                    </div>
-                    <div class="card">
-                        <h3>Trải nghiệm người dùng cao cấp</h3>
-                        <p>Mọi tương tác đều được chế tác cẩn thận để cung cấp các chuyển tiếp mượt mà, phản hồi trực quan và trải nghiệm duyệt web liền mạch trên mọi thiết bị.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Phần Tính năng -->
-        <section id="services" class="content-section">
-            <div class="container">
-                <div class="section-header">
-                    <span class="section-tagline">Chúng tôi cung cấp</span>
-                    <h2 class="section-title">Các tính năng chính</h2>
-                    <div class="section-divider"></div>
-                </div>
-                <div class="grid md:grid-cols-3 gap-6">
-                    <div class="card service-card">
-                        <div class="service-icon-wrapper">
-                           <div class="service-icon">💬</div>
+        <!-- Main Content -->
+        <main>
+            <!-- Hero Section -->
+            <section id="home" class="hero-section">
+                <div class="container">
+                    <div class="hero-content">
+                        <div class="badge">Nền tảng AI thế hệ mới</div>
+                        <h1 class="hero-title">Khai phá tiềm năng, tối ưu công việc</h1>
+                        <p class="hero-subtitle">
+                            Trải nghiệm sức mạnh của các công cụ AI thông minh, từ chatbot đa năng, phân tích video, đến trích xuất dữ liệu web tự động.
+                        </p>
+                        <div class="hero-buttons">
+                            <a href="{% url 'core:register' %}" class="btn btn-primary">Bắt đầu miễn phí</a>
+                            <a href="#features" class="btn btn-secondary">Khám phá tính năng</a>
                         </div>
-                        <h3>Chatbot thông minh</h3>
-                        <p>Trò chuyện, đặt câu hỏi và nhận câu trả lời chính xác với trợ lý AI được tích hợp khả năng tìm kiếm web.</p>
-                    </div>
-                    <div class="card service-card">
-                        <div class="service-icon-wrapper">
-                            <div class="service-icon">🎵</div>
-                        </div>
-                        <h3>Phân tích TikTok</h3>
-                        <p>Tự động phiên âm, tóm tắt và phân tích nội dung video TikTok chỉ bằng một đường link.</p>
-                    </div>
-                    <div class="card service-card">
-                        <div class="service-icon-wrapper">
-                            <div class="service-icon">🔒</div>
-                        </div>
-                        <h3>Bảo mật & Mở rộng</h3>
-                        <p>Xây dựng trên nền tảng Django vững chắc, sẵn sàng cho các tính năng mới trong tương lai.</p>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Phần Liên hệ -->
-        <section id="contact" class="content-section">
+            <!-- Features Section -->
+            <section id="features" class="content-section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Bộ công cụ mạnh mẽ</h2>
+                        <p class="section-subtitle">Tất cả những gì bạn cần để làm việc hiệu quả hơn.</p>
+                    </div>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">💬</div>
+                            <h3>Chatbot Thông minh</h3>
+                            <p>Trò chuyện, đặt câu hỏi, và nhận câu trả lời chính xác với trợ lý AI được tích hợp khả năng tìm kiếm web thời gian thực.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎵</div>
+                            <h3>Phân tích TikTok</h3>
+                            <p>Tự động phiên âm, tóm tắt và phân tích nội dung video TikTok, giúp bạn nắm bắt thông tin nhanh chóng.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🕷️</div>
+                            <h3>Web Scraper AI</h3>
+                            <p>Trích xuất dữ liệu có cấu trúc từ bất kỳ trang web nào chỉ bằng vài cú nhấp chuột, không cần biết code.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="content-section about-section">
+                <div class="container">
+                     <div class="about-grid">
+                        <div class="about-text">
+                            <h2 class="section-title">Về Rita AI Suite</h2>
+                            <p>Rita AI Suite là dự án được xây dựng với mục tiêu cung cấp một bộ công cụ AI đa năng, dễ sử dụng để hỗ trợ và tối ưu hóa công việc cho mọi người. Nền tảng được phát triển trên Django, đảm bảo tính bảo mật và khả năng mở rộng cho các tính năng trong tương lai.</p>
+                            <a href="{% url 'core:about_view' %}" class="btn btn-secondary">Tìm hiểu thêm</a>
+                        </div>
+                        <div class="about-image">
+                            <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita Illustration">
+                        </div>
+                     </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
             <div class="container">
-                 <div class="section-header">
-                    <span class="section-tagline">Kết nối</span>
-                    <h2 class="section-title">Liên hệ với chúng tôi</h2>
-                    <div class="section-divider"></div>
-                </div>
-                 <div class="card">
-                    <p class="text-center">Nếu bạn có bất kỳ câu hỏi hoặc góp ý nào, đừng ngần ngại liên hệ!</p>
-                    <div class="contact-button-wrapper">
-                        <a href="mailto:lequyphat.work@gmail.com" class="btn btn-primary">Gửi Email</a>
-                    </div>
-                </div>
+                <p>&copy; 2025 Rita AI Suite. Developed by Lequyphat.</p>
             </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <p>&copy; 2025 Rita AI Suite. All rights reserved.</p>
-                <p>Developed by Lequyphat</p>
-            </div>
-        </div>
-    </footer>
-
+        </footer>
+    </div>
     <script src="{% static 'js/homepage_script.js' %}"></script>
 </body>
 </html>
