@@ -1,0 +1,218 @@
+.scraper-container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.scraper-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.scraper-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.scraper-header p {
+    font-size: 1.1rem;
+    color: #a0a0d0;
+}
+
+.scraper-card {
+    background: rgba(30, 30, 46, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(15px);
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #c0c0e0;
+}
+
+.form-group input[type="url"],
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    background-color: #1e1e2e;
+    border: 1px solid #3a3a5a;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #68d391;
+    box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.2);
+}
+
+.tags-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background-color: #1e1e2e;
+    border: 1px solid #3a3a5a;
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.tags-input-container input {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    outline: none;
+    padding: 0.35rem;
+    color: #e0e0e0;
+}
+
+.tag-item {
+    background-color: #3a3a5a;
+    color: #e0e0e0;
+    padding: 0.35rem 0.75rem;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tag-item .remove-tag {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: #a0a0d0;
+}
+
+.btn-scrape {
+    width: 100%;
+    padding: 0.85rem 1.75rem;
+    background: linear-gradient(90deg, #68d391, #34d399);
+    color: #1a1a2e;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-scrape:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(104, 211, 145, 0.3);
+}
+.btn-scrape:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.spinner-sm {
+    border: 3px solid rgba(26, 26, 46, 0.3);
+    border-top: 3px solid #1a1a2e;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+.results-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .results-wrapper {
+        grid-template-columns: 300px 1fr;
+        align-items: flex-start;
+    }
+}
+
+.cost-card h3, .data-card h3 {
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.cost-details p {
+    margin: 0.5rem 0;
+}
+.total-cost {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #68d391;
+}
+
+.data-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3a3a5a;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.download-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-download {
+    padding: 0.4rem 0.8rem;
+    background-color: #3a3a5a;
+    color: #e0e0e0;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.btn-download:hover {
+    background-color: #4a4a6a;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+#results-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#results-table th, #results-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #3a3a5a;
+}
+
+#results-table th {
+    background-color: #2a2a3e;
+    font-weight: 600;
+}
+.site-footer {
+    flex-shrink: 0;
+    text-align: center;
+    padding-top: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0.6;
+}

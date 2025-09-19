@@ -1,19 +1,31 @@
 import json
 import logging
 import threading
+import pandas as pd
+from datetime import datetime
+import os
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from .models import TikTokVideo, ChatHistory, Profile, TrackingLink, LocationLog
+from django.http import JsonResponse, FileResponse, Http404
+from django.core.files.base import ContentFile
+from django.utils import timezone
+from django.conf import settings
+
+from .models import (
+    TikTokVideo, ChatHistory, Profile, TrackingLink, LocationLog, ScrapeResult
+)
 from .forms import RegistrationForm, LoginForm, ProfileUpdateForm
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .ai_utils import get_gemini_response
 from .tiktok_utils import get_tiktok_video_info, analyze_tiktok_video
+from . import scraper_utils
 
+# Cấu hình logging
 logger = logging.getLogger(__name__)
 
 # --- Các view xác thực và trang chung ---
@@ -120,7 +132,6 @@ def tiktok_analyzer_view(request):
     videos = TikTokVideo.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'tiktok_analyzer.html', {'videos': videos})
     
-# --- Logic xử lý nền cho TikTok ---
 def perform_analysis_in_background(video_pk):
     try:
         video = TikTokVideo.objects.get(pk=video_pk)
@@ -144,7 +155,6 @@ def perform_analysis_in_background(video_pk):
         except TikTokVideo.DoesNotExist:
             pass
 
-# --- API Endpoints ---
 @login_required
 @require_POST
 def api_chat(request):
@@ -263,23 +273,19 @@ def api_delete_tiktok_history(request):
         logger.error(f"Lỗi khi xóa lịch sử TikTok: {e}")
         return JsonResponse({'error': 'Lỗi nội bộ xảy ra.'}, status=500)
 
-# --- LOCATION TRACKER VIEWS (UPDATED) ---
-
 @login_required
 def location_tracker_dashboard(request):
     if request.method == 'POST':
-        original_url = request.POST.get('url')
-        # Lấy giá trị từ công tắc 'require_consent'
+        original_url = request.POST.get('url') # Sửa tên trường để khớp với form
         require_consent = request.POST.get('require_consent') == 'on'
         
         if original_url:
             TrackingLink.objects.create(
                 user=request.user, 
                 original_url=original_url,
-                # Lưu lựa chọn vào database
                 require_consent=require_consent
             )
-        # Chuyển hướng về trang dashboard sau khi tạo link
+        # Sửa lỗi: redirect sau khi POST để tránh lỗi tải lại trang
         return redirect('core:location_tracker_dashboard')
             
     links = TrackingLink.objects.filter(user=request.user).order_by('-created_at').prefetch_related('logs')
@@ -291,39 +297,28 @@ def location_tracker_dashboard(request):
     return render(request, 'location_tracker.html', context)
 
 def track_and_redirect(request, tracking_id):
-    """
-    Hiển thị trang yêu cầu quyền truy cập, thay vì chuyển hướng trực tiếp.
-    """
     tracking_link = get_object_or_404(TrackingLink, tracking_id=tracking_id)
-    
-    # Truyền trạng thái 'require_consent' sang template để JavaScript xử lý
     context = {
         'tracking_link': tracking_link,
         'strict_mode': tracking_link.require_consent 
     }
-    # Render trang yêu cầu quyền mới (tracker_consent.html)
     return render(request, 'tracker_consent.html', context)
 
 @csrf_exempt
 @require_POST
 def save_location(request):
-    """
-    API endpoint để lưu vị trí từ client-side.
-    Đã được cập nhật để khớp với logic mới từ trang consent.
-    """
     try:
         data = json.loads(request.body)
         tracking_id = data.get('tracking_id')
-        # Đổi tên biến để khớp với dữ liệu gửi lên từ JS
         latitude = data.get('latitude')
         longitude = data.get('longitude')
 
         if not all([tracking_id, latitude is not None, longitude is not None]):
-            return JsonResponse({'status': 'error', 'message': 'Dữ liệu không đầy đủ.'}, status=400)
+             return JsonResponse({'status': 'error', 'message': 'Dữ liệu không đầy đủ.'}, status=400)
 
         link = TrackingLink.objects.get(tracking_id=tracking_id)
         LocationLog.objects.create(tracking_link=link, latitude=latitude, longitude=longitude)
-                
+                 
         return JsonResponse({'status': 'success', 'message': 'Vị trí đã được lưu.'})
     except TrackingLink.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'ID theo dõi không hợp lệ.'}, status=404)
@@ -365,3 +360,173 @@ def api_delete_tracking_link(request, pk):
     except Exception as e:
         logger.error(f"Lỗi khi xóa link theo dõi (PK: {pk}): {e}")
         return JsonResponse({'status': 'error', 'message': 'Có lỗi xảy ra trong quá trình xóa.'}, status=500)
+
+# --- WEB SCRAPER VIEWS ---
+
+def perform_scraping_in_background(task_id):
+    """
+    Hàm xử lý scraping trong một tiến trình riêng biệt để không chặn giao diện.
+    """
+    task = None
+    try:
+        task = ScrapeResult.objects.get(pk=task_id)
+        logger.info(f"[TASK {task_id}] Bắt đầu tiến trình scraping trong nền.")
+        
+        task.status = 'PROCESSING'
+        task.save()
+
+        logger.info(f"[TASK {task_id}] Bắt đầu lấy HTML từ: {task.url}")
+        raw_html = scraper_utils.fetch_html_selenium(task.url)
+        if not raw_html:
+            raise ValueError("Không thể lấy nội dung HTML.")
+        logger.info(f"[TASK {task_id}] Lấy HTML thành công.")
+
+        logger.info(f"[TASK {task_id}] Chuyển đổi HTML sang Markdown...")
+        markdown_content = scraper_utils.html_to_markdown(raw_html)
+        logger.info(f"[TASK {task_id}] Chuyển đổi Markdown thành công.")
+        
+        fields = [field.strip() for field in task.fields.split(',')]
+        DynamicListingModel = scraper_utils.create_dynamic_listing_model(fields)
+        DynamicListingsContainer = scraper_utils.create_listings_container_model(DynamicListingModel)
+
+        logger.info(f"[TASK {task_id}] Gửi yêu cầu đến Gemini API...")
+        formatted_data_str, tokens_count = scraper_utils.gemini_format_data(
+            markdown_content, DynamicListingsContainer, task.model
+        )
+        logger.info(f"[TASK {task_id}] Nhận phản hồi từ Gemini API.")
+
+        try:
+            formatted_data_json = json.loads(formatted_data_str)
+            if 'error' in formatted_data_json:
+                error_details = formatted_data_json.get('details', formatted_data_str)
+                logger.error(f"[TASK {task_id}] Lỗi từ Gemini API: {error_details}")
+                raise ValueError(f"Lỗi từ Gemini: {error_details}")
+        except json.JSONDecodeError:
+            logger.error(f"[TASK {task_id}] Phản hồi từ Gemini không phải là JSON hợp lệ: {formatted_data_str}")
+            raise ValueError("Phản hồi từ Gemini không phải là JSON hợp lệ.")
+        
+        input_tokens, output_tokens, total_cost = scraper_utils.calculate_price(tokens_count, model=task.model)
+        
+        task.input_tokens = input_tokens
+        task.output_tokens = output_tokens
+        task.total_cost = total_cost
+        task.status = 'COMPLETE'
+        task.completed_at = timezone.now()
+        
+        json_filename = f"scrape_result_{task.id}.json"
+        task.json_result.save(json_filename, ContentFile(formatted_data_str.encode('utf-8')))
+        
+        data_key = next(iter(formatted_data_json))
+        df = pd.DataFrame(formatted_data_json[data_key])
+        csv_content = df.to_csv(index=False)
+        csv_filename = f"scrape_result_{task.id}.csv"
+        task.csv_result.save(csv_filename, ContentFile(csv_content.encode('utf-8')))
+        
+        task.save()
+        logger.info(f"[TASK {task_id}] Xử lý tác vụ scraping {task_id} hoàn tất.")
+
+    except Exception as e:
+        logger.error(f"[TASK {task_id}] Đã xảy ra lỗi nghiêm trọng: {e}", exc_info=True)
+        if task:
+            task.status = 'FAILED'
+            task.error_message = str(e) # Lưu thông báo lỗi
+            task.save()
+            logger.info(f"[TASK {task_id}] Đã cập nhật trạng thái tác vụ thành FAILED.")
+
+
+@login_required
+def web_scraper_view(request):
+    return render(request, 'web_scraper.html')
+
+@login_required
+@require_POST
+def api_start_scraping(request):
+    try:
+        data = json.loads(request.body)
+        url = data.get('url')
+        fields = data.get('fields')
+        model = data.get('model')
+
+        if not all([url, fields, model]):
+            return JsonResponse({'error': 'Dữ liệu không đầy đủ.'}, status=400)
+
+        task = ScrapeResult.objects.create(
+            user=request.user,
+            url=url,
+            fields=fields,
+            model=model,
+            status='PENDING'
+        )
+
+        thread = threading.Thread(target=perform_scraping_in_background, args=(task.id,))
+        thread.start()
+
+        return JsonResponse({'status': 'ok', 'task_id': task.id})
+    except Exception as e:
+        logger.error(f"Lỗi khi bắt đầu scraping: {e}")
+        return JsonResponse({'error': 'Lỗi server nội bộ.'}, status=500)
+
+@login_required
+def api_check_scrape_status(request, task_id):
+    try:
+        task = get_object_or_404(ScrapeResult, pk=task_id, user=request.user)
+        
+        data = {
+            'id': task.id,
+            'status': task.status,
+            'url': task.url,
+            'created_at': task.created_at.strftime("%H:%M, %d/%m/%Y"),
+            'json_url': task.json_result.url if task.status == 'COMPLETE' and task.json_result else None,
+            'csv_url': task.csv_result.url if task.status == 'COMPLETE' and task.csv_result else None,
+            'cost': f"{task.total_cost:.4f}" if task.total_cost is not None else "N/A",
+            'input_tokens': task.input_tokens,
+            'output_tokens': task.output_tokens,
+            'error_message': task.error_message if task.status == 'FAILED' else None,
+        }
+        return JsonResponse(data)
+    except ScrapeResult.DoesNotExist:
+        return JsonResponse({'error': 'Không tìm thấy tác vụ.'}, status=404)
+
+@login_required
+def api_get_scrape_history(request):
+    history = ScrapeResult.objects.filter(user=request.user).order_by('-created_at')
+    data = [{
+        'id': item.id,
+        'created_at': item.created_at.strftime("%H:%M:%S, %d/%m/%Y"),
+        'url': item.url,
+        'status': item.status,
+    } for item in history]
+    return JsonResponse({'history': data})
+
+@login_required
+@require_POST
+def api_delete_scrape_history(request):
+    try:
+        ScrapeResult.objects.filter(user=request.user).delete()
+        return JsonResponse({'status': 'success', 'message': 'Đã xóa toàn bộ lịch sử.'})
+    except Exception as e:
+        logger.error(f"Lỗi khi xóa lịch sử scraper: {e}")
+        return JsonResponse({'status': 'error', 'message': 'Có lỗi xảy ra.'}, status=500)
+
+@login_required
+def download_scrape_result(request, task_id, file_type):
+    task = get_object_or_404(ScrapeResult, pk=task_id, user=request.user)
+    
+    if task.status != 'COMPLETE':
+        raise Http404("Kết quả chưa sẵn sàng hoặc tác vụ đã thất bại.")
+
+    file_field = None
+    content_type = None
+    
+    if file_type == 'json' and task.json_result:
+        file_field = task.json_result
+        content_type = 'application/json'
+    elif file_type == 'csv' and task.csv_result:
+        file_field = task.csv_result
+        content_type = 'text/csv'
+    else:
+        raise Http404("Loại file không hợp lệ hoặc file không tồn tại.")
+        
+    response = FileResponse(file_field.open('rb'), content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_field.name)}"'
+    return response

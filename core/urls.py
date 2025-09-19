@@ -1,5 +1,3 @@
-# D:\LQP\Code\Python\Rita_All_Django\core\urls.py
-
 from django.urls import path
 from . import views
 
@@ -11,7 +9,6 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login_view'),
     path('logout/', views.logout_view, name='logout_view'),
-    # Đã sửa lỗi: đổi tên từ 'profile' thành 'profile_view' để khớp với base.html
     path('profile/', views.profile_view, name='profile_view'),
     path('about/', views.about_view, name='about_view'),
     
@@ -22,12 +19,8 @@ urlpatterns = [
     
     # --- URL cho trang TikTok Analyzer ---
     path('tiktok-analyzer/', views.tiktok_analyzer_view, name='tiktok_analyzer_view'),
-    
-    # --- API cho quy trình phân tích bất đồng bộ ---
     path('api/tiktok-analyzer/submit/', views.api_tiktok_submit_url, name='api_tiktok_submit_url'),
     path('api/tiktok-analyzer/status/', views.api_tiktok_check_status, name='api_tiktok_check_status'),
-    
-    # --- API để xóa lịch sử TikTok ---
     path('api/tiktok-history/delete/', views.api_delete_tiktok_history, name='api_delete_tiktok_history'),
 
     # --- URL cho chức năng Location Tracker ---
@@ -36,4 +29,12 @@ urlpatterns = [
     path('api/log-location/', views.save_location, name='save_location'),
     path('api/location-tracker/data/', views.api_get_tracker_data, name='api_get_tracker_data'),
     path('api/location-tracker/delete/<int:pk>/', views.api_delete_tracking_link, name='api_delete_tracking_link'),
+
+    # SỬA LỖI: Cập nhật các URL cho Web Scraper để khớp với frontend
+    path('web-scraper/', views.web_scraper_view, name='web_scraper_view'),
+    path('api/web-scraper/start/', views.api_start_scraping, name='api_start_scrape'),
+    path('api/web-scraper/status/<int:task_id>/', views.api_check_scrape_status, name='api_check_scrape_status'),
+    path('api/web-scraper/history/', views.api_get_scrape_history, name='api_get_scrape_history'),
+    path('api/web-scraper/history/delete/', views.api_delete_scrape_history, name='api_delete_scrape_history'),
+    path('download/scrape/<int:task_id>/<str:file_type>/', views.download_scrape_result, name='download_scrape_result'),
 ]

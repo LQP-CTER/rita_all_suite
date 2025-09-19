@@ -1,0 +1,399 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Web Scraper - Rita AI Suite{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* Ghi đè lên cài đặt chung để bật lại thanh cuộn cho trang này */
+        html, body {
+            height: auto;
+            overflow-y: auto;
+        }
+        .app-container, .main-content {
+            height: auto !important;
+            overflow: visible !important;
+        }
+        /* Tùy chỉnh giao diện thanh cuộn */
+        body::-webkit-scrollbar { 
+            width: 10px; 
+        }
+        body::-webkit-scrollbar-track { 
+            background: #1a1a2e; 
+        }
+        body::-webkit-scrollbar-thumb { 
+            background-color: #4a4a6a; 
+            border-radius: 10px; 
+            border: 2px solid #1a1a2e; 
+        }
+        body::-webkit-scrollbar-thumb:hover { 
+            background-color: #68d391; 
+        }
+
+        /* --- GIAO DIỆN MỚI CHO SCRAPER --- */
+        .scraper-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scraper-header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+        }
+        .scraper-header p {
+            text-align: center;
+            color: #a0a0d0;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .scraper-main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        @media (min-width: 992px) {
+            .scraper-main-grid {
+                grid-template-columns: 350px 1fr;
+            }
+        }
+
+        .control-card, .result-card, .history-section {
+            background: rgba(30, 30, 46, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #a0a0d0;
+            font-size: 0.9rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background-color: #1e1e2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #68d391;
+            box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.2);
+        }
+        .form-group select {
+             -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a0a0d0' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+        }
+
+        /* --- CSS CHO TAG INPUT --- */
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            background-color: #1e1e2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .tags-input-container:focus-within {
+            border-color: #68d391;
+            box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.2);
+        }
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            background-color: #3a3a5a;
+            color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .tag-remove {
+            margin-left: 8px;
+            cursor: pointer;
+            color: #a0a0d0;
+        }
+        #fields-input {
+            flex-grow: 1;
+            border: none;
+            background: none;
+            outline: none;
+            padding: 4px 0;
+            color: #e0e0e0;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.85rem 1.75rem;
+            background: linear-gradient(90deg, #68d391, #34d399);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(104, 211, 145, 0.3);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #usage-card p {
+            display: flex;
+            justify-content: space-between;
+            color: #c0c0e0;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        #usage-card p span {
+            font-weight: 600;
+            color: #fff;
+        }
+        #usage-card p #total-cost {
+            color: #68d391;
+        }
+
+        .scraper-results { min-height: 450px; display: flex; flex-direction: column; }
+        
+        #results-placeholder {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0a0d0;
+            font-style: italic;
+        }
+        #loading-indicator {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #a0a0d0;
+        }
+        .spinner {
+            border: 4px solid #3a3a5a;
+            border-top: 4px solid #68d391;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #results-output { display: flex; flex-direction: column; height: 100%;}
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+        }
+        .result-header h3 { font-size: 1.5rem; color: #fff; margin: 0; }
+        .download-buttons { display: flex; gap: 0.75rem; }
+        .btn-secondary {
+            padding: 0.5rem 1rem;
+            background-color: #2a2a3e;
+            color: #e0e0e0;
+            border: 1px solid #4a4a6a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover { background-color: #3a3a5a; }
+
+        .table-container { 
+            overflow: auto; 
+            flex-grow: 1;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+        }
+        .table-container::-webkit-scrollbar { width: 6px; }
+        .table-container::-webkit-scrollbar-track { background: transparent; }
+        .table-container::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 6px; }
+
+        #results-table, #history-table { width: 100%; border-collapse: collapse; }
+        #results-table th, #history-table th {
+            background-color: rgba(42, 42, 62, 0.8);
+            color: #a0a0d0;
+            text-align: left;
+            padding: 0.85rem 1.25rem;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        #results-table td, #history-table td {
+            padding: 0.85rem 1.25rem;
+            border-bottom: 1px solid #3a3a5a;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+        #results-table tbody tr:last-child td, #history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .history-section { margin-top: 2rem; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .history-header h2 { font-size: 1.5rem; color: #fff; margin: 0; }
+        .btn-danger {
+            background-color: transparent;
+            color: #e53e3e;
+            border: 1px solid #e53e3e;
+        }
+        .btn-danger:hover { background-color: rgba(229, 62, 62, 0.1); }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .status-badge.complete { background-color: #2e7d32; color: white; }
+        .status-badge.processing { background-color: #ffc107; color: black; }
+        .status-badge.pending { background-color: #64748b; color: white; }
+        .status-badge.failed { background-color: #d32f2f; color: white; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="scraper-container">
+    <div class="scraper-header">
+        <h1>Rita Web Scraper</h1>
+        <p>Tự động trích xuất dữ liệu từ bất kỳ trang web nào bằng sức mạnh của AI.</p>
+    </div>
+
+    <div class="scraper-main-grid">
+        <!-- Cột điều khiển bên trái -->
+        <div class="scraper-controls">
+            <div class="control-card">
+                <h3>Cài đặt</h3>
+                <form id="scrape-form">
+                    <div class="form-group">
+                        <label for="url-input">URL trang web</label>
+                        <input type="url" id="url-input" placeholder="https://example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fields-input">Các trường cần lấy</label>
+                        <div id="tags-input-container" class="tags-input-container">
+                            <input type="text" id="fields-input" placeholder="Nhập trường rồi nhấn Enter...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="model-selection">Mô hình AI</label>
+                        <select id="model-selection">
+                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="start-scrape-btn" class="btn-primary">Bắt đầu Trích xuất</button>
+                </form>
+            </div>
+            <div id="usage-card" class="control-card" style="display: none;">
+                <h3>Chi phí & Token</h3>
+                <p>Input Tokens: <span id="input-tokens">0</span></p>
+                <p>Output Tokens: <span id="output-tokens">0</span></p>
+                <p>Tổng chi phí (ước tính): <span id="total-cost">$0.0000</span></p>
+            </div>
+        </div>
+
+        <!-- Cột kết quả bên phải -->
+        <div class="scraper-results">
+            <div class="result-card">
+                <div id="results-placeholder">
+                    <p>Kết quả sẽ được hiển thị ở đây...</p>
+                </div>
+                <div id="loading-indicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Đang xử lý, vui lòng chờ...</p>
+                </div>
+                <div id="results-output" style="display: none;">
+                    <div class="result-header">
+                        <h3>Kết quả Trích xuất</h3>
+                        <div class="download-buttons">
+                            <button id="download-json-btn" class="btn-secondary">Tải JSON</button>
+                            <button id="download-csv-btn" class="btn-secondary">Tải CSV</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="results-table">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Phần lịch sử -->
+    <div class="history-section">
+        <div class="history-header">
+            <h2>Lịch sử Trích xuất</h2>
+            <button id="delete-history-btn" class="btn-secondary btn-danger">Xóa Lịch sử</button>
+        </div>
+        <div class="table-container">
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>URL</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Lịch sử sẽ được thêm vào đây bằng JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    {# SỬA ĐỔI: Loại bỏ toàn bộ script nội tuyến và chỉ giữ lại link tới file JS bên ngoài #}
+    <script src="{% static 'js/scraper_script.js' %}"></script>
+{% endblock %}
+
