@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from .models import Profile
 
@@ -22,46 +22,40 @@ class LoginForm(AuthenticationForm):
         }
     ))
 
-class RegistrationForm(forms.ModelForm):
+class RegistrationForm(UserCreationForm):
     """
-    Form đăng ký được viết lại để khắc phục lỗi KeyError và đảm bảo hoạt động ổn định.
+    Form đăng ký kế thừa từ UserCreationForm để đảm bảo an toàn,
+    đồng thời thêm các trường tùy chỉnh và lưu vào Profile.
     """
     full_name = forms.CharField(
+        label="Họ và tên",
         required=True,
         widget=forms.TextInput(attrs={'class': 'forms_field-input', 'placeholder': 'Họ và tên đầy đủ'})
     )
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={'class': 'forms_field-input', 'placeholder': 'Email'}),
+        help_text='Bắt buộc. Vui lòng cung cấp một địa chỉ email hợp lệ.'
+    )
     date_of_birth = forms.DateField(
+        label="Ngày sinh",
         required=False,
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'forms_field-input'})
     )
-    password = forms.CharField(
-        label="Mật khẩu",
-        widget=forms.PasswordInput(attrs={'class': 'forms_field-input', 'placeholder': 'Mật khẩu'})
-    )
-    password2 = forms.CharField(
-        label="Xác nhận mật khẩu",
-        widget=forms.PasswordInput(attrs={'class': 'forms_field-input', 'placeholder': 'Xác nhận mật khẩu'})
-    )
 
-    class Meta:
+    class Meta(UserCreationForm.Meta):
         model = User
-        fields = ('username', 'email')
+        fields = ('username', 'email', 'full_name', 'date_of_birth')
         widgets = {
             'username': forms.TextInput(attrs={'class': 'forms_field-input', 'placeholder': 'Tên đăng nhập'}),
-            'email': forms.EmailInput(attrs={'class': 'forms_field-input', 'placeholder': 'Email'}),
         }
-
-    def clean_password2(self):
-        cd = self.cleaned_data
-        if cd['password'] != cd['password2']:
-            raise forms.ValidationError('Mật khẩu xác nhận không khớp.')
-        return cd['password2']
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password"])
+        # UserCreationForm đã xử lý việc hash mật khẩu
         if commit:
             user.save()
+            # Tạo hoặc cập nhật Profile sau khi User được tạo
             Profile.objects.update_or_create(
                 user=user,
                 defaults={
@@ -73,39 +67,62 @@ class RegistrationForm(forms.ModelForm):
 
 class ProfileUpdateForm(forms.ModelForm):
     """
-    Form để người dùng cập nhật thông tin cá nhân.
+    Form cập nhật thông tin cho cả User và Profile model.
+    Kết hợp logic từ hai phiên bản và thêm styling.
     """
-    email = forms.EmailField(
-        required=True,
-        widget=forms.EmailInput(attrs={'class': 'forms_field-input'})
-    )
+    username = forms.CharField(max_length=150, required=True, label="Tên đăng nhập", widget=forms.TextInput(attrs={'class': 'forms_field-input'}))
+    email = forms.EmailField(required=True, label="Email", widget=forms.EmailInput(attrs={'class': 'forms_field-input'}))
+    first_name = forms.CharField(max_length=30, required=False, label="Tên", widget=forms.TextInput(attrs={'class': 'forms_field-input'}))
+    last_name = forms.CharField(max_length=150, required=False, label="Họ", widget=forms.TextInput(attrs={'class': 'forms_field-input'}))
 
     class Meta:
         model = Profile
-        fields = ['full_name', 'date_of_birth', 'bio', 'avatar']
+        fields = ['avatar', 'bio', 'full_name', 'date_of_birth']
+        labels = {
+            'avatar': 'Ảnh đại diện',
+            'bio': 'Tiểu sử',
+            'full_name': 'Họ và tên đầy đủ',
+            'date_of_birth': 'Ngày sinh'
+        }
         widgets = {
-            'full_name': forms.TextInput(attrs={'class': 'forms_field-input'}),
-            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'forms_field-input'}),
             'bio': forms.Textarea(attrs={'class': 'forms_field-input', 'rows': 3}),
             'avatar': forms.FileInput(attrs={'class': 'forms_field-input'}),
+            'full_name': forms.TextInput(attrs={'class': 'forms_field-input'}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'forms_field-input'}),
         }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if self.user:
+            self.fields['username'].initial = self.user.username
             self.fields['email'].initial = self.user.email
+            self.fields['first_name'].initial = self.user.first_name
+            self.fields['last_name'].initial = self.user.last_name
+            # Lấy thông tin từ profile nếu có
+            self.fields['full_name'].initial = self.instance.full_name
+            self.fields['date_of_birth'].initial = self.instance.date_of_birth
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exclude(pk=self.user.pk).exists():
             raise forms.ValidationError("Email này đã được người khác sử dụng.")
         return email
+        
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exclude(pk=self.user.pk).exists():
+            raise forms.ValidationError("Tên đăng nhập này đã được người khác sử dụng.")
+        return username
 
     def save(self, commit=True):
         profile = super().save(commit=False)
-        self.user.email = self.cleaned_data['email']
-        if commit:
-            self.user.save()
-            profile.save()
+        if self.user:
+            self.user.username = self.cleaned_data['username']
+            self.user.email = self.cleaned_data['email']
+            self.user.first_name = self.cleaned_data['first_name']
+            self.user.last_name = self.cleaned_data['last_name']
+            if commit:
+                self.user.save()
+                profile.save()
         return profile

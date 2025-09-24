@@ -7,8 +7,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Đã sửa lỗi: Thêm namespace 'core' vào hàm include
     path('', include('core.urls', namespace='core')),
+    path('accounts/', include('django.contrib.auth.urls')), 
 ]
 
 if settings.DEBUG:

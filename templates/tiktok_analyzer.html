@@ -1,214 +1,694 @@
+<!-- File: Rita_All_Django/templates/tiktok_analyzer.html -->
+<!-- Đã hoàn nguyên: Xóa bỏ Prediction Card và các yếu tố liên quan đến ML. -->
 {% extends "base.html" %}
 {% load static %}
 
 {% block title %}TikTok Video Analyzer{% endblock %}
 
 {% block extra_css %}
-    <!-- File CSS gốc vẫn được giữ lại -->
-    <link rel="stylesheet" href="{% static 'css/tiktok_analyzer_style.css' %}">
-    
-    <!-- CSS cho các cải tiến giao diện và chức năng -->
     <style>
-        /* --- Bật thanh cuộn chính cho toàn trang --- */
-        html, body {
-            height: auto;
+        body {
+            overflow: auto;
+        }
+        .app-container {
+            padding: 1.5rem;
+            min-height: 100vh;
+        }
+        .main-content {
+            padding: 0;
+        }
+        .tool-page {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+        .tool-hero {
+            display: flex;
+            gap: 2.5rem;
+            justify-content: space-between;
+            align-items: stretch;
+            padding: 2.5rem;
+            border-radius: 28px;
+            background: linear-gradient(140deg, rgba(26, 26, 46, 0.95), rgba(12, 14, 24, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(5, 8, 20, 0.55);
+        }
+        .tool-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(79, 209, 197, 0.25), transparent 55%),
+                        radial-gradient(circle at bottom left, rgba(104, 211, 145, 0.18), transparent 60%);
+            pointer-events: none;
+        }
+        .hero-copy {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(104, 211, 145, 0.12);
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            width: fit-content;
+        }
+        .hero-copy h1 {
+            font-size: 2.6rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        .hero-copy p {
+            color: var(--text-secondary);
+            max-width: 520px;
+            line-height: 1.65;
+        }
+        .hero-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .stat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.55rem 1rem;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .hero-card {
+            position: relative;
+            z-index: 1;
+            width: 320px;
+            min-height: 240px;
+            padding: 1.75rem;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 12, 20, 0.65);
+            backdrop-filter: blur(14px);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+        }
+        .hero-card .hero-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(104, 211, 145, 0.35), rgba(79, 209, 197, 0.35));
+            border: 1px solid rgba(104, 211, 145, 0.35);
+        }
+        .hero-card dl {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.65rem;
+            margin: 0;
+        }
+        .hero-card dt {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+        }
+        .hero-card dd {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        .panel {
+            background: rgba(12, 14, 24, 0.75);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 28px 60px rgba(5, 8, 20, 0.4);
+            backdrop-filter: blur(12px);
+            padding: 2rem 2.25rem;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .panel-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        #help-btn {
+            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        #help-btn:hover {
+            background: rgba(104, 211, 145, 0.2);
+            color: var(--primary-color);
+        }
+        #analyze-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .form-row {
+            display: flex;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+        }
+        #tiktok-url-input {
+            flex: 1 1 280px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 0.9rem 1.2rem;
+            color: var(--text-primary);
+            transition: var(--transition-smooth);
+        }
+        #tiktok-url-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.18);
+        }
+        @keyframes inputPulse {
+            from { box-shadow: 0 0 0 0 rgba(104, 211, 145, 0.25); }
+            to { box-shadow: 0 0 0 16px rgba(104, 211, 145, 0); }
+        }
+        #tiktok-url-input.pulse {
+            animation: inputPulse 0.6s ease-out;
+        }
+        #analyze-btn {
+            background: linear-gradient(135deg, #68d391 0%, #4fd1c5 100%);
+            color: #0b0c12;
+            border: none;
+            border-radius: 14px;
+            padding: 0.9rem 1.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: 0 18px 40px rgba(79, 209, 197, 0.35);
+        }
+        #analyze-btn:disabled {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        #analyze-btn:not(:disabled):hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+        }
+        .helper-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .quick-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .quick-chip:hover {
+            border-color: var(--primary-color);
+            color: var(--text-primary);
+            box-shadow: 0 12px 26px rgba(79, 209, 197, 0.22);
+            transform: translateY(-2px);
+        }
+        .panel-results {
+            padding: 0;
+            overflow: hidden;
+        }
+        .results-inner {
+            padding: 2rem 2.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+        #loading-indicator {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+        }
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.08);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0); }
+            to { transform: rotate(360deg); }
+        }
+        #results-wrapper {
+            display: none;
+        }
+        .results-columns {
+            display: grid;
+            grid-template-columns: minmax(260px, 360px) 1fr;
+            gap: 1.75rem;
+        }
+        .insight-columns {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+        .result-card {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .result-card h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .video-cover {
+            width: 100%;
+            aspect-ratio: 9/14;
+            border-radius: 16px;
+            object-fit: cover;
+            box-shadow: 0 15px 35px rgba(5, 8, 20, 0.45);
+        }
+        .video-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .video-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .video-author {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        .stat-item i {
+            color: var(--primary-color);
+        }
+        #video-download-link {
+            display: none;
+            text-align: center;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #68d391, #4fd1c5);
+            color: #0b0c12;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+        #video-download-link:hover {
+            filter: brightness(1.06);
+        }
+        .content-box {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 1rem 1.25rem;
+            color: var(--text-primary);
+            line-height: 1.65;
+            max-height: 320px;
             overflow-y: auto;
         }
-        .app-container, .main-content {
-            height: auto !important;
-            overflow: visible !important;
+        .content-box::-webkit-scrollbar {
+            width: 8px;
         }
-        body::-webkit-scrollbar { width: 10px; }
-        body::-webkit-scrollbar-track { background: #1a1a2e; }
-        body::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 10px; border: 2px solid #1a1a2e; }
-        body::-webkit-scrollbar-thumb:hover { background-color: #68d391; }
-
-        /* --- Nút và Modal Hướng dẫn --- */
-        .analyzer-title-wrapper {
+        .content-box::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+        }
+        .content-box::-webkit-scrollbar-thumb:hover {
+            background-color: var(--primary-color);
+        }
+        #analysis-output h4 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+        #analysis-output ul {
+            margin: 0;
+            padding-left: 1.2rem;
+        }
+        #analysis-output li {
+            margin-bottom: 0.4rem;
+        }
+        .history-panel {
             display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
             gap: 1rem;
         }
-        .help-btn {
-            background-color: #3a3a5a;
-            color: #e0e0e0;
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            font-size: 1.2rem;
+        .history-header h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .history-actions {
+            display: inline-flex;
+            gap: 0.75rem;
+        }
+        .btn-action {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+            padding: 0.45rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: var(--transition-smooth);
+        }
+        .btn-action:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .btn-danger {
+            color: #f87171;
+            border-color: rgba(248, 113, 113, 0.4);
+        }
+        .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.15);
+            color: #fca5a5;
+        }
+        .history-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+        .history-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 1.1rem;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            gap: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
         }
-        .help-btn:hover {
-            background-color: #4a4a6a;
+        .history-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(5, 8, 20, 0.35);
         }
-        .help-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .history-card.is-selecting {
+            border-style: dashed;
+        }
+        .history-card.is-selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 18px 36px rgba(79, 209, 197, 0.28);
+        }
+        .history-checkbox {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 18px;
+            height: 18px;
+        }
+        .history-card-cover {
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            aspect-ratio: 9/14;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+        .history-card-desc {
+            font-size: 0.95rem;
+            line-height: 1.55;
+            color: var(--text-primary);
+        }
+        .history-card-author {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .history-card-footer {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .history-card-link {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        #no-history-msg {
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        #help-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
         }
-        .help-modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
+        #help-modal.visible {
+            display: flex;
         }
         .help-modal-card {
-            background: #1e1e2e;
-            border: 1px solid #3a3a5a;
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: min(480px, 90vw);
+            background: rgba(12, 14, 24, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.25rem;
+            color: var(--text-primary);
+            box-shadow: 0 24px 60px rgba(5, 8, 20, 0.55);
             position: relative;
         }
         .help-modal-card h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
         }
         .help-modal-card p {
-            color: #a0a0d0;
-            line-height: 1.6;
+            color: var(--text-secondary);
+            line-height: 1.65;
             margin-bottom: 1rem;
         }
         .help-modal-card strong {
-            color: #68d391;
+            color: var(--primary-color);
         }
-        .help-modal-close-btn {
+        #help-modal-close-btn {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 1.1rem;
+            right: 1.1rem;
             background: none;
             border: none;
-            color: #a0a0d0;
-            font-size: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 1.6rem;
             cursor: pointer;
         }
-
-        /* --- Bố cục lưới chính cho kết quả --- */
-        .result-grid { display: grid; grid-template-columns: 360px 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1.2fr); grid-template-areas: "info transcript" "info analysis"; gap: 1.5rem; align-items: stretch; animation: fadeIn 0.5s ease-out; min-height: 60vh; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .result-card { background: rgba(42, 42, 62, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; flex-direction: column; overflow: hidden; }
-        .result-col-left { grid-area: info; }
-        .transcript-card { grid-area: transcript; }
-        .analysis-card { grid-area: analysis; }
-        .result-col-left .video-cover { width: 100%; aspect-ratio: 9 / 14; object-fit: cover; border-radius: 10px; margin-bottom: 1rem; flex-shrink: 0; }
-        .result-col-left .card-content { overflow-y: auto; padding-right: 10px; margin-right: -10px; flex-grow: 1; }
-        .result-col-left .video-title { font-size: 1.1rem; font-weight: 600; line-height: 1.4; margin-bottom: 0.5rem; }
-        .result-col-left .video-author { font-size: 0.9rem; color: #a0a0d0; margin-bottom: 1rem; }
-        .result-col-left .video-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
-        .result-col-left .stat-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
-        .result-col-left .stat-item i { color: #68d391; }
-        .result-col-left .btn-download { display: block; width: 100%; text-align: center; padding: 0.8rem; background: #68d391; color: #1a1a2e; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s; margin-top: 1rem; flex-shrink: 0; }
-        .result-col-left .btn-download:hover { background-color: #84e3a4; transform: translateY(-2px); }
-        .result-card h3 { font-size: 1.1rem; font-weight: 600; margin-top: 0; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #3a3a5a; flex-shrink: 0; }
-        .result-card .content-box { overflow-y: auto; padding-right: 10px; margin-right: -10px; flex-grow: 1; font-size: 0.95rem; line-height: 1.7; color: #c0c0e0; }
-        .result-card .content-box::-webkit-scrollbar, .result-col-left .card-content::-webkit-scrollbar { width: 6px; }
-        .result-card .content-box::-webkit-scrollbar-track, .result-col-left .card-content::-webkit-scrollbar-track { background: transparent; }
-        .result-card .content-box::-webkit-scrollbar-thumb, .result-col-left .card-content::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 6px; }
-        .result-card .content-box::-webkit-scrollbar-thumb:hover, .result-col-left .card-content::-webkit-scrollbar-thumb:hover { background-color: #68d391; }
-        .history-section { margin-top: 4rem; }
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .history-header h2 { margin: 0; text-align: left; font-size: 1.5rem; font-weight: 600; }
-        .history-actions { display: flex; gap: 0.75rem; }
-        .history-actions .btn-action { padding: 0.5rem 1rem; border: 1px solid #4a4a6a; background-color: #2a2a3e; color: #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s; }
-        .history-actions .btn-action:hover { background-color: #3a3a5a; }
-        .history-actions .btn-danger { background-color: #e53e3e; border-color: #e53e3e; color: #fff; }
-        .history-actions .btn-danger:hover { background-color: #c53030; }
-        .history-list { max-height: 600px; overflow-y: auto; padding: 5px; margin: -5px; padding-right: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
-        .history-list::-webkit-scrollbar { width: 8px; }
-        .history-list::-webkit-scrollbar-track { background: transparent; }
-        .history-list::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 10px; }
-        .history-list::-webkit-scrollbar-thumb:hover { background-color: #68d391; }
-        .history-card { position: relative; cursor: pointer; background-color: #2a2a3e; border-radius: 12px; overflow: hidden; border: 1px solid #3a3a5a; transition: all 0.3s ease; display: flex; flex-direction: column; }
-        .history-card.is-selecting { cursor: pointer; }
-        .history-card.is-selected { outline: 2px solid #68d391; box-shadow: 0 0 15px rgba(104, 211, 145, 0.4); transform: translateY(-2px); }
-        .history-checkbox { position: absolute; top: 1rem; right: 1rem; width: 20px; height: 20px; accent-color: #68d391; z-index: 10; cursor: pointer; }
-        .history-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
-        .history-card-cover { width: 100%; height: 160px; object-fit: cover; border-bottom: 1px solid #3a3a5a; }
-        .history-card-body { padding: 1rem; display: flex; flex-direction: column; flex-grow: 1; }
-        .history-card-desc { font-size: 0.9rem; line-height: 1.5; flex-grow: 1; margin-bottom: 0.75rem; }
-        .history-card-author { font-size: 0.8rem; color: #a0a0d0; margin-bottom: 0.75rem; }
-        .history-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
-        .history-card-date { font-size: 0.75rem; color: #7070a0; }
-        .history-card-link { font-size: 0.8rem; color: #68d391; text-decoration: none; font-weight: 500; }
-        .history-card-link:hover { text-decoration: underline; }
-        #no-history-msg { grid-column: 1 / -1; text-align: center; padding: 2rem; color: #888; }
-        @media (max-width: 992px) { .result-grid { grid-template-columns: 1fr; grid-template-areas: "info" "transcript" "analysis"; } }
+        .site-footer {
+            padding-top: 1.5rem;
+            font-size: 0.75rem;
+            opacity: 0.6;
+            text-align: center;
+        }
+        @media (max-width: 1024px) {
+            .tool-hero {
+                flex-direction: column;
+            }
+            .hero-card {
+                width: 100%;
+            }
+        }
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+            .tool-hero {
+                padding: 2rem;
+            }
+            .panel, .results-inner {
+                padding: 1.5rem;
+            }
+            .form-row {
+                flex-direction: column;
+            }
+            #analyze-btn {
+                width: 100%;
+            }
+            .results-columns {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 {% endblock %}
 
 {% block content %}
-<div class="analyzer-container">
-    <div class="analyzer-header">
-        <div class="analyzer-title-wrapper">
-            <h1>TikTok Video Analyzer</h1>
-            <button id="help-btn" class="help-btn" aria-label="Hướng dẫn">?</button>
+<div class="tool-page">
+    <section class="tool-hero">
+        <div class="hero-copy">
+            <span class="hero-eyebrow">
+                Công cụ TikTok
+            </span>
+            <h1>Hiểu sâu mọi video trong vài giây</h1>
+            <p>Rita trích xuất dữ liệu trực tiếp từ TikTok, tạo transcript đầy đủ và phân tích nội dung bằng AI để bạn nắm bắt insight ngay lập tức.</p>
+            <div class="hero-stats">
+                <span class="stat-pill">⚡ Realtime fetch</span>
+                <span class="stat-pill">🧠 AI Phân tích</span>
+                <span class="stat-pill">📥 Tải video</span>
+            </div>
         </div>
-        <p>Dán link video TikTok vào đây để xem phân tích chi tiết.</p>
-    </div>
+        <aside class="hero-card">
+            <div class="hero-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 5C8 2.79086 9.79086 1 12 1C14.2091 1 16 2.79086 16 5V13.5C16 14.8807 17.1193 16 18.5 16C20.433 16 22 17.567 22 19.5C22 21.433 20.433 23 18.5 23C16.567 23 15 21.433 15 19.5V9.8C13.9123 11.1263 12.2331 12 10.3333 12H10V17.5C10 20.5376 7.53757 23 4.5 23C1.46243 23 -1 20.5376 -1 17.5C-1 14.4624 1.46243 12 4.5 12C5.32843 12 6 12.6716 6 13.5C6 14.3284 5.32843 15 4.5 15C3.11929 15 2 16.1193 2 17.5C2 18.8807 3.11929 20 4.5 20C5.88071 20 7 18.8807 7 17.5V5Z" fill="#68d391"/>
+                </svg>
+            </div>
+            <dl>
+                <div>
+                    <dt>Độ phủ toàn diện</dt>
+                    <dd>Tóm tắt, chỉ số tương tác và transcript được gom trong một dashboard duy nhất.</dd>
+                </div>
+                <div>
+                    <dt>Workflow nhanh chóng</dt>
+                    <dd>Dán liên kết, chờ Rita xử lý và lưu lịch sử để xem lại bất cứ lúc nào.</dd>
+                </div>
+            </dl>
+        </aside>
+    </section>
 
-    <form id="analyze-form" class="analyze-form">
-        <input type="url" id="tiktok-url-input" placeholder="https://www.tiktok.com/@user/video/123..." required>
-        <button type="submit" id="analyze-btn">Lấy thông tin</button>
-    </form>
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Phân tích video</h2>
+            <button type="button" id="help-btn" aria-label="Hướng dẫn">
+                ?
+            </button>
+        </div>
+        <form id="analyze-form">
+            {% csrf_token %}
+            <div class="form-row">
+                <input type="url" id="tiktok-url-input" name="video_url" placeholder="https://www.tiktok.com/@username/video/..." required>
+                <button type="submit" id="analyze-btn">Lấy thông tin</button>
+            </div>
+            <p class="helper-text">Gợi ý: Bạn có thể dán liên kết TikTok công khai hoặc liên kết chia sẻ trực tiếp.</p>
+            <div class="quick-actions">
+                <span class="quick-chip">💡 Tìm insight khán giả</span>
+                <span class="quick-chip">✍️ Chuẩn bị script lại video</span>
+                <span class="quick-chip">📈 Đánh giá tỉ lệ tương tác</span>
+            </div>
+        </form>
+    </section>
 
-    <div id="loading-indicator" style="display: none;">
-        <div class="spinner"></div>
-        <p>Đang xử lý, vui lòng chờ...</p>
-    </div>
+    <section class="panel panel-results">
+        <div class="results-inner">
+            <div id="loading-indicator">
+                <div class="spinner"></div>
+                <p>Đang lấy dữ liệu...</p>
+            </div>
 
-    <div id="results-wrapper" style="display: none;">
-        <div class="result-grid">
-            <div class="result-card result-col-left">
-                <img id="video-cover" src="" alt="Video Cover" class="video-cover">
-                <div class="card-content">
-                    <h2 id="video-title" class="video-title"></h2>
-                    <p id="video-author" class="video-author"></p>
-                    <div id="video-stats" class="video-stats">
-                        <span class="stat-item"><i class="fas fa-play"></i> <span id="play-count"></span></span>
-                        <span class="stat-item"><i class="fas fa-heart"></i> <span id="like-count"></span></span>
-                        <span class="stat-item"><i class="fas fa-comment"></i> <span id="comment-count"></span></span>
-                        <span class="stat-item"><i class="fas fa-share"></i> <span id="share-count"></span></span>
+            <div id="results-wrapper">
+                <div class="results-columns">
+                    <div class="result-card video-card result-col-left">
+                        <img src="https://placehold.co/600x900/111827/94a3b8?text=TikTok+Preview" id="video-cover" alt="TikTok preview" class="video-cover">
+                        <div class="video-meta">
+                            <h3 class="video-title" id="video-title">Tiêu đề video sẽ hiển thị tại đây</h3>
+                            <p class="video-author" id="video-author">@creator</p>
+                            <div class="stat-grid">
+                                <span class="stat-item"><i class="fas fa-play"></i> <span id="play-count">0</span> lượt xem</span>
+                                <span class="stat-item"><i class="fas fa-heart"></i> <span id="like-count">0</span> lượt thích</span>
+                                <span class="stat-item"><i class="fas fa-comment"></i> <span id="comment-count">0</span> bình luận</span>
+                                <span class="stat-item"><i class="fas fa-share"></i> <span id="share-count">0</span> chia sẻ</span>
+                            </div>
+                        </div>
+                        <a id="video-download-link" href="#" target="_blank" rel="noopener noreferrer">Tải video gốc</a>
+                    </div>
+
+                    <div class="insight-columns">
+                        <div class="result-card transcript-card">
+                            <h3>Transcript chi tiết</h3>
+                            <div id="transcript-output" class="content-box"></div>
+                        </div>
+                        <div class="result-card analysis-card">
+                            <h3>Phân tích từ Rita</h3>
+                            <div id="analysis-output" class="content-box"></div>
+                        </div>
                     </div>
                 </div>
-                <a id="video-download-link" href="#" class="btn-download" target="_blank" style="display: none;">Tải Video</a>
-            </div>
-            <div class="result-card transcript-card">
-                <h3>Bản ghi nội dung (Transcript)</h3>
-                <div id="transcript-output" class="content-box"></div>
-            </div>
-            <div class="result-card analysis-card">
-                <h3>Phân tích từ AI</h3>
-                <div id="analysis-output" class="content-box"></div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="history-section">
+    <section class="panel history-panel">
         <div class="history-header">
             <h2>Lịch sử phân tích</h2>
             <div class="history-actions">
                 <button id="select-history-btn" class="btn-action">Chọn</button>
-                <button id="delete-selected-btn" class="btn-action btn-danger" style="display: none;">Xóa mục đã chọn</button>
+                <button id="delete-selected-btn" class="btn-action btn-danger" style="display: none;">Xoá đã chọn</button>
                 <button id="cancel-selection-btn" class="btn-action" style="display: none;">Hủy</button>
             </div>
         </div>
@@ -216,61 +696,52 @@
             {% for video in videos %}
                 <div class="history-card" data-id="{{ video.id }}">
                     <input type="checkbox" class="history-checkbox" style="display: none;">
-                    <img src="{{ video.cover_url }}" alt="Video cover" class="history-card-cover" onerror="this.src='https://placehold.co/400/1e1e2f/e0e0e0?text=No+Cover'">
-                    <div class="history-card-body">
-                        <p class="history-card-desc">{{ video.description|truncatechars:80 }}</p>
-                        <p class="history-card-author">bởi @{{ video.author }}</p>
-                        <div class="history-card-footer">
-                            <small class="history-card-date">{{ video.created_at|date:"d/m/Y" }}</small>
-                            <a href="{{ video.video_url }}" target="_blank" rel="noopener noreferrer" class="history-card-link">Xem lại</a>
-                        </div>
+                    <img src="{{ video.cover_url }}" alt="Video cover" class="history-card-cover" onerror="this.src='https://placehold.co/400/111827/94a3b8?text=No+Cover'">
+                    <p class="history-card-desc">{{ video.description|truncatechars:80 }}</p>
+                    <p class="history-card-author">bởi @{{ video.author }}</p>
+                    <div class="history-card-footer">
+                        <small class="history-card-date">{{ video.created_at|date:"d/m/Y" }}</small>
+                        <a href="{{ video.video_url }}" target="_blank" rel="noopener noreferrer" class="history-card-link">Xem lại</a>
                     </div>
                 </div>
             {% empty %}
                 <p id="no-history-msg">Chưa có video nào được phân tích.</p>
             {% endfor %}
         </div>
-    </div>
+    </section>
 </div>
 
-<!-- Modal Hướng dẫn -->
-<div id="help-modal" class="help-modal-overlay">
+<footer class="site-footer">
+    <p>Rita có thể mắc lỗi, hãy kiểm tra kỹ thông tin quan trọng.</p>
+</footer>
+
+<!-- Modal hướng dẫn -->
+<div id="help-modal">
     <div class="help-modal-card">
-        <button id="help-modal-close-btn" class="help-modal-close-btn">&times;</button>
+        <button id="help-modal-close-btn">&times;</button>
         <h3>Hướng dẫn sử dụng TikTok Analyzer</h3>
-        <p><strong>Bước 1: Lấy thông tin</strong><br>Dán link video TikTok vào ô và nhấn "Lấy thông tin". Hệ thống sẽ nhanh chóng hiển thị thông tin cơ bản và bản ghi nội dung.</p>
-        <p><strong>Bước 2: Chờ phân tích</strong><br>Quá trình phân tích bằng AI sẽ chạy trong nền. Vui lòng chờ trong giây lát, kết quả sẽ tự động xuất hiện trong thẻ "Phân tích từ AI".</p>
-        <p><strong>Bước 3: Quản lý lịch sử</strong><br>Mọi video bạn phân tích sẽ được lưu lại. Sử dụng nút "Chọn" để xóa nhiều mục cùng lúc.</p>
+        <p><strong>Bước 1:</strong> Dán liên kết TikTok hợp lệ vào ô nhập và nhấn “Lấy thông tin”. Rita sẽ trích xuất metadata và transcript.</p>
+        <p><strong>Bước 2:</strong> Chờ vài giây để AI phân tích. Kết quả chi tiết sẽ hiển thị ở cột bên phải.</p>
+        <p><strong>Bước 3:</strong> Sử dụng lịch sử để xem lại hoặc xóa nhiều kết quả cùng lúc.</p>
     </div>
 </div>
-<footer class="site-footer"> <p>Copyright © 2025 Lequyphat</p> </footer>
 {% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'js/tiktok_analyzer.js' %}"></script>
     <script>
-        // --- LOGIC MỚI CHO MODAL HƯỚNG DẪN ---
         document.addEventListener('DOMContentLoaded', function() {
-            const helpBtn = document.getElementById('help-btn');
-            const helpModal = document.getElementById('help-modal');
-            const closeModalBtn = document.getElementById('help-modal-close-btn');
+            const quickChips = document.querySelectorAll('.quick-chip');
+            const urlInput = document.getElementById('tiktok-url-input');
 
-            if (helpBtn && helpModal && closeModalBtn) {
-                helpBtn.addEventListener('click', () => {
-                    helpModal.classList.add('visible');
+            quickChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    if (!urlInput) return;
+                    urlInput.focus();
+                    urlInput.classList.add('pulse');
+                    setTimeout(() => urlInput.classList.remove('pulse'), 600);
                 });
-
-                closeModalBtn.addEventListener('click', () => {
-                    helpModal.classList.remove('visible');
-                });
-
-                // Đóng modal khi click ra ngoài
-                helpModal.addEventListener('click', (event) => {
-                    if (event.target === helpModal) {
-                        helpModal.classList.remove('visible');
-                    }
-                });
-            }
+            });
         });
     </script>
 {% endblock %}

@@ -1,272 +1,357 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Về chúng tôi - Rita AI Suite{% endblock %}
+{% block title %}About – Rita AI Suite{% endblock %}
 
 {% block extra_css %}
-<style>
-    .page-container {
-        max-width: 900px;
-        margin: 2rem auto;
-        padding: 2rem;
-        color: #e0e0e0;
-        animation: fadeIn 0.5s ease-out;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .page-container h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        text-align: center;
-        margin-bottom: 0.4rem;
-        background: -webkit-linear-gradient(45deg, #68d391, #a0a0d0);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    /* subheading nhỏ ngay dưới H1 */
-    .subhead {
-        text-align: center;
-        color: #a0a0d0;
-        font-size: 0.95rem;
-        margin-bottom: 1.2rem;
-        opacity: .9;
-    }
-
-    .page-intro {
-        font-size: 1.15rem;
-        text-align: center;
-        color: #a0a0d0;
-        margin-bottom: 2rem;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-        line-height: 1.75;
-    }
-
-    /* CTA buttons */
-    .cta-row {
-        display: flex;
-        gap: .75rem;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-bottom: 3rem;
-    }
-    .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: .5rem;
-        padding: .75rem 1rem;
-        border-radius: 999px;
-        border: 1px solid rgba(255,255,255,0.12);
-        color: #e0e0e0;
-        text-decoration: none;
-        font-weight: 600;
-        background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
-        transition: transform .2s, box-shadow .2s, border-color .2s;
-    }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,.35); border-color: rgba(255,255,255,.2); }
-    .btn--primary {
-        background: linear-gradient(90deg, #68d391, #8aa0ff);
-        color: #0b0c12;
-        border-color: transparent;
-    }
-
-    .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-    }
-
-    .feature-card {
-        background: rgba(30, 30, 46, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 2rem 1.6rem;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        transition: transform 0.3s, box-shadow 0.3s, border-color .3s;
-        text-align: left;
-        position: relative;
-        overflow: hidden;
-    }
-    /* viền gradient nhẹ cho card (không phá layout cũ) */
-    .feature-card::before{
-        content:"";
-        position:absolute; inset:0;
-        border-radius:16px;
-        padding:1px;
-        background: linear-gradient(135deg, rgba(104,211,145,.35), rgba(138,160,255,.25));
-        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-        -webkit-mask-composite: xor; mask-composite: exclude;
-        pointer-events:none;
-    }
-
-    .feature-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
-        border-color: rgba(255,255,255,.16);
-    }
-
-    .feature-icon {
-        font-size: 2.5rem;
-        color: #68d391;
-        margin-bottom: 1rem;
-        display: inline-block;
-    }
-
-    .feature-card h2 {
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 0.5rem;
-    }
-
-    .feature-card p {
-        font-size: 0.98rem;
-        line-height: 1.75;
-        color: #c0c0e0;
-        margin: 0;
-    }
-
-    /* tiêu đề section phụ */
-    .section-title {
-        font-size: 1.6rem;
-        font-weight: 700;
-        margin: 2.6rem 0 1rem;
-        background: -webkit-linear-gradient(45deg, #68d391, #a0a0d0);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: left;
-    }
-
-    /* dùng lại card & grid cho roadmap để đồng bộ style */
-    .roadmap-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 1.4rem;
-        margin-bottom: 2rem;
-    }
-    .tag {
-        display: inline-block;
-        font-size: .8rem;
-        padding: .2rem .6rem;
-        border-radius: 999px;
-        border: 1px solid rgba(255,255,255,.12);
-        color: #a0a0d0;
-        margin-bottom: .5rem;
-    }
-
-    /* FAQ nhẹ nhàng, không cần JS */
-    .faq details {
-        background: rgba(30, 30, 46, 0.7);
-        border: 1px solid rgba(255,255,255,.1);
-        border-radius: 16px;
-        padding: .9rem 1rem;
-    }
-    .faq details + details { margin-top: .75rem; }
-    .faq summary { cursor: pointer; font-weight: 600; color: #fff; }
-    .faq p { color: #c0c0e0; margin: .6rem 0 0; line-height: 1.7; }
-
-    .final-words {
-        margin-top: 4rem;
-        padding-top: 2rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-</style>
+    <style>
+        body {
+            overflow: auto;
+        }
+        .app-container {
+            padding: 1.5rem;
+            min-height: 100vh;
+        }
+        .main-content {
+            padding: 0;
+        }
+        .about-page {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+        .tool-hero {
+            display: flex;
+            gap: 2.5rem;
+            justify-content: space-between;
+            align-items: stretch;
+            padding: 2.6rem;
+            border-radius: 28px;
+            background: linear-gradient(145deg, rgba(26, 26, 46, 0.95), rgba(12, 14, 24, 0.92));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(5, 8, 20, 0.55);
+        }
+        .tool-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(79, 209, 197, 0.28), transparent 55%),
+                        radial-gradient(circle at bottom left, rgba(104, 211, 145, 0.18), transparent 60%);
+            pointer-events: none;
+        }
+        .hero-copy {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(104, 211, 145, 0.12);
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .hero-copy h1 {
+            font-size: 2.6rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        .hero-copy p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 540px;
+        }
+        .hero-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .metric-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .hero-card {
+            position: relative;
+            z-index: 1;
+            width: 320px;
+            padding: 1.9rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 12, 20, 0.68);
+            backdrop-filter: blur(14px);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
+        }
+        .hero-card h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .hero-card p {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .about-grid,
+        .timeline-grid,
+        .faq-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .about-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+        .glass-card {
+            position: relative;
+            background: rgba(12, 14, 24, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 22px;
+            padding: 1.9rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 24px 60px rgba(5, 8, 20, 0.4);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 30px 70px rgba(5, 8, 20, 0.5);
+        }
+        .glass-card h2,
+        .glass-card h3 {
+            margin-top: 0;
+            color: var(--text-primary);
+        }
+        .glass-card p {
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+        .pill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            margin-top: 1rem;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .section-heading h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .cta-row {
+            display: inline-flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.7rem 1.2rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+        .btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #68d391 0%, #4fd1c5 100%);
+            color: #0b0c12;
+            border: none;
+            box-shadow: 0 16px 36px rgba(79, 209, 197, 0.35);
+        }
+        .timeline-grid {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+        .timeline-card {
+            border-left: 3px solid rgba(104, 211, 145, 0.45);
+            padding-left: 1.2rem;
+        }
+        .timeline-card span {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--primary-color);
+        }
+        .faq-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+        .faq-item summary {
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+        .faq-item summary::marker {
+            color: var(--primary-color);
+        }
+        .faq-item p {
+            margin: 0.6rem 0 0;
+        }
+        .footer-note {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+        @media (max-width: 1024px) {
+            .tool-hero {
+                flex-direction: column;
+            }
+            .hero-card {
+                width: 100%;
+            }
+        }
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+            .tool-hero {
+                padding: 2rem;
+            }
+            .glass-card,
+            .hero-card {
+                padding: 1.6rem 1.8rem;
+            }
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="page-container">
-    <h1>Về Rita AI Suite</h1>
-    <p class="subhead">Nền tảng công cụ AI đa năng cho công việc và sáng tạo</p>
+<div class="about-page">
+    <section class="tool-hero">
+        <div class="hero-copy">
+            <span class="hero-eyebrow">About Rita</span>
+            <h1>Xây dựng bộ trợ lý AI cá nhân hoá</h1>
+            <p>Rita AI Suite được tạo ra để gom những thao tác hằng ngày vào một không gian duy nhất – trò chuyện, phân tích dữ liệu, tra cứu nội dung – tất cả đều được tinh chỉnh để phục vụ nhu cầu công việc và sáng tạo.</p>
+            <div class="hero-metrics">
+                <span class="metric-chip">⚙️ 4 công cụ hoạt động</span>
+                <span class="metric-chip">⏱ Cập nhật tính năng hàng tuần</span>
+                <span class="metric-chip">📬 Luôn mở cho góp ý</span>
+            </div>
+        </div>
+        <aside class="hero-card">
+            <h3>Tầm nhìn</h3>
+            <p>Trao cho mỗi người một đồng đội AI đáng tin cậy: hiểu ngữ cảnh, đẩy nhanh khảo sát thông tin và đưa ra gợi ý hành động rõ ràng.</p>
+            <div class="cta-row">
+                <a class="btn btn-primary" href="mailto:Lequyphat0123@gmail.com">Gửi góp ý</a>
+                <a class="btn" href="#roadmap">Xem roadmap</a>
+            </div>
+        </aside>
+    </section>
 
-    <p class="page-intro">
-        Rita AI Suite là dự án được xây dựng với mục tiêu hỗ trợ và tối ưu hóa công việc cho mọi người. 
-        Trong tương lai, dự án sẽ tiếp tục mở rộng và bổ sung nhiều công cụ tiện ích mới, 
-        mang đến trải nghiệm ngày càng hoàn thiện hơn. 
-        Nếu bạn có ý tưởng hay đóng góp, hãy chia sẻ cùng tôi qua email 
-        <a href="mailto:Lequyphat0123@gmail.com">Lequyphat0123@gmail.com</a>.
-    </p>
+    <section class="about-grid">
+        <article class="glass-card">
+            <h2>Điều khiến Rita khác biệt</h2>
+            <p>Mỗi module được xây để giải quyết một hành trình công việc cụ thể rồi kết nối lại bằng trải nghiệm thống nhất. Bạn có thể bắt đầu ở chat, chuyển sang phân tích TikTok, rồi lưu kết quả cho nhóm mà không rời khỏi giao diện.</p>
+            <div class="pill-list">
+                <span class="pill">Multi-tool workspace</span>
+                <span class="pill">Realtime research</span>
+                <span class="pill">Friendly UI</span>
+            </div>
+        </article>
+        <article class="glass-card">
+            <h2>Principles</h2>
+            <ul style="margin:0; padding-left:1.2rem; color:var(--text-secondary); line-height:1.65;">
+                <li>Tập trung vào tốc độ phản hồi và độ rõ ràng của kết quả.</li>
+                <li>Ưu tiên minh bạch: luôn hiển thị nguồn và trạng thái xử lý.</li>
+                <li>Thiết kế trước tiên cho cảm giác sử dụng hàng ngày.</li>
+            </ul>
+        </article>
+        <article class="glass-card">
+            <h2>Cộng đồng</h2>
+            <p>Rita phát triển nhờ những phản hồi rất cụ thể của người dùng sớm. Mọi ý tưởng mới đều được thử nghiệm nhanh, chia sẻ công khai qua bản cập nhật ngắn gọn.</p>
+            <div class="pill-list">
+                <span class="pill">👥 Early adopters</span>
+                <span class="pill">🧪 Rapid iteration</span>
+                <span class="pill">📈 Always improving</span>
+            </div>
+        </article>
+    </section>
 
-    <div class="cta-row">
-        <a class="btn btn--primary" href="mailto:Lequyphat0123@gmail.com" aria-label="Gửi ý tưởng qua email">🚀 Gửi ý tưởng</a>
-        <a class="btn" href="/">Dùng thử ngay</a>
-        <a class="btn" href="#roadmap">Xem roadmap</a>
+    <div class="section-heading" id="roadmap">
+        <h2>Roadmap 2025</h2>
+        <a class="btn" href="mailto:Lequyphat0123@gmail.com">Đề xuất tính năng</a>
     </div>
-    
-    <div class="features-grid">
-        <div class="feature-card">
-            <i class="fas fa-comments feature-icon" aria-hidden="true"></i>
-            <h2>AI Chat</h2>
-            <p>Trò chuyện và nhận câu trả lời từ một trợ lý AI được huấn luyện dựa trên dữ liệu nội bộ và có khả năng truy cập thông tin thời gian thực từ internet.</p>
-        </div>
-        <div class="feature-card">
-            <i class="fas fa-video feature-icon" aria-hidden="true"></i>
-            <h2>TikTok Video Analysis</h2>
-            <p>Tự động phiên âm và tóm tắt nội dung từ các video TikTok, giúp bạn nhanh chóng nắm bắt ý chính mà không cần xem toàn bộ video.</p>
-        </div>
-        <div class="feature-card">
-            <i class="fas fa-map-marker-alt feature-icon" aria-hidden="true"></i>
-            <h2>Location Tracking</h2>
-            <p>Tạo các đường link theo dõi vị trí (khi được cho phép), hữu ích cho việc quản lý và phân tích.</p>
-        </div>
-        <div class="feature-card">
-            <i class="fas fa-shield-alt feature-icon" aria-hidden="true"></i>
-            <h2>Secure Platform</h2>
-            <p>Được xây dựng trên Django Framework, đảm bảo tính bảo mật và khả năng mở rộng cho các tính năng trong tương lai.</p>
-        </div>
-    </div>
+    <section class="timeline-grid">
+        <article class="glass-card timeline-card">
+            <span>Đang triển khai</span>
+            <h3>Không gian cộng tác</h3>
+            <p>Chia sẻ cuộc trò chuyện, bookmark prompt, phân quyền truy cập cho nhóm làm việc chung.</p>
+        </article>
+        <article class="glass-card timeline-card">
+            <span>Kế tiếp</span>
+            <h3>Plugin bên thứ ba</h3>
+            <p>Kết nối Notion, Slack, Google Drive để tự động hoá lại quy trình tổng hợp và báo cáo.</p>
+        </article>
+        <article class="glass-card timeline-card">
+            <span>Ý tưởng mở</span>
+            <h3>Ứng dụng di động</h3>
+            <p>Nhận thông báo realtime, ghi âm nhanh nội dung cần tóm tắt, đồng bộ tức thì với workspace.</p>
+        </article>
+    </section>
 
-    <!-- Roadmap -->
-    <h2 id="roadmap" class="section-title">Roadmap</h2>
-    <div class="roadmap-grid">
-        <div class="feature-card">
-            <span class="tag">Đang làm</span>
-            <h3 style="margin:.5rem 0 .35rem; color:#fff;">Workspace cộng tác</h3>
-            <p>Chia sẻ hội thoại, nhãn và prompt template theo nhóm.</p>
-        </div>
-        <div class="feature-card">
-            <span class="tag">Kế tiếp</span>
-            <h3 style="margin:.5rem 0 .35rem; color:#fff;">Plugins bên thứ ba</h3>
-            <p>Kết nối Notion, Slack, Google Drive để đồng bộ dữ liệu.</p>
-        </div>
-        <div class="feature-card">
-            <span class="tag">Ý tưởng</span>
-            <h3 style="margin:.5rem 0 .35rem; color:#fff;">Ứng dụng di động</h3>
-            <p>Ghi âm → tóm tắt họp, đồng bộ đa thiết bị.</p>
-        </div>
+    <div class="section-heading">
+        <h2>Những câu hỏi thường gặp</h2>
     </div>
-
-    <!-- FAQs -->
-    <h2 class="section-title">Câu hỏi thường gặp</h2>
-    <div class="faq">
-        <details>
-            <summary>Rita AI Suite có miễn phí không?</summary>
-            <p>Hiện tại bạn vẫn có thể dùng thử miễn phí. Một số tính năng nâng cao sẽ áp dụng phí trong tương lai.</p>
+    <section class="faq-grid">
+        <details class="glass-card faq-item">
+            <summary>Rita có miễn phí không?</summary>
+            <p>Hiện tại bạn có thể sử dụng miễn phí. Một số tính năng cao cấp sẽ tính phí khi hoàn thiện.</p>
         </details>
-        <details>
+        <details class="glass-card faq-item">
             <summary>Dữ liệu của tôi có an toàn?</summary>
-            <p>Tôi luôn ưu tiên vấn đề bảo mật, chỉ sử dụng dữ liệu theo quyền bạn cấp và tuân thủ nguyên tắc tối thiểu cần thiết.</p>
+            <p>Tất cả truy vấn được xử lý với nguyên tắc tối thiểu dữ liệu và chỉ lưu lại khi bạn chủ động lưu.</p>
         </details>
-        <details>
-            <summary>Tôi muốn đóng góp ý tưởng thì sao?</summary>
-            <p>Bấm “Gửi ý tưởng” ở trên hoặc email: <a href="mailto:Lequyphat0123@gmail.com">Lequyphat0123@gmail.com</a>.</p>
+        <details class="glass-card faq-item">
+            <summary>Làm sao gửi góp ý hoặc báo lỗi?</summary>
+            <p>Email trực tiếp tới <a href="mailto:Lequyphat0123@gmail.com">Lequyphat0123@gmail.com</a> hoặc dùng nút gợi ý trong hero.</p>
         </details>
-    </div>
+    </section>
 
-    <div class="final-words">
-    <p class="page-intro">
-        Lời cuối: hy vọng các công cụ này hỗ trợ bạn trong công việc, đời sống và giải trí. 
-        Đây là một dự án lớn nhằm để xây dựng nền tảng cho tham vọng lớn của tôi sau này, 
-        hy vọng mọi người sẽ ủng hộ. Cảm ơn bạn đã đồng hành và đóng góp để dự án tốt hơn mỗi ngày.
-    </p>
+    <p class="footer-note">Cảm ơn bạn đã đồng hành – từng phản hồi nhỏ giúp Rita trở thành trợ lý tốt hơn mỗi ngày.</p>
 </div>
-
-</div>
-<footer class="site-footer"><p>Copyright © 2025 Lequyphat</p></footer>
 {% endblock %}

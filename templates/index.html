@@ -1,4 +1,3 @@
-<!-- File: Rita_All_Django/templates/index.html -->
 {% extends 'base.html' %}
 {% load static %}
 
@@ -24,7 +23,7 @@
         }
 
         /* Layout chính của trang chat */
-        .chat-container {
+        .chat-wrapper {
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -34,7 +33,7 @@
         }
 
         /* Vùng hiển thị tin nhắn */
-        .chat-messages {
+        .chat-container {
             flex-grow: 1;
             overflow-y: auto;
             padding: 1.5rem;
@@ -42,10 +41,10 @@
             flex-direction: column;
             gap: 1.25rem;
         }
-        .chat-messages::-webkit-scrollbar { width: 8px; }
-        .chat-messages::-webkit-scrollbar-track { background: transparent; }
-        .chat-messages::-webkit-scrollbar-thumb { background-color: var(--surface-color); border-radius: 4px; }
-        .chat-messages::-webkit-scrollbar-thumb:hover { background-color: var(--primary-color); }
+        .chat-container::-webkit-scrollbar { width: 8px; }
+        .chat-container::-webkit-scrollbar-track { background: transparent; }
+        .chat-container::-webkit-scrollbar-thumb { background-color: var(--surface-color); border-radius: 4px; }
+        .chat-container::-webkit-scrollbar-thumb:hover { background-color: var(--primary-color); }
 
         .message {
             display: flex;
@@ -59,7 +58,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .message.user-message {
+        .message.user {
             align-self: flex-end;
             flex-direction: row-reverse;
         }
@@ -81,7 +80,7 @@
             background-color: var(--surface-color);
             border: 1px solid var(--border-color);
         }
-        .user-message .message-content {
+        .user .message-content {
             background: var(--primary-color);
             color: var(--background-dark);
             border: none;
@@ -93,7 +92,7 @@
             border-top: 1px solid var(--border-color);
             flex-shrink: 0;
         }
-        .chat-form {
+        .chat-input-form {
             display: flex;
             align-items: flex-end; /* Căn các item xuống dưới cùng */
             gap: 0.75rem;
@@ -103,10 +102,10 @@
             border: 1px solid var(--border-color);
             transition: var(--transition-smooth);
         }
-        .chat-form:focus-within {
+        .chat-input-form:focus-within {
             border-color: var(--primary-color);
         }
-        #user-input {
+        #message-input {
             flex-grow: 1;
             background: none;
             color: var(--text-primary);
@@ -118,7 +117,7 @@
             max-height: 150px; /* Giới hạn chiều cao tối đa */
             overflow-y: auto; /* Thêm cuộn khi quá cao */
         }
-        .chat-form button {
+        .chat-input-form button {
             background: none;
             border: none;
             width: 44px;
@@ -131,7 +130,7 @@
             transition: var(--transition-smooth);
             color: var(--text-secondary);
         }
-        .chat-form button:hover {
+        .chat-input-form button:hover:not(:disabled) {
             background-color: var(--background-dark);
             color: var(--text-primary);
         }
@@ -143,13 +142,13 @@
             background-color: var(--border-color);
             cursor: not-allowed;
         }
-        #send-btn:hover {
+        #send-btn:hover:not(:disabled) {
             filter: brightness(1.1);
         }
         
-        /* NEW: File Info Container */
+        /* Cập nhật: Thêm CSS cho container file */
         #file-info-container {
-            display: flex;
+            display: none; /* Ẩn mặc định */
             flex-wrap: wrap;
             gap: 0.5rem;
             margin-bottom: 0.75rem;
@@ -169,32 +168,21 @@
             cursor: pointer;
             font-size: 1rem;
             color: var(--text-secondary);
+            border: none;
+            background: none;
+            padding: 0;
         }
         .file-info-item .remove-file-btn:hover {
             color: var(--error-color);
-        }
-        
-        /* Modal */
-        .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-            width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background-color: var(--surface-color); color: var(--text-primary);
-            padding: 2rem; border: 1px solid var(--border-color);
-            width: 90%; max-width: 450px; border-radius: 16px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.3); text-align: center;
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
     </style>
 {% endblock %}
 
 {% block content %}
-<div class="chat-container">
-    <div id="chat-messages" class="chat-messages">
+<div class="chat-wrapper">
+    <div class="chat-container" id="chat-container">
         {% for message in chat_history %}
-            <div class="message {% if message.role == 'user' %}user-message{% else %}bot-message{% endif %}">
+            <div class="message {% if message.role == 'user' %}user{% else %}rita{% endif %}">
                 <div class="message-avatar">
                     {% if message.role == 'user' %}
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#e0e0e0" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
@@ -203,33 +191,39 @@
                     {% endif %}
                 </div>
                 <div class="message-content">
-                    {{ message.content|linebreaksbr }}
+                    <p>{{ message.content|safe|linebreaksbr }}</p>
                 </div>
             </div>
         {% empty %}
-            {# Tin nhắn chào mừng ban đầu sẽ được thêm bằng JS #}
+            <div class="message rita">
+                 <div class="message-avatar">
+                    <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita">
+                 </div>
+                 <div class="message-content">
+                    <p>Hello! I am Rita, your personal AI assistant. How can I help you today?</p>
+                </div>
+            </div>
         {% endfor %}
     </div>
-
     <div class="chat-input-area">
-        <!-- NEW: Container for attached file info -->
+        <!-- Cập nhật: Thêm container cho thông tin file -->
         <div id="file-info-container"></div>
-        
-        <form id="chat-form" class="chat-form" enctype="multipart/form-data">
+        <form id="chat-form" class="chat-input-form" enctype="multipart/form-data">
             {% csrf_token %}
-            <!-- NEW: File upload button and hidden input -->
+            <button type="button" class="refresh-btn" id="refresh-btn" title="New Chat">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <!-- Cập nhật: Thêm nút upload và input ẩn -->
             <input type="file" id="file-input" multiple hidden>
-            <button type="button" class="upload-button" id="upload-btn" title="Đính kèm file">
+            <button type="button" class="upload-button" id="upload-btn" title="Attach files">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21.44 11.05l-9.19 9.19a6.003 6.003 0 1 1-8.49-8.49l9.19-9.19a4.002 4.002 0 0 1 5.66 5.66l-9.2 9.19a2.001 2.001 0 1 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            
-            <textarea id="user-input" name="user_input" placeholder="Nhắn tin cho Rita..." rows="1"></textarea>
-            
-            <button type="submit" class="send-button" id="send-btn" title="Gửi tin nhắn" disabled>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <textarea name="message" id="message-input" placeholder="Type your message..." rows="1"></textarea>
+            <button type="submit" id="send-btn" title="Send Message" disabled>
+                <i class="fas fa-paper-plane"></i>
             </button>
         </form>
-        <footer class="site-footer" style="font-size: 0.75rem; padding-top: 0.75rem;">
+         <footer class="site-footer" style="font-size: 0.75rem; padding-top: 0.75rem; text-align: center;">
             <p>Rita can make mistakes, double-check it | Copyright © 2025 Lequyphat</p>
         </footer>
     </div>
@@ -239,4 +233,3 @@
 {% block extra_js %}
     <script src="{% static 'js/main.js' %}"></script>
 {% endblock %}
-

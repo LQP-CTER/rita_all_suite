@@ -1,106 +1,120 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RITA - Đăng nhập & Đăng ký</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>Rita AI Suite - Đăng nhập & Đăng ký</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
-    <style>
-        /* CSS cho khu vực hiển thị thông báo */
-        .messages-container {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            width: 90%;
-            max-width: 500px;
-        }
-        .message {
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 8px;
-            color: #fff;
-            text-align: center;
-        }
-        .message.success {
-            background-color: #28a745;
-        }
-        .message.error {
-            background-color: #dc3545;
-        }
-        .message.info {
-            background-color: #17a2b8;
-        }
-    </style>
+    <link rel="icon" href="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" type="image/x-icon">
 </head>
 <body>
-    <!-- Khu vực hiển thị thông báo -->
-    {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-    {% endif %}
+{% with current_tab=initial_tab|default:'login' %}
+    <div class="auth-page">
+        <div class="auth-shell" data-initial-tab="{{ current_tab }}">
+            <aside class="auth-info">
+                <a href="{% url 'core:homepage' %}" class="auth-logo">
+                    <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita AI Suite logo">
+                    <span style="color: white;">Rita AI Suite</span>
+                </a>
+                <h1>Gia nhập hệ sinh thái Rita</h1>
+                <p>Trải nghiệm bộ công cụ AI giúp bạn phân tích dữ liệu, theo dõi chiến dịch và tự động hóa công việc.</p>
+                <ul class="auth-benefits" style="color: white;">
+                    <li>Giao diện thống nhất cho mọi sản phẩm AI của bạn</li>
+                    <li>Bảo mật nhiều lớp với xác thực an toàn</li>
+                    <li>Cập nhật liên tục các tính năng phân tích mới</li>
+                </ul>
+                <p class="auth-note" style="color: white;">
+                    Chưa chắc chắn? <a href="{% url 'core:about_view' %}">Khám phá Rita AI Suite</a>.
+                </p>
+            </aside>
 
-    <section class="user">
-        <div class="user_options-container">
-            <div class="user_options-text">
-                <div class="user_options-unregistered">
-                    <h2 class="user_unregistered-title">Chưa có tài khoản?</h2>
-                    <p class="user_unregistered-text">Tạo một tài khoản để bắt đầu hành trình khám phá cùng Rita.</p>
-                    <button class="user_unregistered-signup" id="signup-button">Đăng ký</button>
+            <div class="auth-card" data-initial-tab="{{ current_tab }}">
+                {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 </div>
-                <div class="user_options-registered">
-                    <h2 class="user_registered-title">Đã có tài khoản?</h2>
-                    <p class="user_registered-text">Chào mừng trở lại! Đăng nhập để tiếp tục.</p>
-                    <button class="user_registered-login" id="login-button">Đăng nhập</button>
+                {% endif %}
+
+                <div class="auth-tabs">
+                    <button type="button" class="auth-tab {% if current_tab == 'login' %}active{% endif %}" data-auth-tab="login">Đăng nhập</button>
+                    <button type="button" class="auth-tab {% if current_tab == 'register' %}active{% endif %}" data-auth-tab="register">Đăng ký</button>
                 </div>
-            </div>
-            
-            <div class="user_options-forms" id="user_options-forms">
-                <!-- Form Đăng nhập -->
-                <div class="user_forms-login">
-                    <h2 class="forms_title">Đăng nhập</h2>
-                    <form class="forms_form" method="post" action="{% url 'core:login_view' %}">
-                        {% csrf_token %}
-                        <fieldset class="forms_fieldset">
+
+                <div class="auth-panels">
+                    <div class="auth-panel {% if current_tab == 'login' %}active{% endif %}" data-auth-panel="login">
+                        <h2>Chào mừng trở lại</h2>
+                        <p class="auth-subtitle">Đăng nhập để tiếp tục cuộc trò chuyện cùng Rita.</p>
+                        <form method="post" action="{% url 'core:login_view' %}" id="sign-in-form">
+                            {% csrf_token %}
                             {% for field in login_form %}
-                                <div class="forms_field">
+                                <div class="form-field">
+                                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                                     {{ field }}
+                                    {% if field.help_text %}
+                                        <div class="form-help">{{ field.help_text }}</div>
+                                    {% endif %}
+                                    <div class="form-error">{% if field.errors %}{{ field.errors.0 }}{% endif %}</div>
                                 </div>
                             {% endfor %}
-                        </fieldset>
-                        <div class="forms_buttons">
-                            <button type="submit" class="forms_buttons-action">Đăng nhập</button>
-                        </div>
-                    </form>
-                </div>
+                            <div class="form-meta">
+                                <a href="{% url 'password_reset' %}">Quên mật khẩu?</a>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">Đăng nhập</button>
+                        </form>
+                    </div>
 
-                <!-- Form Đăng ký -->
-                <div class="user_forms-signup">
-                    <h2 class="forms_title">Đăng ký</h2>
-                    <form class="forms_form" method="post" action="{% url 'core:register' %}">
-                        {% csrf_token %}
-                        <fieldset class="forms_fieldset">
-                             {% for field in registration_form %}
-                                 <div class="forms_field">
-                                     {{ field }}
-                                 </div>
-                             {% endfor %}
-                        </fieldset>
-                        <div class="forms_buttons">
-                            <button type="submit" class="forms_buttons-action">Tạo tài khoản</button>
-                        </div>
-                    </form>
+                    <div class="auth-panel {% if current_tab == 'register' %}active{% endif %}" data-auth-panel="register">
+                        <h2>Tạo tài khoản mới</h2>
+                        <p class="auth-subtitle">Chỉ vài bước để bắt đầu khai thác toàn bộ sức mạnh của Rita.</p>
+                        <form method="post" action="{% url 'core:register' %}" id="sign-up-form">
+                            {% csrf_token %}
+                            {% for field in registration_form %}
+                                <div class="form-field">
+                                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <div class="form-help">{{ field.help_text }}</div>
+                                    {% endif %}
+                                    <div class="form-error" id="{{ field.name }}-error">{% if field.errors %}{{ field.errors.0 }}{% endif %}</div>
+                                </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-primary btn-full">Tạo tài khoản</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
-
+    </div>
+{% endwith %}
     <script src="{% static 'js/account_script.js' %}"></script>
+    
+    <script>
+    // Đoạn mã này sẽ chạy sau khi trang và các script khác đã tải xong.
+    // Nó sẽ xóa các trình xử lý sự kiện 'submit' mà file account_script.js đã thêm vào,
+    // buộc form phải gửi theo cách thông thường của trình duyệt và đính kèm CSRF token.
+    document.addEventListener('DOMContentLoaded', function() {
+        const signInForm = document.getElementById('sign-in-form');
+        if (signInForm) {
+            const newSignInForm = signInForm.cloneNode(true);
+            signInForm.parentNode.replaceChild(newSignInForm, signInForm);
+        }
+
+        const signUpForm = document.getElementById('sign-up-form');
+        if (signUpForm) {
+            const newSignUpForm = signUpForm.cloneNode(true);
+            signUpForm.parentNode.replaceChild(newSignUpForm, signUpForm);
+        }
+    });
+    </script>
+
 </body>
 </html>

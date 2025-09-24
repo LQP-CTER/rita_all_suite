@@ -5,311 +5,466 @@
 
 {% block extra_css %}
     <style>
-        /* Ghi đè lên cài đặt chung để bật lại thanh cuộn cho trang này */
-        html, body {
-            height: auto;
-            overflow-y: auto;
+        body {
+            overflow: auto;
         }
-        .app-container, .main-content {
-            height: auto !important;
-            overflow: visible !important;
+        .app-container {
+            padding: 1.5rem;
+            min-height: 100vh;
         }
-        /* Tùy chỉnh giao diện thanh cuộn */
-        body::-webkit-scrollbar { 
-            width: 10px; 
+        .main-content {
+            padding: 0;
         }
-        body::-webkit-scrollbar-track { 
-            background: #1a1a2e; 
+        .scraper-page {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
         }
-        body::-webkit-scrollbar-thumb { 
-            background-color: #4a4a6a; 
-            border-radius: 10px; 
-            border: 2px solid #1a1a2e; 
+        .tool-hero {
+            display: flex;
+            gap: 2.4rem;
+            align-items: stretch;
+            padding: 2.4rem;
+            border-radius: 28px;
+            background: linear-gradient(145deg, rgba(26, 26, 46, 0.95), rgba(12, 14, 24, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(5, 8, 20, 0.55);
         }
-        body::-webkit-scrollbar-thumb:hover { 
-            background-color: #68d391; 
+        .tool-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(79, 209, 197, 0.28), transparent 55%),
+                        radial-gradient(circle at bottom left, rgba(104, 211, 145, 0.18), transparent 60%);
+            pointer-events: none;
         }
-
-        /* --- GIAO DIỆN MỚI CHO SCRAPER --- */
-        .scraper-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 1rem;
-            animation: fadeIn 0.5s ease-out;
+        .hero-copy {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            background: rgba(104, 211, 145, 0.12);
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            width: fit-content;
         }
-
-        .scraper-header h1 {
-            font-size: 2.8rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            color: #e0e0e0;
-        }
-        .scraper-header p {
-            text-align: center;
-            color: #a0a0d0;
-            margin-bottom: 3rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .scraper-main-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-        @media (min-width: 992px) {
-            .scraper-main-grid {
-                grid-template-columns: 350px 1fr;
-            }
-        }
-
-        .control-card, .result-card, .history-section {
-            background: rgba(30, 30, 46, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 2rem;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-
-        .control-card h3 {
-            font-size: 1.5rem;
+        .hero-copy h1 {
+            font-size: 2.45rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: #fff;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1.2;
+            color: var(--text-primary);
+            margin: 0;
         }
-        
-        .form-group {
-            margin-bottom: 1.25rem;
+        .hero-copy p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 560px;
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #a0a0d0;
+        .hero-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .metric-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
             font-size: 0.9rem;
         }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            background-color: #1e1e2e;
-            border: 1px solid #3a3a5a;
-            border-radius: 8px;
-            color: #e0e0e0;
-            font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
+        .hero-card {
+            position: relative;
+            z-index: 1;
+            width: 320px;
+            padding: 1.85rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 12, 20, 0.68);
+            backdrop-filter: blur(14px);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
         }
-        .form-group input:focus, .form-group select:focus {
+        .hero-card .hero-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(104, 211, 145, 0.35), rgba(79, 209, 197, 0.32));
+            border: 1px solid rgba(104, 211, 145, 0.35);
+        }
+        .hero-card ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .hero-card li strong {
+            color: var(--text-primary);
+        }
+        .scraper-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+            gap: 1.5rem;
+        }
+        .glass-card {
+            background: rgba(12, 14, 24, 0.78);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 28px 60px rgba(5, 8, 20, 0.4);
+            backdrop-filter: blur(12px);
+            padding: 2rem 2.2rem;
+        }
+        .control-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .control-card {
+            position: relative;
+        }
+        .control-card h3 {
+            margin: 0 0 1.5rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .card-subtitle {
+            margin: 0 0 1.75rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.85rem 1.1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            color: var(--text-primary);
+            transition: var(--transition-smooth);
+        }
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
-            border-color: #68d391;
-            box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.18);
         }
         .form-group select {
-             -webkit-appearance: none;
-            -moz-appearance: none;
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a0a0d0' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 1rem center;
         }
-
-        /* --- CSS CHO TAG INPUT --- */
         .tags-input-container {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 8px;
-            padding: 0.5rem 1rem;
-            background-color: #1e1e2e;
-            border: 1px solid #3a3a5a;
-            border-radius: 8px;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            gap: 0.45rem;
+            padding: 0.65rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
         }
-        .tags-input-container:focus-within {
-            border-color: #68d391;
-            box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.2);
+        .tags-input-container input {
+            flex: 1;
+            min-width: 160px;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            padding: 0.45rem;
+            outline: none;
         }
         .tag-item {
             display: inline-flex;
             align-items: center;
-            background-color: #3a3a5a;
-            color: #e0e0e0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9rem;
+            gap: 0.4rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 12px;
+            background: rgba(104, 211, 145, 0.15);
+            color: var(--primary-color);
+            font-size: 0.85rem;
         }
         .tag-remove {
-            margin-left: 8px;
             cursor: pointer;
-            color: #a0a0d0;
+            color: var(--text-secondary);
         }
-        #fields-input {
-            flex-grow: 1;
-            border: none;
-            background: none;
-            outline: none;
-            padding: 4px 0;
-            color: #e0e0e0;
+        .tag-remove:hover {
+            color: var(--error-color);
         }
-
-        .btn-primary {
-            width: 100%;
-            padding: 0.85rem 1.75rem;
-            background: linear-gradient(90deg, #68d391, #34d399);
-            color: #1a1a2e;
-            border: none;
-            border-radius: 8px;
+        .btn-primary,
+        .btn-secondary,
+        .btn-danger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            border-radius: 14px;
+            border: 1px solid transparent;
+            padding: 0.75rem 1.4rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition-smooth);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #68d391 0%, #4fd1c5 100%);
+            color: #0b0c12;
+            box-shadow: 0 18px 40px rgba(79, 209, 197, 0.35);
         }
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(104, 211, 145, 0.3);
+            filter: brightness(1.05);
+            transform: translateY(-1px);
         }
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.12);
         }
-
-        #usage-card p {
-            display: flex;
-            justify-content: space-between;
-            color: #c0c0e0;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
         }
-        #usage-card p span {
-            font-weight: 600;
-            color: #fff;
+        .btn-danger {
+            background: rgba(248, 113, 113, 0.15);
+            color: #fca5a5;
+            border-color: rgba(248, 113, 113, 0.4);
         }
-        #usage-card p #total-cost {
-            color: #68d391;
+        .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.25);
         }
-
-        .scraper-results { min-height: 450px; display: flex; flex-direction: column; }
-        
-        #results-placeholder {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #a0a0d0;
-            font-style: italic;
-        }
-        #loading-indicator {
-            flex-grow: 1;
+        .result-card {
             display: flex;
             flex-direction: column;
+            gap: 1.5rem;
+        }
+        #results-placeholder,
+        #results-output,
+        #loading-indicator {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 1.75rem;
+        }
+        #results-placeholder {
+            display: flex;
             align-items: center;
             justify-content: center;
-            color: #a0a0d0;
+            min-height: 220px;
+            color: var(--text-secondary);
+        }
+        #loading-indicator {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
         }
         .spinner {
-            border: 4px solid #3a3a5a;
-            border-top: 4px solid #68d391;
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary-color);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        #results-output { display: flex; flex-direction: column; height: 100%;}
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        #results-output {
+            display: none;
+            gap: 1.25rem;
+        }
         .result-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
-            flex-shrink: 0;
+            gap: 1rem;
         }
-        .result-header h3 { font-size: 1.5rem; color: #fff; margin: 0; }
-        .download-buttons { display: flex; gap: 0.75rem; }
-        .btn-secondary {
-            padding: 0.5rem 1rem;
-            background-color: #2a2a3e;
-            color: #e0e0e0;
-            border: 1px solid #4a4a6a;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+        .result-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            color: var(--text-primary);
         }
-        .btn-secondary:hover { background-color: #3a3a5a; }
-
-        .table-container { 
-            overflow: auto; 
-            flex-grow: 1;
-            border: 1px solid #3a3a5a;
-            border-radius: 8px;
+        .download-buttons {
+            display: inline-flex;
+            gap: 0.75rem;
         }
-        .table-container::-webkit-scrollbar { width: 6px; }
-        .table-container::-webkit-scrollbar-track { background: transparent; }
-        .table-container::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 6px; }
-
-        #results-table, #history-table { width: 100%; border-collapse: collapse; }
-        #results-table th, #history-table th {
-            background-color: rgba(42, 42, 62, 0.8);
-            color: #a0a0d0;
+        .table-container {
+            background: rgba(12, 14, 24, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            max-height: 360px;
+            overflow: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th,
+        td {
+            padding: 0.85rem 1.1rem;
             text-align: left;
-            padding: 0.85rem 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        thead {
+            background: rgba(79, 209, 197, 0.08);
+            color: var(--primary-color);
             position: sticky;
             top: 0;
             z-index: 1;
         }
-        #results-table td, #history-table td {
-            padding: 0.85rem 1.25rem;
-            border-bottom: 1px solid #3a3a5a;
-            font-size: 0.9rem;
-            vertical-align: middle;
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
-        #results-table tbody tr:last-child td, #history-table tbody tr:last-child td {
-            border-bottom: none;
+        .history-section {
+            background: rgba(12, 14, 24, 0.78);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 28px 60px rgba(5, 8, 20, 0.4);
+            backdrop-filter: blur(12px);
+            padding: 2rem 2.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
-        
-        .history-section { margin-top: 2rem; }
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .history-header h2 { font-size: 1.5rem; color: #fff; margin: 0; }
-        .btn-danger {
-            background-color: transparent;
-            color: #e53e3e;
-            border: 1px solid #e53e3e;
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
         }
-        .btn-danger:hover { background-color: rgba(229, 62, 62, 0.1); }
+        .history-header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+        }
+        #history-table tbody tr td:first-child {
+            color: var(--text-secondary);
+        }
+        #history-table tbody tr td:nth-child(2) {
+            max-width: 320px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.65rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
-        .status-badge.complete { background-color: #2e7d32; color: white; }
-        .status-badge.processing { background-color: #ffc107; color: black; }
-        .status-badge.pending { background-color: #64748b; color: white; }
-        .status-badge.failed { background-color: #d32f2f; color: white; }
+        .status-badge.complete { background: rgba(104, 211, 145, 0.15); color: var(--primary-color); }
+        .status-badge.processing { background: rgba(250, 204, 21, 0.15); color: #facc15; }
+        .status-badge.pending { background: rgba(148, 163, 184, 0.2); color: #cbd5f5; }
+        .status-badge.failed { background: rgba(248, 113, 113, 0.18); color: #fca5a5; }
+        .usage-card p {
+            margin: 0.35rem 0;
+            color: var(--text-secondary);
+        }
+        .site-footer {
+            text-align: center;
+            font-size: 0.75rem;
+            opacity: 0.6;
+            padding-top: 1.75rem;
+        }
+        @media (max-width: 1024px) {
+            .tool-hero {
+                flex-direction: column;
+            }
+            .hero-card {
+                width: 100%;
+            }
+            .scraper-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+            .tool-hero {
+                padding: 2rem;
+            }
+            .glass-card,
+            .history-section {
+                padding: 1.6rem 1.8rem;
+            }
+        }
     </style>
 {% endblock %}
 
 {% block content %}
-<div class="scraper-container">
-    <div class="scraper-header">
-        <h1>Rita Web Scraper</h1>
-        <p>Tự động trích xuất dữ liệu từ bất kỳ trang web nào bằng sức mạnh của AI.</p>
-    </div>
+<div class="scraper-page">
+    <section class="tool-hero">
+        <div class="hero-copy">
+            <span class="hero-eyebrow">
+                <span>🌐</span>
+                Web Scraper
+            </span>
+            <h1>Trích xuất dữ liệu web với Rita nhanh và chuẩn</h1>
+            <p>Nhập URL, chọn trường cần lấy và để Rita gom dữ liệu sạch, hiển thị bảng kết quả, sẵn sàng tải về JSON hoặc CSV.</p>
+            <div class="hero-metrics">
+                <span class="metric-chip">⚡ Theo dõi tiến trình realtime</span>
+                <span class="metric-chip">🧠 AI tối ưu dữ liệu</span>
+                <span class="metric-chip">📥 Xuất JSON/CSV một chạm</span>
+            </div>
+        </div>
+        <aside class="hero-card">
+            <div class="hero-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 4H20V20H4V4Z" stroke="#68d391" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M4 10H20" stroke="#68d391" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M10 4V20" stroke="#68d391" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <ul>
+                <li><strong>Không cần code:</strong> Điền URL và trường cần lấy, Rita tự động làm phần còn lại.</li>
+                <li><strong>Quản lý chi phí:</strong> Theo dõi token và chi phí ngay trong bảng điều khiển.</li>
+                <li><strong>Lịch sử rõ ràng:</strong> Lưu log mỗi lần scrape để tái sử dụng hoặc xoá khi cần.</li>
+            </ul>
+        </aside>
+    </section>
 
-    <div class="scraper-main-grid">
-        <!-- Cột điều khiển bên trái -->
-        <div class="scraper-controls">
-            <div class="control-card">
-                <h3>Cài đặt</h3>
+    <div class="scraper-grid">
+        <div class="control-stack">
+            <div class="glass-card control-card">
+                <h3>Cấu hình thu thập</h3>
+                <p class="card-subtitle">Điền URL, thêm các trường dữ liệu mong muốn rồi bắt đầu để Rita thực thi.</p>
                 <form id="scrape-form">
                     <div class="form-group">
                         <label for="url-input">URL trang web</label>
@@ -327,10 +482,11 @@
                             <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
                         </select>
                     </div>
-                    <button type="submit" id="start-scrape-btn" class="btn-primary">Bắt đầu Trích xuất</button>
+                    <button type="submit" id="start-scrape-btn" class="btn-primary">Bắt đầu trích xuất</button>
                 </form>
             </div>
-            <div id="usage-card" class="control-card" style="display: none;">
+
+            <div id="usage-card" class="glass-card control-card usage-card" style="display: none;">
                 <h3>Chi phí & Token</h3>
                 <p>Input Tokens: <span id="input-tokens">0</span></p>
                 <p>Output Tokens: <span id="output-tokens">0</span></p>
@@ -338,40 +494,36 @@
             </div>
         </div>
 
-        <!-- Cột kết quả bên phải -->
-        <div class="scraper-results">
-            <div class="result-card">
-                <div id="results-placeholder">
-                    <p>Kết quả sẽ được hiển thị ở đây...</p>
-                </div>
-                <div id="loading-indicator" style="display: none;">
-                    <div class="spinner"></div>
-                    <p>Đang xử lý, vui lòng chờ...</p>
-                </div>
-                <div id="results-output" style="display: none;">
-                    <div class="result-header">
-                        <h3>Kết quả Trích xuất</h3>
-                        <div class="download-buttons">
-                            <button id="download-json-btn" class="btn-secondary">Tải JSON</button>
-                            <button id="download-csv-btn" class="btn-secondary">Tải CSV</button>
-                        </div>
+        <div class="glass-card result-card">
+            <div id="results-placeholder">
+                <p>Kết quả sẽ xuất hiện tại đây sau khi quá trình hoàn tất.</p>
+            </div>
+            <div id="loading-indicator">
+                <div class="spinner"></div>
+                <p>Đang xử lý, vui lòng chờ...</p>
+            </div>
+            <div id="results-output">
+                <div class="result-header">
+                    <h3>Kết quả trích xuất</h3>
+                    <div class="download-buttons">
+                        <button id="download-json-btn" class="btn-secondary">Tải JSON</button>
+                        <button id="download-csv-btn" class="btn-secondary">Tải CSV</button>
                     </div>
-                    <div class="table-container">
-                        <table id="results-table">
-                            <thead></thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="results-table">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Phần lịch sử -->
+
     <div class="history-section">
         <div class="history-header">
-            <h2>Lịch sử Trích xuất</h2>
-            <button id="delete-history-btn" class="btn-secondary btn-danger">Xóa Lịch sử</button>
+            <h2>Lịch sử trích xuất</h2>
+            <button id="delete-history-btn" class="btn-danger">Xoá lịch sử</button>
         </div>
         <div class="table-container">
             <table id="history-table">
@@ -383,17 +535,17 @@
                         <th>Hành động</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Lịch sử sẽ được thêm vào đây bằng JS -->
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>
 </div>
+
+<footer class="site-footer">
+    <p>Rita có thể mắc lỗi, hãy kiểm tra dữ liệu quan trọng trước khi sử dụng.</p>
+</footer>
 {% endblock %}
 
 {% block extra_js %}
-    {# SỬA ĐỔI: Loại bỏ toàn bộ script nội tuyến và chỉ giữ lại link tới file JS bên ngoài #}
     <script src="{% static 'js/scraper_script.js' %}"></script>
 {% endblock %}
-

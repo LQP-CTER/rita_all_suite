@@ -1,24 +1,23 @@
-<!-- Rita_All_Django/templates/homepage.html -->
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>Rita AI Suite - Trợ lý AI của bạn</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/homepage_style.css' %}">
     <link rel="icon" href="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" type="image/x-icon">
 </head>
 <body>
     <div class="page-wrapper">
-        <!-- Background Effects -->
         <div class="bg-effects">
             <div class="glow top-left"></div>
             <div class="glow bottom-right"></div>
         </div>
 
-        <!-- Navigation Menu -->
         <nav id="navbar">
             <div class="container">
                 <div class="nav-wrapper">
@@ -28,88 +27,133 @@
                     </a>
                     <div class="nav-menu-desktop">
                         <a href="#features" class="nav-link">Tính năng</a>
+                        <a href="#workflow" class="nav-link">Quy trình</a>
                         <a href="#about" class="nav-link">Giới thiệu</a>
-                        <a href="{% url 'core:login_view' %}" class="nav-btn">Đăng nhập</a>
                     </div>
-                    <button id="mobile-menu-button" class="mobile-menu-button" aria-label="Toggle menu">
-                        <span></span>
-                        <span></span>
-                    </button>
+                    <div class="nav-actions">
+                        <a href="{% url 'core:login_view' %}" class="nav-btn">Đăng nhập</a>
+                        <button id="mobile-menu-button" class="mobile-menu-button" aria-label="Toggle menu">
+                            <div class="hamburger-wrapper">
+                                <span id="line1" class="hamburger-line"></span>
+                                <span id="line2" class="hamburger-line"></span>
+                                <span id="line3" class="hamburger-line"></span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="mobile-menu" class="mobile-menu-container">
+                <div class="mobile-menu-links">
+                    <a href="#features" class="mobile-nav-link">Tính năng</a>
+                    <a href="#workflow" class="mobile-nav-link">Quy trình</a>
+                    <a href="#about" class="mobile-nav-link">Giới thiệu</a>
+                    <a href="{% url 'core:login_view' %}" class="mobile-nav-link nav-btn-mobile">Đăng nhập</a>
                 </div>
             </div>
         </nav>
-        <div id="mobile-menu" class="mobile-menu">
-            <a href="#features" class="nav-link">Tính năng</a>
-            <a href="#about" class="nav-link">Giới thiệu</a>
-            <a href="{% url 'core:login_view' %}" class="nav-btn">Đăng nhập</a>
-        </div>
 
-
-        <!-- Main Content -->
         <main>
-            <!-- Hero Section -->
-            <section id="home" class="hero-section">
-                <div class="container">
-                    <div class="hero-content">
-                        <div class="badge">Nền tảng AI thế hệ mới</div>
-                        <h1 class="hero-title">Khai phá tiềm năng, tối ưu công việc</h1>
-                        <p class="hero-subtitle">
-                            Trải nghiệm sức mạnh của các công cụ AI thông minh, từ chatbot đa năng, phân tích video, đến trích xuất dữ liệu web tự động.
-                        </p>
-                        <div class="hero-buttons">
-                            <a href="{% url 'core:register' %}" class="btn btn-primary">Bắt đầu miễn phí</a>
-                            <a href="#features" class="btn btn-secondary">Khám phá tính năng</a>
+            <section class="home-hero" id="home">
+                <div class="container hero-grid">
+                    <div class="hero-copy">
+                        <div class="hero-label">Trợ lý AI đa công cụ</div>
+                        <h1>The power of AI in the palm of your hand.</h1>
+                        <p>Rita Suite biến các công việc phức tạp như phân tích, sáng tạo hay thu thập thông tin thành những thao tác đơn giản, tất cả trong một không gian làm việc duy nhất.</p>
+                        <div class="hero-actions">
+                            <a href="{% url 'core:register' %}" class="btn btn-primary">Dùng thử miễn phí</a>
+                            <a href="#features" class="btn btn-outline">Khám phá tính năng</a>
                         </div>
+                        <ul class="hero-highlights">
+                            <li class="highlight-item"><span>⚡</span><p>Phản hồi realtime & lưu lịch sử</p></li>
+                            <li class="highlight-item"><span>🧠</span><p>Gợi ý bước tiếp dựa trên ngữ cảnh</p></li>
+                            <li class="highlight-item"><span>🔐</span><p>Kiểm soát dữ liệu rõ ràng</p></li>
+                        </ul>
+                    </div>
+                    <div class="hero-preview">
+                        <div class="preview-window">
+                            <div class="preview-header">
+                                <span>Rita đang hỗ trợ</span>
+                                <div class="preview-status">Realtime</div>
+                            </div>
+                            <div class="preview-body">
+                                <div class="preview-message user">Tóm tắt giúp mình báo cáo bán hàng tuần trước nhé.</div>
+                                <div class="preview-message assistant">Đã chuẩn bị xong. Bạn muốn nhận dạng bullet hay bảng?</div>
+                                <div class="preview-message assistant highlight">• Doanh thu tăng 18% nhờ remarketing.<br>• Tỷ lệ bỏ giỏ cao ở bước thanh toán (+9%).<br>• Nên chạy ưu đãi 48h để kéo lại khách hàng.</div>
+                                <div class="preview-footer">
+                                    <button class="chip">Tạo email recap</button>
+                                    <button class="chip">Phân tích sâu hơn</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="preview-card-stack">
+                            <div class="stack-card">📊 Báo cáo TikTok đã sẵn sàng</div>
+                            <div class="stack-card">🧩 Web scraper: 32 bản ghi mới</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#features" class="hero-scroll" aria-label="Scroll xuống"><span></span></a>
+            </section>
+
+            <section id="features" class="section features">
+                <div class="container">
+                    <div class="section-heading">
+                        <span class="section-eyebrow">Tính năng</span>
+                        <h2>Rita đồng bộ mọi tác vụ bạn đang làm dở</h2>
+                        <p>Chọn công cụ phù hợp và chuyển đổi giữa chúng mượt mà trong cùng một giao diện.</p>
+                    </div>
+                    <div class="feature-grid">
+                        <article class="feature-card"><div class="feature-icon">💬</div><h3>Chat đa ngữ cảnh</h3><p>Đặt câu hỏi, tạo nội dung, và nhận phản hồi thông minh dựa trên ngữ cảnh cuộc trò chuyện.</p></article>
+                        <article class="feature-card"><div class="feature-icon">📂</div><h3>Phân tích tài liệu</h3><p>Tải lên các tệp PDF, DOCX, XLSX và đặt câu hỏi trực tiếp về nội dung bên trong.</p></article>
+                        <article class="feature-card"><div class="feature-icon">🌐</div><h3>Tra cứu Web</h3><p>Cho phép Rita truy cập Internet để có câu trả lời cập nhật về các sự kiện mới nhất.</p></article>
+                        <article class="feature-card"><div class="feature-icon">🎥</div><h3>Phân tích TikTok</h3><p>Trích transcript, insight khán giả và gợi ý nội dung tái sử dụng chỉ trong vài giây.</p></article>
+                        <article class="feature-card"><div class="feature-icon">🧩</div><h3>Web Scraper AI</h3><p>Thu thập dữ liệu có cấu trúc từ bất kỳ trang web nào và xuất ra file JSON hoặc CSV.</p></article>
+                        <article class="feature-card"><div class="feature-icon">📍</div><h3>Theo dõi vị trí</h3><p>Tạo link theo dõi kèm tùy chọn xin phép để xem lịch sử truy cập của người dùng.</p></article>
                     </div>
                 </div>
             </section>
 
-            <!-- Features Section -->
-            <section id="features" class="content-section">
+            <section id="workflow" class="section workflow">
                 <div class="container">
-                    <div class="section-header">
-                        <h2 class="section-title">Bộ công cụ mạnh mẽ</h2>
-                        <p class="section-subtitle">Tất cả những gì bạn cần để làm việc hiệu quả hơn.</p>
+                    <div class="section-heading">
+                        <span class="section-eyebrow">Quy trình gợi ý</span>
+                        <h2>Bắt đầu trong 3 bước</h2>
                     </div>
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">💬</div>
-                            <h3>Chatbot Thông minh</h3>
-                            <p>Trò chuyện, đặt câu hỏi, và nhận câu trả lời chính xác với trợ lý AI được tích hợp khả năng tìm kiếm web thời gian thực.</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🎵</div>
-                            <h3>Phân tích TikTok</h3>
-                            <p>Tự động phiên âm, tóm tắt và phân tích nội dung video TikTok, giúp bạn nắm bắt thông tin nhanh chóng.</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🕷️</div>
-                            <h3>Web Scraper AI</h3>
-                            <p>Trích xuất dữ liệu có cấu trúc từ bất kỳ trang web nào chỉ bằng vài cú nhấp chuột, không cần biết code.</p>
-                        </div>
+                    <div class="workflow-grid">
+                        <div class="workflow-step"><div class="step-index">1</div><h3>Chọn công cụ</h3><p>Bắt đầu bằng việc chọn một công cụ phù hợp: Chat, Phân tích TikTok, Trích xuất Web, hay Theo dõi Vị trí.</p></div>
+                        <div class="workflow-step"><div class="step-index">2</div><h3>Cung cấp đầu vào</h3><p>Dán một đường link, tải lên tài liệu hoặc nhập yêu cầu. Mỗi công cụ được tối ưu để xử lý loại dữ liệu riêng.</p></div>
+                        <div class="workflow-step"><div class="step-index">3</div><h3>Nhận kết quả & Lưu trữ</h3><p>Xem phân tích, nhận câu trả lời, hoặc tải dữ liệu. Mọi hoạt động được lưu trong lịch sử của từng công cụ.</p></div>
                     </div>
                 </div>
             </section>
 
-            <!-- About Section -->
-            <section id="about" class="content-section about-section">
+            <section id="about" class="section about">
                 <div class="container">
-                     <div class="about-grid">
-                        <div class="about-text">
-                            <h2 class="section-title">Về Rita AI Suite</h2>
-                            <p>Rita AI Suite là dự án được xây dựng với mục tiêu cung cấp một bộ công cụ AI đa năng, dễ sử dụng để hỗ trợ và tối ưu hóa công việc cho mọi người. Nền tảng được phát triển trên Django, đảm bảo tính bảo mật và khả năng mở rộng cho các tính năng trong tương lai.</p>
-                            <a href="{% url 'core:about_view' %}" class="btn btn-secondary">Tìm hiểu thêm</a>
+                    <div class="section-heading">
+                        <span class="section-eyebrow">Về Rita</span>
+                        <h2>Xây dựng bộ trợ lý AI cá nhân hoá</h2>
+                        <p>Rita AI Suite được tạo ra để gom những thao tác hằng ngày vào một không gian duy nhất, tối ưu cho tốc độ và trải nghiệm người dùng.</p>
+                    </div>
+                    <div class="about-grid">
+                        <div class="about-card">
+                            <h3>Điều khiến Rita khác biệt</h3>
+                            <p>Mỗi công cụ trong bộ sưu tập được thiết kế để giải quyết một nhu cầu cụ thể. Tuy hoạt động độc lập, tất cả đều được tích hợp trong một giao diện duy nhất, giúp bạn chuyển đổi công việc liền mạch.</p>
                         </div>
-                        <div class="about-image">
-                            <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita Illustration">
+                        <div class="about-card">
+                            <h3>Nguyên tắc phát triển</h3>
+                            <ul class="about-list">
+                                <li>Tập trung vào tốc độ phản hồi và độ rõ ràng của kết quả.</li>
+                                <li>Ưu tiên minh bạch: luôn hiển thị trạng thái xử lý của tác vụ.</li>
+                                <li>Thiết kế trước tiên cho cảm giác sử dụng hiệu quả hàng ngày.</li>
+                            </ul>
+                            <div class="about-actions">
+                                <a href="mailto:Lequyphat0123@gmail.com" class="btn-link">Gửi góp ý →</a>
+                            </div>
                         </div>
-                     </div>
+                    </div>
                 </div>
             </section>
-
         </main>
 
-        <!-- Footer -->
         <footer class="footer">
             <div class="container">
                 <p>&copy; 2025 Rita AI Suite. Developed by Lequyphat.</p>
@@ -119,3 +163,4 @@
     <script src="{% static 'js/homepage_script.js' %}"></script>
 </body>
 </html>
+

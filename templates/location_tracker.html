@@ -4,104 +4,211 @@
 {% block title %}Location Tracker - Rita AI Suite{% endblock %}
 
 {% block extra_css %}
+    <!-- Leaflet CSS for OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
-        /* Ghi đè các quy tắc có thể gây xung đột để trả lại thanh cuộn chính */
-        html, body {
-            height: auto;
-            overflow-x: hidden;
-            overflow-y: auto;
+        body {
+            overflow: auto;
         }
-        .app-container, .main-content {
-            height: auto !important;
-            overflow: visible !important;
+        .app-container {
+            padding: 1.5rem;
+            min-height: 100vh;
         }
-        body::-webkit-scrollbar { width: 10px; }
-        body::-webkit-scrollbar-track { background: #1a1a2e; }
-        body::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 10px; border: 2px solid #1a1a2e; }
-        body::-webkit-scrollbar-thumb:hover { background-color: #68d391; }
-
-        /* --- GIAO DIỆN CHUNG --- */
-        .tracker-container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 1rem;
+        .main-content {
+            padding: 0;
         }
-
-        .tracker-title {
-            font-size: 2.8rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 2.5rem;
-            color: #e0e0e0;
+        .tracker-page {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
         }
-
-        .tracker-card {
-            background: rgba(30, 30, 46, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 2rem;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            margin-bottom: 2.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        .tool-hero {
+            display: flex;
+            gap: 2.5rem;
+            align-items: stretch;
+            padding: 2.4rem;
+            border-radius: 28px;
+            background: linear-gradient(145deg, rgba(26, 26, 46, 0.95), rgba(12, 14, 24, 0.92));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(5, 8, 20, 0.55);
         }
-
-        .card-title {
-            font-size: 1.5rem;
+        .tool-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(79, 209, 197, 0.3), transparent 55%),
+                        radial-gradient(circle at bottom left, rgba(104, 211, 145, 0.18), transparent 60%);
+            pointer-events: none;
+        }
+        .hero-copy {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
+        }
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(104, 211, 145, 0.12);
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            width: fit-content;
+        }
+        .hero-copy h1 {
+            font-size: 2.45rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: #fff;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1.2;
+            color: var(--text-primary);
+            margin: 0;
         }
-
-        /* --- FORM TẠO LINK & CÔNG TẮC --- */
+        .hero-copy p {
+            color: var(--text-secondary);
+            max-width: 560px;
+            line-height: 1.7;
+        }
+        .hero-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .metric-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .hero-card {
+            position: relative;
+            z-index: 1;
+            width: 320px;
+            padding: 1.9rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 12, 20, 0.68);
+            backdrop-filter: blur(14px);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .hero-card .hero-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(104, 211, 145, 0.35), rgba(79, 209, 197, 0.3));
+            border: 1px solid rgba(104, 211, 145, 0.35);
+        }
+        .hero-card ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+        .hero-card li {
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+        .hero-card li strong {
+            color: var(--text-primary);
+        }
+        .tracker-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+            gap: 1.5rem;
+        }
+        .tracker-card {
+            background: rgba(12, 14, 24, 0.78);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 28px 60px rgba(5, 8, 20, 0.4);
+            backdrop-filter: blur(12px);
+            padding: 2rem 2.25rem;
+        }
+        .tracker-card.compact {
+            padding: 1.85rem 2rem;
+        }
+        .card-title {
+            margin: 0;
+            font-size: 1.55rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .card-intro {
+            margin: 0.65rem 0 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
         .create-link-form {
             display: flex;
-            gap: 1rem;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            align-items: flex-end;
         }
         .create-link-form input[type="url"] {
-            flex-grow: 1;
-            padding: 0.85rem 1.25rem;
-            background-color: #1e1e2e;
-            border: 1px solid #3a3a5a;
-            border-radius: 8px;
-            color: #e0e0e0;
-            font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            flex: 1 1 260px;
+            padding: 0.95rem 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            color: var(--text-primary);
+            transition: var(--transition-smooth);
+        }
+        .create-link-form input[type="url"]::placeholder {
+            color: rgba(224, 224, 224, 0.55);
         }
         .create-link-form input[type="url"]:focus {
             outline: none;
-            border-color: #68d391;
-            box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.18);
         }
         .create-link-form button {
-            padding: 0.85rem 1.75rem;
-            background: linear-gradient(90deg, #68d391, #34d399);
-            color: #1a1a2e;
+            padding: 0.95rem 1.85rem;
+            background: linear-gradient(135deg, #68d391 0%, #4fd1c5 100%);
+            color: #0b0c12;
             border: none;
-            border-radius: 8px;
+            border-radius: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition-smooth);
+            box-shadow: 0 18px 40px rgba(79, 209, 197, 0.35);
         }
         .create-link-form button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(104, 211, 145, 0.3);
+            filter: brightness(1.05);
+            transform: translateY(-1px);
         }
         .consent-toggle {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            margin-top: 1.5rem;
+            margin-top: 1.25rem;
+            color: var(--text-secondary);
         }
         .switch {
             position: relative;
             display: inline-block;
-            width: 50px;
+            width: 52px;
             height: 28px;
         }
-        .switch input { 
+        .switch input {
             opacity: 0;
             width: 0;
             height: 0;
@@ -113,8 +220,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #3a3a5a;
-            transition: .4s;
+            background-color: rgba(255, 255, 255, 0.15);
+            transition: .3s;
             border-radius: 28px;
         }
         .slider:before {
@@ -124,130 +231,208 @@
             width: 20px;
             left: 4px;
             bottom: 4px;
-            background-color: white;
-            transition: .4s;
+            background-color: #ffffff;
+            transition: .3s;
             border-radius: 50%;
         }
         input:checked + .slider {
-            background-color: #34d399;
+            background: linear-gradient(135deg, #68d391, #4fd1c5);
         }
         input:checked + .slider:before {
             transform: translateX(22px);
         }
-        .consent-toggle label {
-            color: #c0c0e0;
-            cursor: pointer;
+        .helper-hint {
+            margin-top: 1.1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
-
-        /* --- DANH SÁCH LỊCH SỬ --- */
-        .history-item {
-            background-color: #1e1e2e;
-            padding: 1.5rem;
-            border-radius: 12px;
+        .feature-list {
+            margin: 1.5rem 0 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            color: var(--text-secondary);
+        }
+        .feature-list li::before {
+            content: "•";
+            margin-right: 0.6rem;
+            color: var(--primary-color);
+        }
+        .quick-guides {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            color: var(--text-secondary);
+        }
+        .quick-guides h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+        .quick-guides p {
+            margin: 0;
+            line-height: 1.6;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
             margin-bottom: 1.5rem;
-            border: 1px solid #3a3a5a;
         }
-        .history-item:last-child { margin-bottom: 0; }
+        .history-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .history-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+        .history-item {
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 20px 45px rgba(5, 8, 20, 0.38);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .history-item:hover {
+             border-color: var(--primary-color);
+        }
         .info-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.75rem;
+            gap: 1rem;
         }
         .info-text {
             font-size: 0.85rem;
-            color: #a0a0d0;
+            color: var(--text-secondary);
         }
         .delete-btn {
             background: none;
-            border: 1px solid #e53e3e;
-            color: #e53e3e;
-            padding: 0.3rem 0.7rem;
+            border: 1px solid rgba(248, 113, 113, 0.6);
+            color: #f87171;
+            padding: 0.35rem 0.8rem;
             font-size: 0.8rem;
-            border-radius: 6px;
+            border-radius: 999px;
             cursor: pointer;
-            transition: background-color 0.2s, color 0.2s;
+            transition: var(--transition-smooth);
         }
         .delete-btn:hover {
-            background-color: #e53e3e;
-            color: #fff;
+            background: rgba(248, 113, 113, 0.15);
+            color: #fecaca;
         }
         .link-display {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 1rem;
-            background-color: #12121c;
+            gap: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 0.75rem 1rem;
-            border-radius: 8px;
-            margin-top: 0.75rem;
+            border-radius: 14px;
         }
         .link-text {
             word-break: break-all;
-            color: #e0e0e0;
-            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-size: 0.92rem;
         }
-        .link-text strong { color: #a0a0d0; }
+        .link-text strong {
+            color: var(--text-secondary);
+        }
         .copy-btn {
-            padding: 0.4rem 0.8rem;
-            background-color: #3a3a5a;
-            color: #e0e0e0;
+            padding: 0.45rem 0.95rem;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             font-size: 0.8rem;
             cursor: pointer;
-            flex-shrink: 0;
-            transition: background-color 0.2s;
+            transition: var(--transition-smooth);
         }
-        .copy-btn:hover { background-color: #4a4a6a; }
+        .copy-btn:hover {
+            background: rgba(104, 211, 145, 0.18);
+            color: var(--primary-color);
+        }
         .copy-btn.copied {
-            background-color: #34d399;
-            color: #1a1a2e;
+            background: linear-gradient(135deg, #68d391, #4fd1c5);
+            color: #0b0c12;
         }
-
-        /* --- BẢNG LOGS --- */
+        .logs-title {
+            margin: 0.2rem 0 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
         .logs-table-wrapper {
             max-height: 220px;
             overflow-y: auto;
-            border: 1px solid #3a3a5a;
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
             margin-top: 1rem;
+            background: rgba(12, 14, 24, 0.6);
         }
-        .logs-table-wrapper::-webkit-scrollbar { width: 6px; }
-        .logs-table-wrapper::-webkit-scrollbar-track { background: transparent; }
-        .logs-table-wrapper::-webkit-scrollbar-thumb { background-color: #4a4a6a; border-radius: 6px; }
+        .logs-table-wrapper::-webkit-scrollbar {
+            width: 8px;
+        }
+        .logs-table-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
         .logs-table {
             width: 100%;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            border-collapse: collapse;
         }
-        .logs-table th, .logs-table td {
-            padding: 0.85rem 1.25rem;
+        .logs-table th,
+        .logs-table td {
+            padding: 0.85rem 1.1rem;
             text-align: left;
         }
         .logs-table thead {
-            background-color: rgba(42, 42, 62, 0.8);
-            color: #a0a0d0;
+            background: rgba(79, 209, 197, 0.08);
+            color: var(--primary-color);
             position: sticky;
             top: 0;
             z-index: 1;
         }
-        .logs-table tbody tr { border-bottom: 1px solid #3a3a5a; }
-        .logs-table tbody tr:last-child { border-bottom: none; }
+        .logs-table tbody tr {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
         .logs-table a {
-            color: #68d391;
-            text-decoration: none;
+            color: var(--primary-color);
             font-weight: 500;
         }
-        .logs-table a:hover { text-decoration: underline; }
-
-        /* --- MODAL XÁC NHẬN --- */
+        .no-logs-msg {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        #no-links-msg {
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 20px;
+            margin-bottom: 1.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.65);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -255,42 +440,45 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             pointer-events: none;
+            backdrop-filter: blur(6px);
         }
         .modal-overlay:not(.hidden) {
             opacity: 1;
             pointer-events: all;
         }
         .modal-content {
-            background: #1e1e2e;
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid #3a3a5a;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-            width: 90%;
-            max-width: 500px;
+            background: rgba(12, 14, 24, 0.92);
+            padding: 2.2rem;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 24px 60px rgba(5, 8, 20, 0.55);
+            width: min(520px, 90vw);
             transform: scale(0.95);
             transition: transform 0.3s ease;
         }
-        .modal-overlay:not(.hidden) .modal-content { transform: scale(1); }
+        .modal-overlay:not(.hidden) .modal-content {
+            transform: scale(1);
+        }
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #3a3a5a;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             padding-bottom: 1rem;
-            margin-bottom: 1rem;
-            color: #e0e0e0;
+            margin-bottom: 1.25rem;
+            color: var(--text-primary);
         }
         .modal-close {
             background: none;
             border: none;
             font-size: 1.5rem;
-            color: #a0a0d0;
+            color: var(--text-secondary);
             cursor: pointer;
         }
         .modal-body {
-            color: #c0c0e0;
-            margin-bottom: 2rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 1.75rem;
         }
         .modal-footer {
             display: flex;
@@ -298,126 +486,184 @@
             gap: 1rem;
         }
         .modal-btn {
-            padding: 0.6rem 1.2rem;
+            padding: 0.65rem 1.25rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition-smooth);
         }
-        .btn-secondary {
-            background-color: #4a4a6a;
-            color: #e0e0e0;
+        .modal-btn.btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
         }
-        .btn-secondary:hover { background-color: #5a5a7a; }
-        .btn-danger {
-            background-color: #e53e3e;
-            color: #fff;
+        .modal-btn.btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
         }
-        .btn-danger:hover { background-color: #c53030; }
-
-        /* --- UTILITY --- */
-        .hidden { display: none !important; }
-        .text-center { text-align: center; }
-        .italic { font-style: italic; }
+        .modal-btn.btn-danger {
+            background: linear-gradient(135deg, #f97373, #f05252);
+            color: #0b0c12;
+        }
+        .modal-btn.btn-danger:hover {
+            filter: brightness(1.05);
+        }
+        .hidden {
+            display: none !important;
+        }
+        .site-footer {
+            text-align: center;
+            font-size: 0.75rem;
+            opacity: 0.6;
+            padding-top: 1.75rem;
+        }
+        @media (max-width: 1024px) {
+            .tool-hero {
+                flex-direction: column;
+            }
+            .hero-card {
+                width: 100%;
+            }
+            .tracker-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+            .tool-hero {
+                padding: 2rem;
+            }
+            .tracker-card {
+                padding: 1.6rem 1.8rem;
+            }
+            .create-link-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .create-link-form button {
+                width: 100%;
+            }
+        }
     </style>
 {% endblock %}
 
 {% block content %}
-<div class="tracker-container">
-    <h1 class="tracker-title">Công cụ Theo dõi Vị trí</h1>
+<div class="tracker-page">
+    <section class="tool-hero">
+        <div class="hero-copy">
+            <span class="hero-eyebrow">
+                <span>📍</span>
+                Location Tracker
+            </span>
+            <h1>Theo dõi chuyến đi một cách lịch sự và minh bạch</h1>
+            <p>Rita tạo ra các liên kết theo dõi nhẹ nhàng để bạn kiểm tra vị trí trong thời gian thực mà vẫn tôn trọng quyền riêng tư của người dùng.</p>
+            <div class="hero-metrics">
+                <span class="metric-chip">🔐 Tuỳ chọn yêu cầu đồng ý</span>
+                <span class="metric-chip">🛰️ Xem nhật ký vị trí trực tiếp</span>
+                <span class="metric-chip">🧾 Lưu lịch sử truy cập</span>
+            </div>
+        </div>
+        <aside class="hero-card">
+            <div class="hero-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C8.13401 2 5 5.13401 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13401 15.866 2 12 2ZM12 11.5C10.6193 11.5 9.5 10.3807 9.5 9C9.5 7.61929 10.6193 6.5 12 6.5C13.3807 6.5 14.5 7.61929 14.5 9C14.5 10.3807 13.3807 11.5 12 11.5Z" fill="#68d391"/>
+                </svg>
+            </div>
+            <ul>
+                <li><strong>Cảnh báo tức thời:</strong> Sao chép link theo dõi và chia sẻ ngay lập tức.</li>
+                <li><strong>Nhật ký chuẩn:</strong> Ghi lại tọa độ, thời gian và liên kết mở Google Maps.</li>
+                <li><strong>Giữ quyền riêng tư:</strong> Bật xác nhận vị trí chỉ với một nút gạt.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <div class="tracker-grid">
+        <div class="tracker-card">
+            <h2 class="card-title">Tạo liên kết theo dõi mới</h2>
+            <p class="card-intro">Dán URL gốc, Rita sẽ trả về link theo dõi độc nhất để bạn gửi cho người cần chia sẻ vị trí.</p>
+            <form id="create-link-form" method="POST" action="{% url 'core:location_tracker_dashboard' %}" class="create-link-form">
+                {% csrf_token %}
+                <input type="url" name="url" placeholder="https://example.com/checkout" required>
+                <button type="submit">Tạo liên kết</button>
+            </form>
+            <div class="consent-toggle">
+                <label class="switch">
+                    <input type="checkbox" name="require_consent" form="create-link-form">
+                    <span class="slider"></span>
+                </label>
+                <span>Bắt buộc người dùng xác nhận trước khi ghi lại vị trí</span>
+            </div>
+            <p class="helper-hint">Link theo dõi sẽ được khởi tạo ngay lập tức và xuất hiện trong danh sách lịch sử bên dưới.</p>
+            <ul class="feature-list">
+                <li>Lưu vết tất cả lượt truy cập với tọa độ chính xác.</li>
+                <li>Chọn sao chép để gửi link rút gọn cho đối tác hoặc khách hàng.</li>
+                <li>Quản lý, xoá liên kết cũ chỉ với một cú nhấp.</li>
+            </ul>
+        </div>
+
+        <div class="tracker-card compact">
+            <div class="quick-guides">
+                <h3>Nhắc nhanh</h3>
+                <p>• Bật tuỳ chọn xác nhận để đảm bảo người dùng đồng ý chia sẻ vị trí.</p>
+                <p>• Sử dụng nút <em>Copy</em> để gửi link theo dõi trọn gói cho khách hàng hoặc đối tác.</p>
+                <p>• Theo dõi bảng nhật ký để xem những lần truy cập gần nhất và mở ngay trên Google Maps.</p>
+            </div>
+        </div>
+    </div>
     
+    <!-- Map Display -->
     <div class="tracker-card">
-        <h2 class="card-title">Tạo Link Mới</h2>
-        <form id="create-link-form" method="POST" action="{% url 'core:location_tracker_dashboard' %}" class="create-link-form">
-            {% csrf_token %}
-            <input type="url" name="url" placeholder="Dán đường dẫn gốc vào đây..." required>
-            <button type="submit">Tạo Link</button>
-        </form>
-        <div class="consent-toggle">
-            <label class="switch">
-                <input type="checkbox" name="require_consent" form="create-link-form">
-                <span class="slider"></span>
-            </label>
-            <label>Bắt buộc cấp quyền vị trí để tiếp tục</label>
+        <h2 class="card-title">Bản đồ vị trí</h2>
+        <div id="map">
         </div>
     </div>
 
+
     <div class="tracker-card">
-        <h2 class="card-title">Lịch sử Links</h2>
-        <div id="history-list" class="history-list">
-            {% for link in links %}
-            <div class="history-item" id="history-item-{{ link.id }}">
-                <div class="info-header">
-                    <p class="info-text">Tạo lúc: {{ link.created_at|date:"H:i, d/m/Y" }}</p>
-                    <button class="delete-btn" data-link-id="{{ link.id }}">Xóa</button>
-                </div>
-                <div class="link-display">
-                    <p class="link-text"><strong>Gốc:</strong> <a href="{{ link.original_url }}" target="_blank">{{ link.original_url }}</a></p>
-                </div>
-                <div class="link-display">
-                    {% with full_tracking_url=base_url|add:'t/'|add:link.tracking_id|add:'/' %}
-                    <p class="link-text"><strong>Theo dõi:</strong> <span>{{ full_tracking_url }}</span></p>
-                    <button class="copy-btn" data-link="{{ full_tracking_url }}">Copy</button>
-                    {% endwith %}
-                </div>
-                
-                <h3 class="logs-title">Nhật ký Vị trí (<span class="log-count">{{ link.logs.count }}</span> lượt):</h3>
-                <div class="logs-table-wrapper {% if not link.logs.all %}hidden{% endif %}">
-                    <table class="logs-table">
-                        <thead>
-                            <tr>
-                                <th>Thời gian</th>
-                                <th>Vĩ độ</th>
-                                <th>Kinh độ</th>
-                                <th>Bản đồ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="log-table-body-{{ link.id }}">
-                            {% for log in link.logs.all %}
-                            <tr>
-                                <td>{{ log.timestamp|date:"H:i:s, d/m/Y" }}</td>
-                                <td>{{ log.latitude|floatformat:5 }}</td>
-                                <td>{{ log.longitude|floatformat:5 }}</td>
-                                <td><a href="https://www.google.com/maps?q={{ log.latitude }},{{ log.longitude }}" target="_blank">Xem</a></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <p class="info-text italic no-logs-msg {% if link.logs.all %}hidden{% endif %}">Chưa có lượt click nào.</p>
-            </div>
-            {% empty %}
-            <p id="no-links-msg" class="info-text text-center">Chưa có link nào được tạo.</p>
-            {% endfor %}
+        <div class="history-header">
+            <h2>Lịch sử liên kết</h2>
         </div>
+        <div id="history-list" class="history-list">
+            <!-- Items will be populated by JavaScript -->
+        </div>
+        <p id="no-links-msg" class="info-text hidden">Chưa có liên kết nào được tạo.</p>
+
     </div>
 </div>
 
-<!-- Modal xác nhận xóa -->
+<footer class="site-footer">
+    <p>Hãy đảm bảo thông báo rõ với người dùng trước khi theo dõi vị trí.</p>
+</footer>
+
+<!-- Modal xác nhận xoá -->
 <div id="delete-confirm-modal" class="modal-overlay hidden">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Xác nhận Xóa</h3>
-            <button id="modal-close-btn" class="modal-close">&times;</button>
+            <h3>Xoá liên kết</h3>
+            <button class="modal-close" id="modal-close-btn">&times;</button>
         </div>
         <div class="modal-body">
-            <p>Bạn có chắc chắn muốn xóa link theo dõi này không? Mọi dữ liệu nhật ký liên quan cũng sẽ bị xóa vĩnh viễn.</p>
+            <p>Bạn có chắc chắn muốn xoá liên kết theo dõi này? Mọi nhật ký vị trí liên quan cũng sẽ bị xoá.</p>
         </div>
         <div class="modal-footer">
-            <button id="modal-cancel-btn" class="modal-btn btn-secondary">Hủy</button>
-            <button id="modal-confirm-delete-btn" class="modal-btn btn-danger">Xóa</button>
+            <button class="modal-btn btn-secondary" id="modal-cancel-btn">Huỷ</button>
+            <button class="modal-btn btn-danger" id="modal-confirm-delete-btn">Xoá</button>
         </div>
     </div>
 </div>
-
-<footer class="site-footer"> <p>Copyright © 2025 Lequyphat</p> </footer>
 {% endblock %}
 
 {% block extra_js %}
+<!-- Leaflet JS for OpenStreetMap -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // --- Helper Functions ---
+document.addEventListener('DOMContentLoaded', function() {
+    let map;
+    let markers = [];
+    let allLinksData = []; // Cache for links data
+
+    // --- Helpers ---
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -433,229 +679,231 @@ document.addEventListener('DOMContentLoaded', function () {
         return cookieValue;
     }
 
-    // --- Modal Handling ---
+    // --- Map Functions ---
+    function initMap() {
+        const initialPosition = [10.7769, 106.7009]; // HCMC [lat, lng]
+        map = L.map('map').setView(initialPosition, 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+    }
+
+    function clearMarkers() {
+        markers.forEach(marker => marker.remove());
+        markers = [];
+    }
+
+    function displayLogsOnMap(logs) {
+        clearMarkers();
+        if (!logs || logs.length === 0) {
+            map.setView([10.7769, 106.7009], 13);
+            return;
+        }
+
+        const latLngs = [];
+        logs.forEach(log => {
+            const lat = parseFloat(String(log.latitude).replace(',', '.'));
+            const lng = parseFloat(String(log.longitude).replace(',', '.'));
+
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const position = [lat, lng];
+                const marker = L.marker(position).addTo(map)
+                    .bindPopup(`<b>Recorded at:</b><br>${log.timestamp}`);
+                markers.push(marker);
+                latLngs.push(position);
+            }
+        });
+        
+        if (latLngs.length > 0) {
+            map.fitBounds(latLngs, { padding: [50, 50] });
+        }
+    }
+
+
+    // --- DOM Update and Event Handling ---
+    let linkIdToDelete = null;
+
+    function handleDeleteClick(event) {
+        event.stopPropagation(); // Prevent triggering the map display
+        linkIdToDelete = event.currentTarget.getAttribute('data-link-id');
+        openDeleteModal();
+    }
+
+    function handleCopyClick(event) {
+        event.stopPropagation();
+        const button = event.currentTarget;
+        const link = button.getAttribute('data-link');
+        navigator.clipboard.writeText(link).then(() => {
+            button.classList.add('copied');
+            button.textContent = 'Đã copy!';
+            setTimeout(() => {
+                button.classList.remove('copied');
+                button.textContent = 'Copy';
+            }, 2000);
+        });
+    }
+    
+    function handleHistoryItemClick(event) {
+        const linkId = event.currentTarget.dataset.linkId;
+        const linkData = allLinksData.find(link => link.id == linkId);
+        if (linkData) {
+            displayLogsOnMap(linkData.logs);
+        }
+    }
+
     const modal = document.getElementById('delete-confirm-modal');
     const confirmDeleteBtn = document.getElementById('modal-confirm-delete-btn');
     const cancelBtn = document.getElementById('modal-cancel-btn');
     const closeBtn = document.getElementById('modal-close-btn');
 
-    function showModal() {
-        if(modal) modal.classList.remove('hidden');
+    function openDeleteModal() {
+        if (modal) modal.classList.remove('hidden');
     }
 
-    function hideModal() {
-        if(modal) modal.classList.add('hidden');
+    function closeDeleteModal() {
+        if (modal) modal.classList.add('hidden');
+        linkIdToDelete = null;
     }
 
-    if(modal) {
-        cancelBtn.addEventListener('click', hideModal);
-        closeBtn.addEventListener('click', hideModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                hideModal();
-            }
-        });
-    }
-
-    // --- Core Logic ---
-    function initEventListeners() {
-        const historyList = document.getElementById('history-list');
-
-        if (historyList) {
-            historyList.addEventListener('click', function(event) {
-                const target = event.target;
-
-                // Copy Button
-                if (target.classList.contains('copy-btn')) {
-                    const linkToCopy = target.dataset.link;
-                    navigator.clipboard.writeText(linkToCopy).then(() => {
-                        const originalText = target.textContent;
-                        target.textContent = 'Đã chép!';
-                        target.classList.add('copied');
-                        setTimeout(() => {
-                            target.textContent = originalText;
-                            target.classList.remove('copied');
-                        }, 2000);
-                    });
-                }
-
-                // Delete Button
-                if (target.classList.contains('delete-btn')) {
-                    const linkId = target.dataset.linkId;
-                    if (confirmDeleteBtn) {
-                        confirmDeleteBtn.dataset.linkId = linkId;
-                        showModal();
-                    }
-                }
+    async function confirmDelete() {
+        if (!linkIdToDelete) return;
+        try {
+            const response = await fetch(`/api/location-tracker/delete/${linkIdToDelete}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
             });
+            if (response.ok) {
+                const itemToRemove = document.getElementById(`history-item-${linkIdToDelete}`);
+                if (itemToRemove) itemToRemove.remove();
+                
+                // Check if the list is now empty
+                const historyList = document.getElementById('history-list');
+                const noLinksMsg = document.getElementById('no-links-msg');
+                if (historyList && noLinksMsg && historyList.children.length === 0) {
+                    noLinksMsg.classList.remove('hidden');
+                }
+            } else {
+                 console.error('Failed to delete the link.');
+            }
+        } catch (error) {
+            console.error('Error deleting link:', error);
+        } finally {
+            closeDeleteModal();
         }
     }
 
-    // Attach listener to the confirm delete button
-    if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener('click', async function() {
-            const linkId = this.dataset.linkId;
-            if (!linkId) return;
+    if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', confirmDelete);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeDeleteModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeDeleteModal);
+    modal?.addEventListener('click', (event) => {
+        if (event.target === modal) closeDeleteModal();
+    });
 
-            try {
-                const response = await fetch(`/api/location-tracker/delete/${linkId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    }
-                });
-                const data = await response.json();
-                if (response.ok && data.status === 'success') {
-                    const itemToRemove = document.getElementById(`history-item-${linkId}`);
-                    if(itemToRemove) itemToRemove.remove();
-                } else {
-                    console.error(data.error || 'Đã có lỗi xảy ra.');
-                }
-            } catch (error) {
-                console.error('Lỗi khi xóa link:', error);
-            } finally {
-                hideModal();
-            }
-        });
-    }
-    
-    // --- Real-time Data Fetching ---
     async function fetchTrackerData() {
         try {
-            const response = await fetch("{% url 'core:api_get_tracker_data' %}");
-            if (!response.ok) return;
+            const response = await fetch('/api/location-tracker/data/');
+            if (!response.ok) throw new Error('Failed to fetch data.');
+            
             const data = await response.json();
-            if (data.links) {
-                updateDashboard(data.links);
-            }
-        } catch (error) {
-            // console.error("Lỗi khi làm mới dữ liệu:", error);
+            allLinksData = data.links || []; // Cache the data
+            updateDashboard(allLinksData);
+        } catch (error)
+        {
+            console.error('Error fetching tracker data:', error);
         }
     }
 
     function updateDashboard(linksData) {
         const historyList = document.getElementById('history-list');
         const noLinksMsg = document.getElementById('no-links-msg');
+        if (!historyList || !noLinksMsg) return;
 
-        if (!historyList) return;
+        historyList.innerHTML = ''; // Clear the list completely for a fresh render
 
-        if (linksData.length > 0 && noLinksMsg) {
-            noLinksMsg.classList.add('hidden');
-        } else if (linksData.length === 0 && noLinksMsg) {
+        if (linksData.length === 0) {
             noLinksMsg.classList.remove('hidden');
+            return;
         }
-
-        // Keep track of existing IDs to remove old ones
-        const existingIds = new Set(Array.from(historyList.querySelectorAll('.history-item')).map(el => el.id));
+        
+        noLinksMsg.classList.add('hidden');
 
         linksData.forEach(link => {
-            const itemId = `history-item-${link.id}`;
-            existingIds.delete(itemId); // Mark this ID as still present
-            let historyItem = document.getElementById(itemId);
+            const logsTableHtml = link.logs.map(log => {
+                 const lat = parseFloat(String(log.latitude).replace(',', '.'));
+                 const lng = parseFloat(String(log.longitude).replace(',', '.'));
+                 // Use OpenStreetMap URL for the link
+                 const mapLink = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;
+                 return `
+                    <tr>
+                        <td>${log.timestamp}</td>
+                        <td>${lat.toFixed(5)}</td>
+                        <td>${lng.toFixed(5)}</td>
+                        <td><a href="${mapLink}" target="_blank" rel="noopener noreferrer">Xem</a></td>
+                    </tr>`;
+            }).join('');
             
-            if (!historyItem) {
-                const newLinkHtml = `
-                    <div class="history-item" id="history-item-${link.id}">
-                        <div class="info-header">
-                            <p class="info-text">Tạo lúc: ${link.created_at}</p>
-                            <button class="delete-btn" data-link-id="${link.id}">Xóa</button>
-                        </div>
-                        <div class="link-display">
-                            <p class="link-text"><strong>Gốc:</strong> <a href="${link.original_url}" target="_blank">${link.original_url}</a></p>
-                        </div>
-                        <div class="link-display">
-                            <p class="link-text"><strong>Theo dõi:</strong> <span>${link.full_tracking_url}</span></p>
-                            <button class="copy-btn" data-link="${link.full_tracking_url}">Copy</button>
-                        </div>
-                        <h3 class="logs-title">Nhật ký Vị trí (<span class="log-count">0</span> lượt):</h3>
-                        <div class="logs-table-wrapper hidden">
-                            <table class="logs-table">
-                                <thead>
-                                    <tr><th>Thời gian</th><th>Vĩ độ</th><th>Kinh độ</th><th>Bản đồ</th></tr>
-                                </thead>
-                                <tbody id="log-table-body-${link.id}"></tbody>
-                            </table>
-                        </div>
-                        <p class="info-text italic no-logs-msg">Chưa có lượt click nào.</p>
-                    </div>`;
-                historyList.insertAdjacentHTML('afterbegin', newLinkHtml);
-                historyItem = document.getElementById(itemId);
-            }
-
-            const logCountEl = historyItem.querySelector('.log-count');
-            if (logCountEl) logCountEl.innerText = link.log_count;
-
-            const tableBody = historyItem.querySelector(`#log-table-body-${link.id}`);
-            const tableWrapper = historyItem.querySelector('.logs-table-wrapper');
-            const noLogsMsgItem = historyItem.querySelector('.no-logs-msg');
-
-            if (tableBody) {
-                let newTbodyContent = '';
-                link.logs.forEach(log => {
-                    newTbodyContent += `
-                        <tr>
-                            <td>${log.timestamp}</td>
-                            <td>${log.latitude.toFixed(5)}</td>
-                            <td>${log.longitude.toFixed(5)}</td>
-                            <td><a href="https://www.google.com/maps?q=${log.latitude},${log.longitude}" target="_blank">Xem</a></td>
-                        </tr>`;
-                });
-                tableBody.innerHTML = newTbodyContent;
-            }
-            
-            if (link.log_count > 0) {
-                if (tableWrapper) tableWrapper.classList.remove('hidden');
-                if (noLogsMsgItem) noLogsMsgItem.classList.add('hidden');
-            } else {
-                if (tableWrapper) tableWrapper.classList.add('hidden');
-                if (noLogsMsgItem) noLogsMsgItem.classList.remove('hidden');
-            }
+            const itemHtml = `
+                <div class="history-item" id="history-item-${link.id}" data-link-id="${link.id}">
+                    <div class="info-header">
+                        <p class="info-text">Tạo lúc: ${link.created_at}</p>
+                        <button class="delete-btn" data-link-id="${link.id}">Xoá</button>
+                    </div>
+                    <div class="link-display">
+                        <p class="link-text"><strong>Gốc:</strong> <a href="${link.original_url}" target="_blank" rel="noopener noreferrer">${link.original_url}</a></p>
+                    </div>
+                    <div class="link-display">
+                        <p class="link-text"><strong>Theo dõi:</strong> <span>${link.full_tracking_url}</span></p>
+                        <button class="copy-btn" data-link="${link.full_tracking_url}">Copy</button>
+                    </div>
+                    <h3 class="logs-title">Nhật ký vị trí (<span class="log-count">${link.log_count}</span> lượt):</h3>
+                    <div class="logs-table-wrapper ${link.log_count === 0 ? 'hidden' : ''}">
+                        <table class="logs-table">
+                            <thead>
+                                <tr><th>Thời gian</th><th>Vĩ độ</th><th>Kinh độ</th><th>Bản đồ</th></tr>
+                            </thead>
+                            <tbody id="log-table-body-${link.id}">${logsTableHtml}</tbody>
+                        </table>
+                    </div>
+                    <p class="info-text no-logs-msg ${link.log_count > 0 ? 'hidden' : ''}">Chưa có lượt click nào.</p>
+                </div>`;
+            historyList.insertAdjacentHTML('beforeend', itemHtml);
         });
 
-        // Remove links that are no longer in the data
-        existingIds.forEach(idToRemove => {
-            const elementToRemove = document.getElementById(idToRemove);
-            if (elementToRemove) {
-                elementToRemove.remove();
-            }
-        });
+        // Re-attach all event listeners after re-rendering
+        historyList.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteClick));
+        historyList.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', handleCopyClick));
+        historyList.querySelectorAll('.history-item').forEach(item => item.addEventListener('click', handleHistoryItemClick));
     }
 
-    // --- Form Submission ---
     const createLinkForm = document.getElementById('create-link-form');
     if(createLinkForm) {
         createLinkForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
-            // Append checkbox value manually
-            const consentCheckbox = this.nextElementSibling.querySelector('input[name="require_consent"]');
-            if (consentCheckbox && consentCheckbox.checked) {
-                formData.append('require_consent', 'on');
-            }
-
+            
             try {
                 const response = await fetch(this.action, {
                     method: 'POST',
                     body: new URLSearchParams(formData),
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
                 });
                 if(response.ok) {
                     this.reset();
+                    const consentCheckbox = document.querySelector('input[name="require_consent"]');
                     if (consentCheckbox) consentCheckbox.checked = false;
-                    fetchTrackerData();
+                    fetchTrackerData(); // Refresh the list
                 }
             } catch (error) {
-                console.error("Lỗi khi tạo link:", error);
+                console.error("Error creating link:", error);
             }
         });
     }
-
-    // --- Initial Load ---
-    initEventListeners();
-    setInterval(fetchTrackerData, 5000);
+    
+    // Initialize map on DOM load
+    initMap(); 
+    fetchTrackerData();
 });
 </script>
 {% endblock %}
