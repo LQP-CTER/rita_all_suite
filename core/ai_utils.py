@@ -1,9 +1,8 @@
-# File: Rita_All_Django/core/ai_utils.py
 import os
 import time
+import random
 import pandas as pd
 import google.generativeai as genai
-from dotenv import load_dotenv
 import logging
 from duckduckgo_search import DDGS
 from django.conf import settings
@@ -15,14 +14,14 @@ import openpyxl
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Tải biến môi trường
-load_dotenv()
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-
-if GOOGLE_API_KEY:
-    genai.configure(api_key=GOOGLE_API_KEY)
+# Cấu hình Gemini API từ Django settings
+# Đây là cách làm đúng chuẩn trong một dự án Django
+if hasattr(settings, 'GEMINI_API_KEY') and settings.GEMINI_API_KEY:
+    genai.configure(api_key=settings.GEMINI_API_KEY)
+    GEMINI_API_CONFIGURED = True
 else:
-    logger.warning("Cảnh báo: GOOGLE_API_KEY không được tìm thấy.")
+    logger.error("LỖI: GEMINI_API_KEY chưa được cấu hình trong file settings.py của Django.")
+    GEMINI_API_CONFIGURED = False
 
 def read_csv_data():
     """Đọc dữ liệu từ file Data.csv."""
@@ -34,23 +33,38 @@ def read_csv_data():
         logger.error(f"Lỗi khi đọc file CSV: {e}")
         return "Lỗi: Không thể đọc file dữ liệu Data.csv."
 
-def web_search(query, max_retries=3):
-    """Thực hiện tìm kiếm web với cơ chế thử lại."""
+def web_search(query, max_retries=5):
+    """
+    Thực hiện tìm kiếm trên web với DuckDuckGo và xử lý giới hạn yêu cầu (Ratelimit) một cách mạnh mẽ.
+    """
     logger.info(f"Đang tìm kiếm web cho: '{query}'")
-    wait_time = 1
-    for i in range(max_retries):
+    wait_time = 3  # Bắt đầu với thời gian chờ dài hơn: 3 giây
+    for attempt in range(max_retries):
         try:
-            with DDGS() as ddgs:
-                results = [f"Tiêu đề: {r['title']}\nNội dung: {r['body']}" for r in ddgs.text(query, max_results=3)]
-                return "\n\n".join(results) if results else "Không tìm thấy kết quả nào trên web."
+            with DDGS(timeout=10) as ddgs:
+                # Lấy 5 kết quả để có thêm ngữ cảnh
+                results_list = list(ddgs.text(query, max_results=5))
+                if results_list:
+                    # Định dạng lại kết quả như phiên bản code của bạn mong muốn
+                    formatted_results = [f"Tiêu đề: {r['title']}\nNội dung: {r['body']}" for r in results_list]
+                    return "\n\n".join(formatted_results)
+            return "Không tìm thấy kết quả nào trên web."
         except Exception as e:
-            if "Ratelimit" in str(e) or "202" in str(e):
-                logger.warning(f"Bị giới hạn yêu cầu. Thử lại sau {wait_time} giây...")
-                time.sleep(wait_time)
+            error_str = str(e).lower()
+            if "ratelimit" in error_str or "429" in error_str or "202" in error_str:
+                jitter = random.uniform(0.5, 1.5)
+                sleep_duration = wait_time + jitter
+                logger.warning(
+                    f"Bị giới hạn yêu cầu (lần {attempt + 1}/{max_retries}). "
+                    f"Thử lại sau {sleep_duration:.2f} giây..."
+                )
+                time.sleep(sleep_duration)
                 wait_time *= 2
             else:
-                logger.error(f"Lỗi tìm kiếm web: {e}")
-                return "Không thể tìm kiếm trên web lúc này."
+                logger.error(f"Lỗi không mong muốn khi tìm kiếm trên web: {e}")
+                return "Không thể tìm kiếm trên web lúc này do lỗi bất ngờ."
+
+    logger.error(f"Không thể tìm kiếm trên web sau {max_retries} lần thử.")
     return "Không thể tìm kiếm trên web sau nhiều lần thử."
 
 # ==============================================================================
@@ -82,11 +96,11 @@ def read_xlsx_file(file):
         workbook = openpyxl.load_workbook(file)
         for sheet_name in workbook.sheetnames:
             sheet = workbook[sheet_name]
+            text += f"--- Bảng tính: {sheet_name} ---\n"
             for row in sheet.iter_rows():
-                for cell in row:
-                    if cell.value:
-                        text += str(cell.value) + " "
-                text += "\n"
+                row_values = [str(cell.value) if cell.value is not None else "" for cell in row]
+                text += "\t".join(row_values) + "\n"
+            text += "\n"
     except Exception as e:
         logger.error(f"Lỗi khi đọc file XLSX: {e}")
     return text
@@ -104,30 +118,31 @@ def handle_uploaded_files(files):
             content = read_docx_file(uploaded_file)
         elif file_name.endswith('.xlsx'):
             content = read_xlsx_file(uploaded_file)
-        # You can add more file types like .txt here
         elif file_name.endswith('.txt'):
-            content = uploaded_file.read().decode('utf-8')
-
+            try:
+                content = uploaded_file.read().decode('utf-8')
+            except Exception as e:
+                logger.error(f"Lỗi khi đọc file TXT: {e}")
+        
         if content:
             file_contents += f"\n--- Nội dung từ file đính kèm: {uploaded_file.name} ---\n{content}\n--- Kết thúc nội dung file ---\n"
     return file_contents
 
-
-# SỬA ĐỔI: Thêm tham số 'files' để nhận file upload
+# ==============================================================================
+# HÀM CHÍNH LẤY PHẢN HỒI TỪ AI
+# ==============================================================================
 def get_gemini_response(user_input, user, files=None, search_web=True):
     """
     Lấy phản hồi từ Gemini, kết hợp dữ liệu nội bộ, tìm kiếm web, file đính kèm và thông tin người dùng.
     """
-    if not GOOGLE_API_KEY:
+    if not GEMINI_API_CONFIGURED:
         return "Lỗi: API Key của Google chưa được cấu hình."
 
     csv_data = read_csv_data()
     search_results = web_search(user_input) if search_web and user_input else "Người dùng đã tắt hoặc không có truy vấn tìm kiếm web."
     
-    # NEW: Handle uploaded files
     file_content_for_prompt = handle_uploaded_files(files)
 
-    # Lấy tên người dùng để đưa vào prompt
     user_name = user.profile.full_name if hasattr(user, 'profile') and user.profile.full_name else user.username
 
     prompt = f"""

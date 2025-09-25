@@ -1,4 +1,3 @@
-# File: Rita_All_Django/core/views.py
 import json
 import logging
 import threading
@@ -167,24 +166,34 @@ def chat_view(request):
 def api_chat(request):
     try:
         user_input = request.POST.get('message', '')
+        # Get the state of the search_web checkbox from the request, convert to boolean
+        search_web_enabled = request.POST.get('search_web') == 'true'
         uploaded_files = request.FILES.getlist('files')
+
         if not user_input and not uploaded_files:
             return JsonResponse({'error': 'Message or file is required'}, status=400)
         
         history_content = user_input
         if uploaded_files:
             file_names = ", ".join([f.name for f in uploaded_files])
-            history_content += f"\n(Đã đính kèm: {file_names})"
+            history_content += f"\n(Attached: {file_names})"
         
         ChatHistory.objects.create(user=request.user, role='user', content=history_content.strip())
         
-        response_text = get_gemini_response(user_input=user_input, user=request.user, files=uploaded_files)
+        # Pass the search_web state to the get_gemini_response function
+        response_text = get_gemini_response(
+            user_input=user_input, 
+            user=request.user, 
+            files=uploaded_files,
+            search_web=search_web_enabled
+        )
         model_message = ChatHistory.objects.create(user=request.user, role='model', content=response_text)
 
-        return JsonResponse({'response': response_text, 'model_message_id': model_message.id})
+        return JsonResponse({'answer': response_text, 'model_message_id': model_message.id})
     except Exception as e:
         logger.error(f"Error in api_chat: {e}")
         return JsonResponse({'error': 'An internal error occurred'}, status=500)
+
 
 @login_required
 @require_POST
@@ -206,8 +215,6 @@ def perform_analysis_in_background(video_pk):
     try:
         video = TikTokVideo.objects.get(pk=video_pk)
         
-        # Sửa lỗi: Truyền video_url và user object vào hàm analyze_tiktok_video
-        # thay vì chỉ truyền transcript như trước đây.
         analysis_result_json = analyze_tiktok_video(video.video_url, video.user)
         video.analysis = json.loads(analysis_result_json)
         
