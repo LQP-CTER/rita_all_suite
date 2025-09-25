@@ -589,7 +589,7 @@
             </form>
             <div class="consent-toggle">
                 <label class="switch">
-                    <input type="checkbox" name="require_consent" form="create-link-form">
+                    <input type="checkbox" name="require_consent" form="create-link-form" checked>
                     <span class="slider"></span>
                 </label>
                 <span>Bắt buộc người dùng xác nhận trước khi ghi lại vị trí</span>
@@ -662,6 +662,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let map;
     let markers = [];
     let allLinksData = []; // Cache for links data
+    let pollingInterval;
 
     // --- Helpers ---
     function getCookie(name) {
@@ -735,14 +736,25 @@ document.addEventListener('DOMContentLoaded', function() {
         event.stopPropagation();
         const button = event.currentTarget;
         const link = button.getAttribute('data-link');
-        navigator.clipboard.writeText(link).then(() => {
+        
+        // Use the 'copy' command for broader compatibility
+        const textArea = document.createElement("textarea");
+        textArea.value = link;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
             button.classList.add('copied');
             button.textContent = 'Đã copy!';
             setTimeout(() => {
                 button.classList.remove('copied');
                 button.textContent = 'Copy';
             }, 2000);
-        });
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            alert('Could not copy the link.');
+        }
+        document.body.removeChild(textArea);
     }
     
     function handleHistoryItemClick(event) {
@@ -770,25 +782,19 @@ document.addEventListener('DOMContentLoaded', function() {
     async function confirmDelete() {
         if (!linkIdToDelete) return;
         try {
-            const response = await fetch(`/api/location-tracker/delete/${linkIdToDelete}/`, {
+            const response = await fetch(`/api/tracker-links/${linkIdToDelete}/delete/`, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCookie('csrftoken') },
             });
             if (response.ok) {
-                const itemToRemove = document.getElementById(`history-item-${linkIdToDelete}`);
-                if (itemToRemove) itemToRemove.remove();
-                
-                // Check if the list is now empty
-                const historyList = document.getElementById('history-list');
-                const noLinksMsg = document.getElementById('no-links-msg');
-                if (historyList && noLinksMsg && historyList.children.length === 0) {
-                    noLinksMsg.classList.remove('hidden');
-                }
+                fetchTrackerData(); // Refresh the list
             } else {
                  console.error('Failed to delete the link.');
+                 alert('Failed to delete the link.');
             }
         } catch (error) {
             console.error('Error deleting link:', error);
+            alert('An error occurred while deleting the link.');
         } finally {
             closeDeleteModal();
         }
@@ -803,7 +809,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchTrackerData() {
         try {
-            const response = await fetch('/api/location-tracker/data/');
+            const response = await fetch('/api/tracker-data/');
             if (!response.ok) throw new Error('Failed to fetch data.');
             
             const data = await response.json();
@@ -824,6 +830,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (linksData.length === 0) {
             noLinksMsg.classList.remove('hidden');
+            clearMarkers(); // Clear map if no links
             return;
         }
         
@@ -833,15 +840,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const logsTableHtml = link.logs.map(log => {
                  const lat = parseFloat(String(log.latitude).replace(',', '.'));
                  const lng = parseFloat(String(log.longitude).replace(',', '.'));
-                 // Use OpenStreetMap URL for the link
                  const mapLink = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;
                  return `
-                    <tr>
-                        <td>${log.timestamp}</td>
-                        <td>${lat.toFixed(5)}</td>
-                        <td>${lng.toFixed(5)}</td>
-                        <td><a href="${mapLink}" target="_blank" rel="noopener noreferrer">Xem</a></td>
-                    </tr>`;
+                     <tr>
+                         <td>${log.timestamp}</td>
+                         <td>${lat.toFixed(5)}</td>
+                         <td>${lng.toFixed(5)}</td>
+                         <td><a href="${mapLink}" target="_blank" rel="noopener noreferrer">Xem</a></td>
+                     </tr>`;
             }).join('');
             
             const itemHtml = `
@@ -882,17 +888,20 @@ document.addEventListener('DOMContentLoaded', function() {
         createLinkForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
-            
+            // Manually get checkbox state
+            const requireConsent = this.querySelector('input[name="require_consent"]').checked;
+            formData.set('require_consent', requireConsent ? 'on' : '');
+
             try {
                 const response = await fetch(this.action, {
                     method: 'POST',
-                    body: new URLSearchParams(formData),
+                    body: new URLSearchParams(new FormData(this)), // FormData handles checkbox correctly here
                     headers: { 'X-CSRFToken': getCookie('csrftoken') },
                 });
                 if(response.ok) {
                     this.reset();
-                    const consentCheckbox = document.querySelector('input[name="require_consent"]');
-                    if (consentCheckbox) consentCheckbox.checked = false;
+                     const consentCheckbox = document.querySelector('input[name="require_consent"]');
+                     if (consentCheckbox) consentCheckbox.checked = true; // Reset to default
                     fetchTrackerData(); // Refresh the list
                 }
             } catch (error) {
@@ -904,6 +913,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize map on DOM load
     initMap(); 
     fetchTrackerData();
+    // Start polling
+    pollingInterval = setInterval(fetchTrackerData, 5000);
 });
 </script>
 {% endblock %}

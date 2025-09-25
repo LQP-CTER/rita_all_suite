@@ -1,62 +1,247 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Rita - Your AI Assistant{% endblock %}
+{% block title %}Rita Chat Studio{% endblock %}
 
 {% block extra_css %}
-    {# CSS này dành riêng cho layout của trang chat #}
     <style>
-        /* Ghi đè body để khóa cuộn, chỉ cho phép cuộn trong vùng chat */
         body {
-            overflow: hidden;
+            /* Cho phép trang cuộn khi nội dung dài hơn màn hình */
+            overflow-y: auto;
         }
         .app-container {
-            height: 100vh;
-            padding: 0; /* Xóa padding để chat chiếm toàn bộ không gian */
-        }
-        .header {
-             margin: 1rem; /* Thêm margin để header không dính sát viền */
-             position: static; /* Header không dính khi cuộn */
-        }
-        .main-content {
-            padding: 0 1rem 1rem 1rem; /* Thêm padding cho nội dung chính */
-        }
-
-        /* Layout chính của trang chat */
-        .chat-wrapper {
+            /* Đảm bảo container chính có chiều cao tối thiểu bằng màn hình */
             display: flex;
             flex-direction: column;
-            height: 100%;
-            background-color: var(--background-light);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+        .main-content {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            flex: 1; /* Cho phép phần nội dung chính co giãn */
+            min-height: 0; /* Quan trọng để flexbox co giãn đúng cách */
         }
 
-        /* Vùng hiển thị tin nhắn */
-        .chat-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
+        /* Styles for the new header card */
+        .tool-hero {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center; /* Changed to center for better alignment */
+            padding: 2rem 2.4rem;
+            border-radius: 28px;
+            background: linear-gradient(145deg, rgba(26, 26, 46, 0.95), rgba(12, 14, 24, 0.92));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(5, 8, 20, 0.55);
+        }
+        .tool-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(79, 209, 197, 0.3), transparent 55%),
+                        radial-gradient(circle at bottom left, rgba(104, 211, 145, 0.18), transparent 60%);
+            pointer-events: none;
+        }
+        .hero-copy {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(104, 211, 145, 0.12);
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            width: fit-content;
+        }
+        .hero-copy h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        .hero-copy p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+        /* New styles for hero graphic */
+        .hero-graphic {
+            position: relative;
+            z-index: 1;
+            width: 120px;
+            height: 120px;
+            opacity: 0.5;
+        }
+        
+        .chat-shell {
+            display: grid;
+            grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+            gap: 1.5rem;
+            flex: 1;
+            min-height: 0;
+        }
+        .chat-sidebar {
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
+            min-height: 0;
+        }
+        .sidebar-card {
+            position: relative;
+            border-radius: 22px;
+            padding: 1.35rem 1.5rem;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(12, 14, 24, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 45px rgba(5, 8, 20, 0.38);
+        }
+        .sidebar-card h3 {
+            margin: 0 0 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .sidebar-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0;
+        }
+        .sidebar-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        .search-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.75rem;
+            border-radius: 14px;
+            background: rgba(12, 14, 24, 0.7);
+        }
+        .search-toggle-wrapper label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input { display: none; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .3s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background: linear-gradient(135deg, #68d391, #4fd1c5);
+        }
+        input:checked + .slider:before {
+            transform: translateX(19px);
+        }
+        .prompt-chips {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .prompt-chip {
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-align: left;
+        }
+        .prompt-chip:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+        .chat-interface {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: linear-gradient(145deg, rgba(26, 26, 46, 0.9), rgba(12, 14, 24, 0.85));
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 28px 60px rgba(5, 8, 20, 0.4);
+        }
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
         .chat-container::-webkit-scrollbar { width: 8px; }
         .chat-container::-webkit-scrollbar-track { background: transparent; }
-        .chat-container::-webkit-scrollbar-thumb { background-color: var(--surface-color); border-radius: 4px; }
-        .chat-container::-webkit-scrollbar-thumb:hover { background-color: var(--primary-color); }
+        .chat-container::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.1); border-radius: 4px; }
+        .chat-container::-webkit-scrollbar-thumb:hover { background-color: rgba(104, 211, 145, 0.3); }
 
         .message {
             display: flex;
-            max-width: 85%;
+            max-width: 80%;
             align-items: flex-start;
             gap: 1rem;
             animation: messageFadeIn 0.3s ease-out;
         }
-        @keyframes messageFadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes messageFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
         .message.user {
             align-self: flex-end;
@@ -71,34 +256,89 @@
             align-items: center;
             justify-content: center;
             background-color: var(--surface-color);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .message-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .message-content {
-            padding: 0.8rem 1.2rem;
+            padding: 0.85rem 1.25rem;
             border-radius: 18px;
-            line-height: 1.6;
+            line-height: 1.65;
             background-color: var(--surface-color);
             border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        .message-content.thinking {
+            color: var(--text-secondary);
         }
         .user .message-content {
-            background: var(--primary-color);
-            color: var(--background-dark);
+            background: linear-gradient(135deg, #68d391, #4fd1c5);
+            color: #0b0c12;
             border: none;
         }
+        /* Styles for chat placeholder */
+        .chat-placeholder {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem;
+            opacity: 0.6;
+        }
+        .placeholder-logo {
+            width: 72px;
+            height: 72px;
+            margin-bottom: 1.5rem;
+        }
+        .chat-placeholder h2 {
+            font-size: 1.5rem;
+            margin: 0 0 0.5rem;
+            color: var(--text-primary);
+        }
+        .chat-placeholder p {
+            margin: 0;
+        }
 
-        /* Vùng nhập liệu */
         .chat-input-area {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--border-color);
-            flex-shrink: 0;
+            padding: 1.25rem 1.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(12, 14, 24, 0.5);
+            border-radius: 0 0 22px 22px;
+            backdrop-filter: blur(8px);
+        }
+        #file-info-container {
+            display: none;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            margin-bottom: 0.85rem;
+        }
+        .file-info-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.4rem 0.8rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        .remove-file-btn {
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            border: none;
+            background: none;
+            padding: 0;
         }
         .chat-input-form {
             display: flex;
-            align-items: flex-end; /* Căn các item xuống dưới cùng */
+            align-items: flex-end;
             gap: 0.75rem;
             background-color: var(--surface-color);
             padding: 0.5rem;
-            border-radius: 12px;
+            border-radius: 16px;
             border: 1px solid var(--border-color);
             transition: var(--transition-smooth);
         }
@@ -114,120 +354,179 @@
             font-size: 1rem;
             resize: none;
             outline: none;
-            max-height: 150px; /* Giới hạn chiều cao tối đa */
-            overflow-y: auto; /* Thêm cuộn khi quá cao */
+            max-height: 180px;
+            overflow-y: auto;
         }
-        .chat-input-form button {
+        .icon-btn, #send-btn {
             background: none;
             border: none;
             width: 44px;
             height: 44px;
-            border-radius: 8px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: var(--transition-smooth);
             color: var(--text-secondary);
+            font-size: 1.1rem;
         }
-        .chat-input-form button:hover:not(:disabled) {
-            background-color: var(--background-dark);
+        .icon-btn:hover, #send-btn:hover:not(:disabled) {
+            background-color: rgba(255,255,255,0.1);
             color: var(--text-primary);
         }
         #send-btn {
             background-color: var(--primary-color);
-            color: var(--background-dark);
+            color: #0b0c12;
         }
         #send-btn:disabled {
             background-color: var(--border-color);
             cursor: not-allowed;
+            color: var(--text-secondary);
         }
-        #send-btn:hover:not(:disabled) {
-            filter: brightness(1.1);
-        }
-        
-        /* Cập nhật: Thêm CSS cho container file */
-        #file-info-container {
-            display: none; /* Ẩn mặc định */
+        .input-hints {
+            display: flex;
+            justify-content: space-between;
             flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-            padding: 0 0.5rem;
+            gap: 1rem;
+            margin-top: 0.85rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
         }
-        .file-info-item {
+        .input-hints span {
             display: inline-flex;
             align-items: center;
-            background-color: var(--surface-color);
-            border: 1px solid var(--border-color);
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
+            gap: 0.4rem;
         }
-        .file-info-item .remove-file-btn {
-            margin-left: 0.5rem;
-            cursor: pointer;
-            font-size: 1rem;
+        .site-footer {
+            text-align: center;
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            border: none;
-            background: none;
-            padding: 0;
+            opacity: 0.6;
         }
-        .file-info-item .remove-file-btn:hover {
-            color: var(--error-color);
+
+        @media (max-width: 1200px) {
+            .hero-graphic {
+                display: none; /* Hide graphic on smaller screens to save space */
+            }
+        }
+
+        @media (max-width: 900px) {
+            .chat-shell { grid-template-columns: 1fr; }
+            .chat-sidebar { display: none; } /* Hide sidebar on smaller screens */
         }
     </style>
 {% endblock %}
 
 {% block content %}
-<div class="chat-wrapper">
-    <div class="chat-container" id="chat-container">
-        {% for message in chat_history %}
-            <div class="message {% if message.role == 'user' %}user{% else %}rita{% endif %}">
-                <div class="message-avatar">
-                    {% if message.role == 'user' %}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#e0e0e0" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
-                    {% else %}
-                        <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita">
-                    {% endif %}
-                </div>
-                <div class="message-content">
-                    <p>{{ message.content|safe|linebreaksbr }}</p>
-                </div>
-            </div>
-        {% empty %}
-            <div class="message rita">
-                 <div class="message-avatar">
-                    <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita">
-                 </div>
-                 <div class="message-content">
-                    <p>Hello! I am Rita, your personal AI assistant. How can I help you today?</p>
-                </div>
-            </div>
-        {% endfor %}
+<section class="tool-hero">
+    <div class="hero-copy">
+        <span class="hero-eyebrow">
+            <span>💬</span>
+            Chat Studio
+        </span>
+        <h1>Trợ lý AI cá nhân của bạn</h1>
+        <p>Tương tác với Rita để trò chuyện thông minh, phân tích tệp và nhận thông tin từ web. Bắt đầu bằng cách nhập yêu cầu của bạn bên dưới hoặc chọn một gợi ý nhanh.</p>
     </div>
-    <div class="chat-input-area">
-        <!-- Cập nhật: Thêm container cho thông tin file -->
-        <div id="file-info-container"></div>
-        <form id="chat-form" class="chat-input-form" enctype="multipart/form-data">
-            {% csrf_token %}
-            <button type="button" class="refresh-btn" id="refresh-btn" title="New Chat">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-            <!-- Cập nhật: Thêm nút upload và input ẩn -->
-            <input type="file" id="file-input" multiple hidden>
-            <button type="button" class="upload-button" id="upload-btn" title="Attach files">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21.44 11.05l-9.19 9.19a6.003 6.003 0 1 1-8.49-8.49l9.19-9.19a4.002 4.002 0 0 1 5.66 5.66l-9.2 9.19a2.001 2.001 0 1 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <textarea name="message" id="message-input" placeholder="Type your message..." rows="1"></textarea>
-            <button type="submit" id="send-btn" title="Send Message" disabled>
-                <i class="fas fa-paper-plane"></i>
-            </button>
-        </form>
-         <footer class="site-footer" style="font-size: 0.75rem; padding-top: 0.75rem; text-align: center;">
-            <p>Rita can make mistakes, double-check it | Copyright © 2025 Lequyphat</p>
-        </footer>
+    <div class="hero-graphic">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#68d391;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4fd1c5;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <path fill="url(#grad1)" d="M50,10 C77.61,10 100,32.39 100,60 C100,87.61 77.61,110 50,110 C22.39,110 0,87.61 0,60 C0,32.39 22.39,10 50,10 Z" transform="rotate(-15 50 50) translate(0 -10)">
+                <animateTransform attributeName="transform" type="rotate" from="-15 50 50" to="345 50 50" dur="20s" repeatCount="indefinite"/>
+            </path>
+             <path fill="url(#grad1)" opacity="0.6" d="M50,20 C72.09,20 90,37.91 90,60 C90,82.09 72.09,100 50,100 C27.91,100 10,82.09 10,60 C10,37.91 27.91,20 50,20 Z" transform="rotate(25 50 50) translate(0, 0)">
+                 <animateTransform attributeName="transform" type="rotate" from="25 50 50" to="385 50 50" dur="25s" repeatCount="indefinite" />
+            </path>
+        </svg>
     </div>
+</section>
+
+<div class="chat-shell">
+    <aside class="chat-sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-actions">
+                <button id="refresh-btn" class="action-btn">
+                    <i class="fas fa-sync-alt"></i> New Chat
+                </button>
+            </div>
+            <div class="search-toggle-wrapper">
+                <label for="search-web-toggle">Search web</label>
+                <label class="switch">
+                    <input type="checkbox" id="search-web-toggle" name="search_web">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="sidebar-card">
+            <h3>Quick Prompts</h3>
+            <div class="prompt-chips">
+                <button class="prompt-chip" data-prompt="Explain quantum computing in simple terms">Explain quantum computing</button>
+                <button class="prompt-chip" data-prompt="Got any creative ideas for a 10 year old’s birthday?">Ideas for a birthday party</button>
+                <button class="prompt-chip" data-prompt="Write a Python script to sort a list of dictionaries by a specific key">Python script for sorting</button>
+            </div>
+        </div>
+        <div class="sidebar-card">
+            <h3>Did you know?</h3>
+            <p>You can upload up to 5 files (max 10MB each), including images, text files, and PDFs. Rita will analyze their content to provide more accurate answers.</p>
+        </div>
+    </aside>
+
+    <section class="chat-interface">
+        <div id="chat-container" class="chat-container">
+            {% if not chat_history %}
+            <div class="chat-placeholder" id="chat-placeholder">
+                <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita Logo" class="placeholder-logo">
+                <h2>How can I help you today?</h2>
+                <p>Start a new conversation or try a quick prompt.</p>
+            </div>
+            {% endif %}
+            {% for message in chat_history %}
+                <div class="message {% if message.role == 'user' %}user{% else %}rita{% endif %}">
+                    <div class="message-avatar">
+                        {% if message.role == 'user' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#e0e0e0" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
+                        {% else %}
+                            <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita">
+                        {% endif %}
+                    </div>
+                    <div class="message-content">
+                        <p>{{ message.content|safe|linebreaksbr }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="chat-input-area">
+            <div id="file-info-container"></div>
+            <form id="chat-form" class="chat-input-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <button type="button" class="icon-btn" id="upload-btn" title="Attach files">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <textarea name="message" id="message-input" placeholder="Type your next request..." rows="1"></textarea>
+                <button type="submit" id="send-btn" title="Send" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <input type="file" id="file-input" multiple hidden>
+            </form>
+            <div class="input-hints">
+                <span><code>Shift</code> + <code>Enter</code> new line</span>
+                <span><i class="fas fa-bolt"></i> Tap a quick prompt to auto-fill</span>
+                <span><i class="fas fa-shield-check"></i> Files stay private in your session</span>
+            </div>
+        </div>
+    </section>
 </div>
+
+<footer class="site-footer">
+    <p>Rita can make mistakes - double-check important details. (c) 2025 Lequyphat</p>
+</footer>
 {% endblock %}
 
 {% block extra_js %}

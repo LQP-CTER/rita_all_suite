@@ -27,7 +27,8 @@ logger = logging.getLogger(__name__)
 
 # --- Asynchronous helper for TikTok processing ---
 async def _handle_tiktok_submission(video_url, user):
-    video_info = await get_tiktok_video_info(video_url)
+    # The awaited call is now synchronous to prevent TypeError
+    video_info = get_tiktok_video_info(video_url)
     if video_info.get("error"):
         return {"error": video_info.get("error")}
 

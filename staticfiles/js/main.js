@@ -1,297 +1,273 @@
-// static/js/main.js
-
-document.addEventListener('DOMContentLoaded', function() {
-    // --- Start: Custom Modal Implementation ---
-    // This replaces the browser's default alert() and confirm() dialogs.
-    function addModalStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            .rita-modal-overlay {
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background-color: rgba(0, 0, 0, 0.6); display: flex;
-                justify-content: center; align-items: center; z-index: 1050;
-                opacity: 0; transition: opacity 0.2s ease-in-out;
-            }
-            .rita-modal-overlay.visible { opacity: 1; }
-            .rita-modal-box {
-                background: #fff; color: #333; padding: 25px; border-radius: 8px;
-                width: 90%; max-width: 400px; text-align: center;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                transform: scale(0.9); transition: transform 0.2s ease-in-out;
-            }
-            .rita-modal-overlay.visible .rita-modal-box { transform: scale(1); }
-            .rita-modal-box p { margin: 0 0 20px; font-size: 1rem; line-height: 1.5; }
-            .rita-modal-buttons { display: flex; justify-content: center; gap: 15px; }
-            .rita-modal-box button {
-                padding: 10px 22px; border-radius: 5px; border: none;
-                cursor: pointer; font-weight: bold; transition: background-color 0.2s;
-            }
-            .rita-modal-confirm-btn { background-color: #007bff; color: white; }
-            .rita-modal-confirm-btn:hover { background-color: #0056b3; }
-            .rita-modal-cancel-btn, .rita-modal-ok-btn { background-color: #6c757d; color: white; }
-            .rita-modal-cancel-btn:hover, .rita-modal-ok-btn:hover { background-color: #5a6268; }
-        `;
-        document.head.appendChild(style);
-    }
-
-    function showCustomAlert(message, callback) {
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'rita-modal-overlay';
-        modalOverlay.innerHTML = `
-            <div class="rita-modal-box">
-                <p>${message}</p>
-                <div class="rita-modal-buttons">
-                    <button class="rita-modal-ok-btn">OK</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modalOverlay);
-        setTimeout(() => modalOverlay.classList.add('visible'), 10);
-        modalOverlay.querySelector('.rita-modal-ok-btn').onclick = () => {
-            modalOverlay.classList.remove('visible');
-            modalOverlay.addEventListener('transitionend', () => {
-                document.body.removeChild(modalOverlay);
-                if (callback) callback();
-            }, { once: true });
-        };
-    }
-
-    function showCustomConfirm(message, onConfirm) {
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'rita-modal-overlay';
-        modalOverlay.innerHTML = `
-            <div class="rita-modal-box">
-                <p>${message}</p>
-                <div class="rita-modal-buttons">
-                    <button class="rita-modal-confirm-btn">Confirm</button>
-                    <button class="rita-modal-cancel-btn">Cancel</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modalOverlay);
-        setTimeout(() => modalOverlay.classList.add('visible'), 10);
-        const close = () => {
-            modalOverlay.classList.remove('visible');
-            modalOverlay.addEventListener('transitionend', () => document.body.removeChild(modalOverlay), { once: true });
-        };
-        modalOverlay.querySelector('.rita-modal-confirm-btn').onclick = () => { close(); onConfirm(true); };
-        modalOverlay.querySelector('.rita-modal-cancel-btn').onclick = () => { close(); onConfirm(false); };
-    }
-
-    addModalStyles();
-    // --- End: Custom Modal Implementation ---
-
-    // --- DOM Elements (from old file, with additions) ---
-    const chatMessages = document.getElementById('chat-messages');
+document.addEventListener('DOMContentLoaded', () => {
+    const chatThread = document.getElementById('chat-container');
     const chatForm = document.getElementById('chat-form');
-    const userInput = document.getElementById('user-input'); // Using old ID
-    const sendBtn = document.getElementById('send-btn'); // Using old ID
-    const uploadBtn = document.getElementById('upload-btn'); // Using old ID
+    const userInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const refreshChatBtn = document.getElementById('refresh-btn');
+    const uploadBtn = document.getElementById('upload-btn');
     const fileInput = document.getElementById('file-input');
-    const filePreviewContainer = document.getElementById('file-info-container'); // Using old ID
-    const refreshChatBtn = document.getElementById('refresh-chat-btn'); // New element from newer version
+    const fileInfoContainer = document.getElementById('file-info-container');
+    const promptChips = Array.from(document.querySelectorAll('.prompt-chip'));
+    const searchWebToggle = document.getElementById('search-web-toggle');
 
-    // --- Helper Functions ---
+    const MAX_FILES = 5;
+    const MAX_FILE_SIZE_MB = 10;
+
+    let attachedFiles = [];
+
+    function syncSendButtonState() {
+        if (!sendBtn || !userInput) return;
+        sendBtn.disabled = userInput.value.trim().length === 0 && attachedFiles.length === 0;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     function scrollToBottom() {
-        if (chatMessages) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        if (chatThread) {
+            chatThread.scrollTop = chatThread.scrollHeight;
+        }
+    }
+    
+    function escapeHTML(str) {
+        const p = document.createElement("p");
+        p.textContent = str;
+        return p.innerHTML;
+    }
+    
+    function ensurePlaceholder() {
+        if (chatThread && chatThread.children.length === 0) {
+            chatThread.innerHTML = `
+                <div class="chat-placeholder">
+                    <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita Logo" class="placeholder-logo">
+                    <h2>How can I help you today?</h2>
+                </div>`;
+        } else if (chatThread) {
+             const placeholder = chatThread.querySelector('.chat-placeholder');
+             if (placeholder) placeholder.remove();
         }
     }
 
-    // --- NEW File Handling Logic (replaces old `attachedFiles` array) ---
-    if (fileInput && filePreviewContainer) {
-        fileInput.addEventListener('change', function() {
-            filePreviewContainer.innerHTML = ''; // Clear previous previews
-            if (this.files.length > 0) {
-                filePreviewContainer.style.display = 'flex'; // Show container
-                Array.from(this.files).forEach(file => {
-                    const fileItem = document.createElement('div');
-                    fileItem.className = 'file-info-item'; // Use old class name
-                    
-                    const fileName = document.createElement('span');
-                    fileName.textContent = file.name;
-                    
-                    const removeBtn = document.createElement('span');
-                    removeBtn.className = 'remove-file-btn';
-                    removeBtn.innerHTML = '&times;';
-                    
-                    removeBtn.onclick = function() {
-                        const newFiles = new DataTransfer();
-                        Array.from(fileInput.files).forEach(f => {
-                            if (f !== file) newFiles.items.add(f);
-                        });
-                        fileInput.files = newFiles.files;
-                        fileInput.dispatchEvent(new Event('change')); // Re-render previews
-                    };
+    function addMessageToUI({ role, content, isThinking = false }) {
+        if (!chatThread) return null;
+        ensurePlaceholder();
 
-                    fileItem.appendChild(fileName);
-                    fileItem.appendChild(removeBtn);
-                    filePreviewContainer.appendChild(fileItem);
-                });
-            } else {
-                 filePreviewContainer.style.display = 'none'; // Hide if no files
-            }
-            sendBtn.disabled = userInput.value.trim().length === 0 && this.files.length === 0;
-        });
-    }
-
-    // --- Core Chat Functions (from old file, improved) ---
-    function appendMessage(content, role) {
-        if (!chatMessages) return;
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', role === 'user' ? 'user-message' : 'bot-message');
-
-        const avatarSrc = role === 'user' 
+        const messageClass = role === 'user' ? 'user' : 'rita';
+        const avatarHTML = role === 'user'
             ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#e0e0e0" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>`
             : `<img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita">`;
         
-        let fileContentHTML = '';
-        if (role === 'user' && fileInput && fileInput.files.length > 0) {
-            const fileNames = Array.from(fileInput.files).map(f => f.name).join(', ');
-            fileContentHTML = `<div class="message-files"><strong>Đính kèm:</strong> ${fileNames}</div>`;
+        const thinkingClass = isThinking ? 'thinking' : '';
+        const messageEl = document.createElement('div');
+        messageEl.className = `message ${messageClass}`;
+        if (isThinking) {
+            messageEl.id = 'thinking-indicator';
+        }
+        
+        messageEl.innerHTML = `
+            <div class="message-avatar">${avatarHTML}</div>
+            <div class="message-content ${thinkingClass}">
+                <p>${content.replace(/\n/g, '<br>')}</p>
+            </div>`;
+            
+        chatThread.appendChild(messageEl);
+        scrollToBottom();
+        return messageEl;
+    }
+    
+    function updateFileInfoUI() {
+        if (!fileInfoContainer) return;
+        
+        fileInfoContainer.innerHTML = '';
+        if (attachedFiles.length === 0) {
+            fileInfoContainer.style.display = 'none';
+        } else {
+            fileInfoContainer.style.display = 'flex';
         }
 
-        messageDiv.innerHTML = `
-            <div class="message-avatar">${avatarSrc}</div>
-            <div class="message-content">
-                ${content.replace(/\n/g, '<br>')}
-                ${fileContentHTML}
-            </div>
-        `;
+        attachedFiles.forEach((file, index) => {
+            const item = document.createElement('div');
+            item.className = 'file-info-item';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = file.name;
+            item.appendChild(nameSpan);
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-file-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.title = 'Remove file';
+            removeBtn.onclick = () => {
+                attachedFiles.splice(index, 1);
+                updateFileInfoUI();
+                syncSendButtonState();
+            };
+            item.appendChild(removeBtn);
+            fileInfoContainer.appendChild(item);
+        });
+    }
+
+    function validateAndStoreFiles(files) {
+        let newFiles = Array.from(files);
+
+        if (attachedFiles.length + newFiles.length > MAX_FILES) {
+            alert(`You can only upload a maximum of ${MAX_FILES} files.`);
+            return;
+        }
+
+        for (const file of newFiles) {
+            if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+                alert(`File "${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB size limit.`);
+                return;
+            }
+        }
         
-        chatMessages.appendChild(messageDiv);
-        scrollToBottom();
+        attachedFiles.push(...newFiles);
+        updateFileInfoUI();
+        syncSendButtonState();
     }
 
-    function showTypingIndicator() {
-        const typingDiv = document.createElement('div');
-        typingDiv.id = 'typing-indicator';
-        typingDiv.classList.add('message', 'bot-message');
-        typingDiv.innerHTML = `
-            <div class="message-avatar">
-                <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita">
-            </div>
-            <div class="message-content">Rita is typing...</div>
-        `;
-        chatMessages.appendChild(typingDiv);
-        scrollToBottom();
-    }
 
-    function removeTypingIndicator() {
-        const indicator = document.getElementById('typing-indicator');
-        if (indicator) indicator.remove();
-    }
-
-    async function handleFormSubmit(e) {
-        e.preventDefault();
+    async function handleFormSubmit(event) {
+        event.preventDefault();
         const message = userInput.value.trim();
-        const files = fileInput ? fileInput.files : [];
+        if (!message && attachedFiles.length === 0) return;
 
-        if (!message && files.length === 0) return;
+        const userMessageContent = message || `Đã gửi ${attachedFiles.length} tệp.`;
+        addMessageToUI({ role: 'user', content: escapeHTML(userMessageContent) });
 
-        appendMessage(message || ' ', 'user');
-        
         const formData = new FormData();
         formData.append('message', message);
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-        if (csrfToken) {
-            formData.append('csrfmiddlewaretoken', csrfToken.value);
+        formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+        if (searchWebToggle) {
+            formData.append('search_web', searchWebToggle.checked);
         }
-        for (let i = 0; i < files.length; i++) {
-            formData.append('files', files[i]);
-        }
-
+        attachedFiles.forEach(file => formData.append('files', file));
+        
         userInput.value = '';
-        userInput.style.height = 'auto';
-        userInput.focus();
-        if (fileInput) fileInput.value = '';
-        if (filePreviewContainer) {
-            filePreviewContainer.innerHTML = '';
-            filePreviewContainer.style.display = 'none';
-        }
-        sendBtn.disabled = true;
+        userInput.dispatchEvent(new Event('input'));
+        attachedFiles = [];
+        updateFileInfoUI();
+        syncSendButtonState();
 
-        showTypingIndicator();
+        const thinkingIndicator = addMessageToUI({ role: 'assistant', content: 'Rita is thinking...', isThinking: true });
 
         try {
-            const response = await fetch(chatForm.action || '/api/chat/', {
+            const response = await fetch('/api/chat/', {
                 method: 'POST',
                 body: formData
             });
-            const data = await response.json();
+
+            if (thinkingIndicator) thinkingIndicator.remove();
             
-            removeTypingIndicator();
-            appendMessage(data.response || data.error || 'Rất tiếc, đã có lỗi xảy ra.', 'bot');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'An unknown server error occurred.' }));
+                throw new Error(errorData.error || `Server responded with status ${response.status}`);
+            }
+            
+            const data = await response.json();
+            addMessageToUI({role: 'assistant', content: data.answer || "Sorry, I couldn't get a response."});
 
         } catch (error) {
-            removeTypingIndicator();
-            console.error('Error:', error);
-            appendMessage('Lỗi kết nối đến máy chủ.', 'bot');
+            console.error('Error sending message:', error);
+            if(thinkingIndicator) thinkingIndicator.remove();
+            addMessageToUI({role: 'assistant', content: `Sorry, an error occurred: ${error.message}`});
         }
     }
 
-    // --- Event Listeners ---
+    async function handleRefreshChat() {
+        const confirmed = confirm('Bạn có chắc muốn bắt đầu một cuộc trò chuyện mới? Toàn bộ nội dung sẽ bị xóa.');
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch('/api/chat/refresh/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                 const errorData = await response.json().catch(() => ({ message: 'Failed to refresh chat.' }));
+                 throw new Error(errorData.message);
+            }
+
+            const data = await response.json();
+            if (data.status !== 'success') {
+                throw new Error(data.message || 'Failed to refresh chat.');
+            }
+
+            if (chatThread) {
+                chatThread.innerHTML = '';
+                ensurePlaceholder();
+            }
+            if (userInput) userInput.focus();
+
+        } catch (error) {
+            console.error('Error refreshing chat:', error);
+            alert(`Could not refresh chat: ${error.message}`);
+        }
+    }
+
     if (chatForm) {
         chatForm.addEventListener('submit', handleFormSubmit);
     }
-    
-    if (userInput) {
+
+    if (refreshChatBtn) {
+        refreshChatBtn.addEventListener('click', handleRefreshChat);
+    }
+
+    if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+            validateAndStoreFiles(fileInput.files);
+            fileInput.value = '';
+        });
+    }
+
+    if (userInput && sendBtn) {
         userInput.addEventListener('input', () => {
             userInput.style.height = 'auto';
-            userInput.style.height = (userInput.scrollHeight) + 'px';
-            sendBtn.disabled = userInput.value.trim().length === 0 && (!fileInput || fileInput.files.length === 0);
+            userInput.style.height = `${userInput.scrollHeight}px`;
+            syncSendButtonState();
         });
 
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (!sendBtn.disabled) {
-                     chatForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-                }
+        userInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter' && !event.shiftKey && !sendBtn.disabled) {
+                event.preventDefault();
+                chatForm.requestSubmit();
             }
         });
     }
 
-    if (uploadBtn) {
-        uploadBtn.addEventListener('click', () => fileInput.click());
-    }
-
-    if (refreshChatBtn) {
-        refreshChatBtn.addEventListener('click', function() {
-            showCustomConfirm('Bạn có chắc muốn xóa toàn bộ lịch sử trò chuyện không?', (confirmed) => {
-                if (confirmed) {
-                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-                    fetch(refreshChatBtn.dataset.url, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': csrfToken ? csrfToken.value : '',
-                            'Content-Type': 'application/json'
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            if(chatMessages) chatMessages.innerHTML = '';
-                            appendMessage('Xin chào! Tôi là Rita, trợ lý AI của bạn. Bạn cần giúp gì hôm nay?', 'bot');
-                        }
-                        showCustomAlert(data.message || 'Có lỗi xảy ra.');
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showCustomAlert('Đã xảy ra lỗi khi làm mới cuộc trò chuyện.');
-                    });
-                }
+    if (promptChips.length && userInput) {
+        promptChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const prompt = chip.dataset.prompt || chip.textContent.trim();
+                userInput.value = prompt;
+                userInput.focus();
+                userInput.dispatchEvent(new Event('input'));
             });
         });
     }
 
-    // --- Initial Setup ---
-    if (chatMessages && chatMessages.children.length === 0) {
-        appendMessage('Xin chào! Tôi là Rita, trợ lý AI của bạn. Bạn cần giúp gì hôm nay?', 'bot');
-    }
+    ensurePlaceholder();
     scrollToBottom();
-    if(userInput) {
-        userInput.focus();
-        sendBtn.disabled = userInput.value.trim().length === 0 && (!fileInput || fileInput.files.length === 0);
+    if (userInput) {
+        userInput.dispatchEvent(new Event('input'));
     }
 });
