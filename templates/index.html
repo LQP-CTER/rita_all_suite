@@ -85,9 +85,9 @@
         .hero-graphic {
             position: relative;
             z-index: 1;
-            width: 120px;
+            width: 150px; /* Increased size */
             height: 120px;
-            opacity: 0.5;
+            opacity: 0.7; /* Increased opacity */
         }
         
         .chat-shell {
@@ -430,19 +430,34 @@
         <p>Tương tác với Rita để trò chuyện thông minh, phân tích tệp và nhận thông tin từ web. Bắt đầu bằng cách nhập yêu cầu của bạn bên dưới hoặc chọn một gợi ý nhanh.</p>
     </div>
     <div class="hero-graphic">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
             <defs>
-                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#68d391;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#4fd1c5;stop-opacity:1" />
+                <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#4fd1c5;stop-opacity:0.8" />
+                    <stop offset="100%" style="stop-color:#68d391;stop-opacity:0.8" />
                 </linearGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
             </defs>
-            <path fill="url(#grad1)" d="M50,10 C77.61,10 100,32.39 100,60 C100,87.61 77.61,110 50,110 C22.39,110 0,87.61 0,60 C0,32.39 22.39,10 50,10 Z" transform="rotate(-15 50 50) translate(0 -10)">
-                <animateTransform attributeName="transform" type="rotate" from="-15 50 50" to="345 50 50" dur="20s" repeatCount="indefinite"/>
-            </path>
-             <path fill="url(#grad1)" opacity="0.6" d="M50,20 C72.09,20 90,37.91 90,60 C90,82.09 72.09,100 50,100 C27.91,100 10,82.09 10,60 C10,37.91 27.91,20 50,20 Z" transform="rotate(25 50 50) translate(0, 0)">
-                 <animateTransform attributeName="transform" type="rotate" from="25 50 50" to="385 50 50" dur="25s" repeatCount="indefinite" />
-            </path>
+            <circle cx="20" cy="60" r="8" fill="url(#lineGrad)" filter="url(#glow)"/>
+            <circle cx="70" cy="20" r="6" fill="url(#lineGrad)" />
+            <circle cx="70" cy="100" r="6" fill="url(#lineGrad)" />
+            <circle cx="130" cy="40" r="7" fill="url(#lineGrad)" />
+            <circle cx="130" cy="80" r="7" fill="url(#lineGrad)" />
+            <circle cx="180" cy="60" r="8" fill="url(#lineGrad)" filter="url(#glow)"/>
+            <line x1="20" y1="60" x2="70" y2="20" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+            <line x1="20" y1="60" x2="70" y2="100" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+            <line x1="70" y1="20" x2="130" y2="40" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+            <line x1="70" y1="20" x2="130" y2="80" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+            <line x1="70" y1="100" x2="130" y2="40" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+            <line x1="70" y1="100" x2="130" y2="80" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+            <line x1="130" y1="40" x2="180" y2="60" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+            <line x1="130" y1="80" x2="180" y2="60" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
         </svg>
     </div>
 </section>
@@ -452,11 +467,11 @@
         <div class="sidebar-card">
             <div class="sidebar-actions">
                 <button id="refresh-btn" class="action-btn">
-                    <i class="fas fa-sync-alt"></i> New Chat
+                    <i class="fas fa-sync-alt"></i> Trò chuyện mới
                 </button>
             </div>
             <div class="search-toggle-wrapper">
-                <label for="search-web-toggle">Search web</label>
+                <label for="search-web-toggle">Tìm kiếm web</label>
                 <label class="switch">
                     <input type="checkbox" id="search-web-toggle" name="search_web">
                     <span class="slider"></span>
@@ -464,16 +479,16 @@
             </div>
         </div>
         <div class="sidebar-card">
-            <h3>Quick Prompts</h3>
+            <h3>Gợi ý nhanh</h3>
             <div class="prompt-chips">
-                <button class="prompt-chip" data-prompt="Explain quantum computing in simple terms">Explain quantum computing</button>
-                <button class="prompt-chip" data-prompt="Got any creative ideas for a 10 year old’s birthday?">Ideas for a birthday party</button>
-                <button class="prompt-chip" data-prompt="Write a Python script to sort a list of dictionaries by a specific key">Python script for sorting</button>
+                <button class="prompt-chip" data-prompt="Giải thích về điện toán lượng tử một cách đơn giản">Giải thích về điện toán lượng tử</button>
+                <button class="prompt-chip" data-prompt="Đề xuất một vài ý tưởng sáng tạo cho sinh nhật của một đứa trẻ 10 tuổi">Ý tưởng cho tiệc sinh nhật</button>
+                <button class="prompt-chip" data-prompt="Viết một script Python để sắp xếp danh sách các dictionary theo một key cụ thể">Script Python để sắp xếp</button>
             </div>
         </div>
         <div class="sidebar-card">
-            <h3>Did you know?</h3>
-            <p>You can upload up to 5 files (max 10MB each), including images, text files, and PDFs. Rita will analyze their content to provide more accurate answers.</p>
+            <h3>Bạn có biết?</h3>
+            <p>Bạn có thể tải lên tối đa 5 tệp (mỗi tệp không quá 10MB), bao gồm hình ảnh, tệp văn bản và PDF. Rita sẽ phân tích nội dung để đưa ra câu trả lời chính xác hơn.</p>
         </div>
     </aside>
 
@@ -482,8 +497,8 @@
             {% if not chat_history %}
             <div class="chat-placeholder" id="chat-placeholder">
                 <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita Logo" class="placeholder-logo">
-                <h2>How can I help you today?</h2>
-                <p>Start a new conversation or try a quick prompt.</p>
+                <h2>Tôi có thể giúp gì cho bạn hôm nay?</h2>
+                <p>Bắt đầu cuộc trò chuyện mới hoặc thử một gợi ý nhanh.</p>
             </div>
             {% endif %}
             {% for message in chat_history %}
@@ -506,26 +521,26 @@
             <div id="file-info-container"></div>
             <form id="chat-form" class="chat-input-form" enctype="multipart/form-data">
                 {% csrf_token %}
-                <button type="button" class="icon-btn" id="upload-btn" title="Attach files">
+                <button type="button" class="icon-btn" id="upload-btn" title="Đính kèm tệp">
                     <i class="fas fa-paperclip"></i>
                 </button>
-                <textarea name="message" id="message-input" placeholder="Type your next request..." rows="1"></textarea>
-                <button type="submit" id="send-btn" title="Send" disabled>
+                <textarea name="message" id="message-input" placeholder="Nhập yêu cầu của bạn..." rows="1"></textarea>
+                <button type="submit" id="send-btn" title="Gửi" disabled>
                     <i class="fas fa-paper-plane"></i>
                 </button>
                 <input type="file" id="file-input" multiple hidden>
             </form>
             <div class="input-hints">
-                <span><code>Shift</code> + <code>Enter</code> new line</span>
-                <span><i class="fas fa-bolt"></i> Tap a quick prompt to auto-fill</span>
-                <span><i class="fas fa-shield-check"></i> Files stay private in your session</span>
+                <span><code>Shift</code> + <code>Enter</code> để xuống dòng</span>
+                <span><i class="fas fa-bolt"></i> Nhấn gợi ý để tự động điền</span>
+                <span><i class="fas fa-shield-check"></i> Tệp của bạn được bảo mật</span>
             </div>
         </div>
     </section>
 </div>
 
 <footer class="site-footer">
-    <p>Rita can make mistakes - double-check important details. (c) 2025 Lequyphat</p>
+    <p>Rita có thể mắc lỗi - hãy kiểm tra lại các thông tin quan trọng. © 2025 Lequyphat</p>
 </footer>
 {% endblock %}
 
