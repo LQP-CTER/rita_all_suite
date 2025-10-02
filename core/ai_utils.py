@@ -1,27 +1,65 @@
 import os
-import time
-import random
-import pandas as pd
 import google.generativeai as genai
-import logging
-from duckduckgo_search import DDGS
+import pandas as pd
 from django.conf import settings
-import PyPDF2
-from docx import Document
-import openpyxl
+from .models import ChatHistory
+import logging
 
 # Cấu hình logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Cấu hình Gemini API từ Django settings
-# Đây là cách làm đúng chuẩn trong một dự án Django
-if hasattr(settings, 'GEMINI_API_KEY') and settings.GEMINI_API_KEY:
-    genai.configure(api_key=settings.GEMINI_API_KEY)
-    GEMINI_API_CONFIGURED = True
-else:
-    logger.error("LỖI: GEMINI_API_KEY chưa được cấu hình trong file settings.py của Django.")
-    GEMINI_API_CONFIGURED = False
+# Cấu hình API key từ settings
+genai.configure(api_key=settings.GEMINI_API_KEY)
+
+# Hướng dẫn hệ thống MỚI cho AI, kết hợp vai trò, kiến thức chuyên môn và cá tính
+SYSTEM_PROMPT_TEMPLATE = """
+# Bối cảnh & Vai trò
+- Bạn là Rita, một trợ lý AI chuyên biệt cho ứng dụng web 'Rita AI Suite', được phát triển bởi Lê Quý Phát.
+- Bạn đang trò chuyện với người dùng **{user_name}**. Hãy xưng hô với họ bằng tên một cách thân thiện khi thích hợp.
+- Vai trò của bạn là một người hướng dẫn hữu ích, am hiểu về các công cụ của ứng dụng, đồng thời cũng là một người bạn đồng hành thông minh, thú vị.
+
+# Tính cách (Character)
+Quan trọng: Dữ liệu CSV dưới đây chứa thông tin về nhiều thứ, BAO GỒM CẢ THÔNG TIN VỀ CHÍNH BẠN (Rita). Hãy **nhập vai** và thể hiện các đặc điểm, sở thích, tính cách được định nghĩa cho 'Name: Rita' một cách tự nhiên.
+Bạn thông minh, thân thiện, có một chút tinh nghịch và láu lỉnh để cuộc trò chuyện thú vị hơn, nhưng **ưu tiên hàng đầu của bạn luôn là hỗ trợ người dùng một cách hiệu quả nhất**.
+
+# Kỹ năng
+1.  **Hướng dẫn sử dụng 'Rita AI Suite':** Khi người dùng hỏi về các tính năng, hãy giải thích dựa trên "Cơ sở kiến thức" bên dưới.
+2.  **Phân tích File:** Đọc và hiểu nội dung từ các file được đính kèm (hình ảnh, PDF, text...).
+3.  **Tìm kiếm Web:** Nếu được bật, bạn có thể truy cập Internet để có câu trả lời cập nhật.
+4.  **Kiến thức chung:** Sử dụng kiến thức nền nếu các nguồn trên không có thông tin.
+
+# Ràng buộc
+- **Ưu tiên sự hữu ích:** Mục tiêu chính là giúp đỡ người dùng.
+- **Làm rõ yêu cầu:** Nếu yêu cầu không rõ ràng, hãy hỏi lại một cách thông minh.
+- **Định dạng:** Dùng đoạn văn ngắn, gạch đầu dòng khi cần. Luôn đặt code trong khối Markdown.
+- **TUYỆT ĐỐI KHÔNG** sử dụng emoji.
+
+---
+**DỮ LIỆU NỀN TẢNG**
+---
+
+**1. Dữ liệu nội bộ (Data.csv - định hình cá tính của bạn):**
+{csv_data}
+
+**2. Cơ sở kiến thức của bạn (Các công cụ trong Rita AI Suite):**
+
+* **AI Chat Studio (giao diện hiện tại):**
+    * **Mục đích:** Một AI đàm thoại mạnh mẽ cho các câu hỏi chung, sáng tạo nội dung và phân tích.
+    * **Cách sử dụng:** Nhập tin nhắn, đính kèm tệp (hình ảnh, PDF,...) bằng biểu tượng kẹp giấy, bật/tắt "Tìm kiếm web" để có thông tin mới nhất, và dùng nút "Cuộc trò chuyện mới" để làm mới cuộc hội thoại.
+
+* **TikTok Analyzer:**
+    * **Mục đích:** Trích xuất thông tin chi tiết và phân tích AI từ video TikTok.
+    * **Cách sử dụng:** Dán link video TikTok vào trang "TikTok Analyzer", công cụ sẽ lấy chi tiết video, bản ghi và cung cấp phân tích AI (tóm tắt, đối tượng mục tiêu, ý tưởng tái sử dụng nội dung).
+
+* **Location Tracker:**
+    * **Mục đích:** Tạo link theo dõi vị trí người nhấp vào.
+    * **Cách sử dụng:** Vào trang "Location Tracker", nhập URL đích, tùy chọn có yêu cầu sự đồng ý của người dùng, và tạo link. Bảng điều khiển sẽ cập nhật vị trí theo thời gian thực. **Luôn nhấn mạnh tầm quan trọng của sự đồng ý và minh bạch.**
+
+* **Web Scraper AI:**
+    * **Mục đích:** Tự động trích xuất dữ liệu có cấu trúc từ các trang web.
+    * **Cách sử dụng:** Vào trang "Web Scraper", nhập URL, liệt kê các trường dữ liệu cần lấy (ví dụ: 'tên_sản_phẩm, giá, đánh_giá'). AI sẽ hiểu và trích xuất dữ liệu, cho phép bạn tải về dưới dạng JSON hoặc CSV.
+"""
+
 
 def read_csv_data():
     """Đọc dữ liệu từ file Data.csv."""
@@ -33,161 +71,79 @@ def read_csv_data():
         logger.error(f"Lỗi khi đọc file CSV: {e}")
         return "Lỗi: Không thể đọc file dữ liệu Data.csv."
 
-def web_search(query, max_retries=5):
+
+def get_gemini_response(user_input, user, files=None, search_web=False):
     """
-    Thực hiện tìm kiếm trên web với DuckDuckGo và xử lý giới hạn yêu cầu (Ratelimit) một cách mạnh mẽ.
+    Lấy phản hồi từ Gemini, kết hợp vai trò, kiến thức chuyên môn, cá tính, và khả năng xử lý tệp hiện đại.
     """
-    logger.info(f"Đang tìm kiếm web cho: '{query}'")
-    wait_time = 3  # Bắt đầu với thời gian chờ dài hơn: 3 giây
-    for attempt in range(max_retries):
-        try:
-            with DDGS(timeout=10) as ddgs:
-                # Lấy 5 kết quả để có thêm ngữ cảnh
-                results_list = list(ddgs.text(query, max_results=5))
-                if results_list:
-                    # Định dạng lại kết quả như phiên bản code của bạn mong muốn
-                    formatted_results = [f"Tiêu đề: {r['title']}\nNội dung: {r['body']}" for r in results_list]
-                    return "\n\n".join(formatted_results)
-            return "Không tìm thấy kết quả nào trên web."
-        except Exception as e:
-            error_str = str(e).lower()
-            if "ratelimit" in error_str or "429" in error_str or "202" in error_str:
-                jitter = random.uniform(0.5, 1.5)
-                sleep_duration = wait_time + jitter
-                logger.warning(
-                    f"Bị giới hạn yêu cầu (lần {attempt + 1}/{max_retries}). "
-                    f"Thử lại sau {sleep_duration:.2f} giây..."
+    try:
+        # Lấy tên người dùng và dữ liệu CSV để đưa vào prompt
+        user_name = user.profile.full_name if hasattr(user, 'profile') and user.profile.full_name else user.username
+        csv_data = read_csv_data()
+
+        # Điền thông tin vào mẫu system prompt
+        final_system_prompt = SYSTEM_PROMPT_TEMPLATE.format(
+            user_name=user_name,
+            csv_data=csv_data
+        )
+
+        # Thiết lập model với system prompt đã được cá nhân hóa
+        model = genai.GenerativeModel(
+            model_name='gemini-2.5-flash',
+            system_instruction=final_system_prompt
+        )
+
+        chat_session = model.start_chat(
+            history=[msg.to_gemini_format() for msg in ChatHistory.objects.filter(user=user)]
+        )
+
+        prompt_parts = []
+        if user_input:
+            prompt_parts.append(user_input)
+
+        if files:
+            for uploaded_file in files:
+                uploaded_file.seek(0)
+                file_for_api = genai.upload_file(
+                    path=uploaded_file.temporary_file_path(),
+                    display_name=uploaded_file.name
                 )
-                time.sleep(sleep_duration)
-                wait_time *= 2
-            else:
-                logger.error(f"Lỗi không mong muốn khi tìm kiếm trên web: {e}")
-                return "Không thể tìm kiếm trên web lúc này do lỗi bất ngờ."
+                prompt_parts.append(file_for_api)
 
-    logger.error(f"Không thể tìm kiếm trên web sau {max_retries} lần thử.")
-    return "Không thể tìm kiếm trên web sau nhiều lần thử."
+        if not prompt_parts:
+            return "Vui lòng cung cấp tin nhắn hoặc tệp."
 
-# ==============================================================================
-# CÁC HÀM XỬ LÝ FILE UPLOAD
-# ==============================================================================
-def read_pdf_file(file):
-    text = ""
-    try:
-        reader = PyPDF2.PdfReader(file)
-        for page in reader.pages:
-            text += page.extract_text() or ""
-    except Exception as e:
-        logger.error(f"Lỗi khi đọc file PDF: {e}")
-    return text
+        # Kích hoạt hoặc vô hiệu hóa tìm kiếm web
+        tools = [genai.Tool.from_google_search({})] if search_web else None
 
-def read_docx_file(file):
-    text = ""
-    try:
-        doc = Document(file)
-        for para in doc.paragraphs:
-            text += para.text + "\n"
-    except Exception as e:
-        logger.error(f"Lỗi khi đọc file DOCX: {e}")
-    return text
+        response = chat_session.send_message(
+            prompt_parts,
+            tools=tools,
+        )
 
-def read_xlsx_file(file):
-    text = ""
-    try:
-        workbook = openpyxl.load_workbook(file)
-        for sheet_name in workbook.sheetnames:
-            sheet = workbook[sheet_name]
-            text += f"--- Bảng tính: {sheet_name} ---\n"
-            for row in sheet.iter_rows():
-                row_values = [str(cell.value) if cell.value is not None else "" for cell in row]
-                text += "\t".join(row_values) + "\n"
-            text += "\n"
-    except Exception as e:
-        logger.error(f"Lỗi khi đọc file XLSX: {e}")
-    return text
+        # Xử lý các trích dẫn tìm kiếm nếu có
+        try:
+            citations = []
+            if response.citations_metadata and response.citations_metadata.citation_sources:
+                for attribution in response.citations_metadata.citation_sources:
+                    citations.append({
+                        'url': attribution.uri,
+                        'title': attribution.title,
+                    })
 
-def handle_uploaded_files(files):
-    file_contents = ""
-    if not files:
-        return ""
-    for uploaded_file in files:
-        content = ""
-        file_name = uploaded_file.name.lower()
-        if file_name.endswith('.pdf'):
-            content = read_pdf_file(uploaded_file)
-        elif file_name.endswith('.docx'):
-            content = read_docx_file(uploaded_file)
-        elif file_name.endswith('.xlsx'):
-            content = read_xlsx_file(uploaded_file)
-        elif file_name.endswith('.txt'):
-            try:
-                content = uploaded_file.read().decode('utf-8')
-            except Exception as e:
-                logger.error(f"Lỗi khi đọc file TXT: {e}")
-        
-        if content:
-            file_contents += f"\n--- Nội dung từ file đính kèm: {uploaded_file.name} ---\n{content}\n--- Kết thúc nội dung file ---\n"
-    return file_contents
+            if citations:
+                response_text = response.text
+                response_text += "\n\n**Nguồn tham khảo:**\n"
+                for cit in citations:
+                    response_text += f"- [{cit['title']}]({cit['url']})\n"
+                return response_text
 
-# ==============================================================================
-# HÀM CHÍNH LẤY PHẢN HỒI TỪ AI
-# ==============================================================================
-def get_gemini_response(user_input, user, files=None, search_web=True):
-    """
-    Lấy phản hồi từ Gemini, kết hợp dữ liệu nội bộ, tìm kiếm web, file đính kèm và thông tin người dùng.
-    """
-    if not GEMINI_API_CONFIGURED:
-        return "Lỗi: API Key của Google chưa được cấu hình."
+        except (AttributeError, ValueError) as e:
+            logger.warning(f"Không thể xử lý citation metadata: {e}")
+            pass
 
-    csv_data = read_csv_data()
-    search_results = web_search(user_input) if search_web and user_input else "Người dùng đã tắt hoặc không có truy vấn tìm kiếm web."
-    
-    file_content_for_prompt = handle_uploaded_files(files)
-
-    user_name = user.profile.full_name if hasattr(user, 'profile') and user.profile.full_name else user.username
-
-    prompt = f"""
-# Bối cảnh
-- Bạn là một trợ lý AI tên là Rita, được phát triển bởi Lê Quý Phát.
-- Bạn đang trò chuyện với một người dùng tên là **{user_name}**. Hãy xưng hô với họ bằng tên một cách thân thiện và tự nhiên khi thích hợp (ví dụ: "Chào {user_name}, tôi có thể giúp gì cho bạn?").
-
-# Character
-Quan trọng: Dữ liệu CSV dưới đây chứa thông tin về nhiều thứ, BAO GỒM CẢ THÔNG TIN VỀ CHÍNH BẠN (Rita). Hãy **nhập vai** và thể hiện các đặc điểm, sở thích, ghét, mối quan hệ, tính cách được định nghĩa cho 'Name: Rita' một cách tự nhiên.
-Bạn là một AI thông minh, thân thiện, có một chút tinh nghịch và láu lỉnh để cuộc trò chuyện thú vị hơn, nhưng **ưu tiên hàng đầu của bạn luôn là hỗ trợ người dùng một cách hiệu quả nhất**.
-
-## Kỹ năng:
-1.  **Phân tích File:** Đọc và hiểu nội dung từ các file được đính kèm.
-2.  **Tìm kiếm và Phân tích:** Tổng hợp thông tin từ Web và Dữ liệu nội bộ.
-3.  **Kiến thức chung:** Sử dụng kiến thức nền nếu các nguồn trên không có thông tin.
-
-## Ràng buộc:
-- **Tính liên quan:** Chỉ tham chiếu Dữ liệu nội bộ (Data.csv) khi câu hỏi của người dùng **trực tiếp đề cập** đến một người hoặc sự vật có trong đó.
-- **Ưu tiên sự hữu ích:** Mục tiêu chính là giúp đỡ người dùng.
-- **Làm rõ yêu cầu:** Nếu yêu cầu không rõ ràng, hãy hỏi lại một cách thông minh.
-- **Định dạng:** Dùng đoạn văn ngắn, gạch đầu dòng khi cần. Luôn đặt code trong khối Markdown.
-- TUYỆT ĐỐI KHÔNG SỬ DỤNG BẤT KỲ EMOJI NÀO.
-- HẠN CHẾ SỬ DỤNG dấu ngoặc kép "".
-
----
-**DỮ LIỆU ĐỂ TRẢ LỜI**
----
-**Dữ liệu nội bộ (Data.csv):**
-{csv_data}
-
-**Kết quả tìm kiếm trên web (tham khảo nếu cần):**
-{search_results}
-
-**Nội dung từ file người dùng đính kèm (nếu có):**
-{file_content_for_prompt}
-
-**Câu hỏi của người dùng ({user_name}):** "{user_input}"
-
-**Câu trả lời của bạn (Rita):**
-"""
-
-    try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        response = model.generate_content(prompt)
         return response.text
+
     except Exception as e:
-        logger.error(f"Lỗi khi gọi Gemini API: {e}")
-        return "Rất tiếc, tôi đang gặp sự cố và không thể trả lời lúc này."
+        logger.error(f"Error getting Gemini response: {e}", exc_info=True)
+        return "Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn. Vui lòng thử lại sau."
