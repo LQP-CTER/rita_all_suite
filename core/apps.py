@@ -1,4 +1,4 @@
-# core/apps.py
+# File: Rita_All_Django/core/app.py
 
 from django.apps import AppConfig
 

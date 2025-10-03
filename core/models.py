@@ -1,5 +1,4 @@
 # File: Rita_All_Django/core/models.py
-# Đã hoàn nguyên: Xóa trường 'predicted_views' khỏi model TikTokVideo.
 import uuid
 from django.db import models
 from django.contrib.auth.models import User

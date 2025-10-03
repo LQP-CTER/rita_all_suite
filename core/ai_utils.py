@@ -1,3 +1,4 @@
+# File: Rita_All_Django/core/AI_utils.py
 import os
 import google.generativeai as genai
 import pandas as pd

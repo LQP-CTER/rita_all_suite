@@ -1,3 +1,4 @@
+# File: Rita_All_Django/core/views.py
 import json
 import logging
 import threading
