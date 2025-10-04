@@ -1,9 +1,8 @@
 <!-- File: Rita_All_Django/templates/tiktok_analyzer.html -->
-<!-- Đã hoàn nguyên: Xóa bỏ Prediction Card và các yếu tố liên quan đến ML. -->
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}TikTok Video Analyzer{% endblock %}
+{% block title %}<title data-translate-key="title">TikTok Video Analyzer</title>{% endblock %}
 
 {% block extra_css %}
     <style>
@@ -592,15 +591,15 @@
 <div class="tool-page">
     <section class="tool-hero">
         <div class="hero-copy">
-            <span class="hero-eyebrow">
+            <span class="hero-eyebrow" data-translate-key="eyebrow">
                 Công cụ TikTok
             </span>
-            <h1>Hiểu sâu mọi video trong vài giây</h1>
-            <p>Rita trích xuất dữ liệu trực tiếp từ TikTok, tạo transcript đầy đủ và phân tích nội dung bằng AI để bạn nắm bắt insight ngay lập tức.</p>
+            <h1 data-translate-key="h1">Hiểu sâu mọi video trong vài giây</h1>
+            <p data-translate-key="hero_p">Rita trích xuất dữ liệu trực tiếp từ TikTok, tạo transcript đầy đủ và phân tích nội dung bằng AI để bạn nắm bắt insight ngay lập tức.</p>
             <div class="hero-stats">
-                <span class="stat-pill">⚡ Realtime fetch</span>
-                <span class="stat-pill">🧠 AI Phân tích</span>
-                <span class="stat-pill">📥 Tải video</span>
+                <span class="stat-pill" data-translate-key="stat_1">⚡ Realtime fetch</span>
+                <span class="stat-pill" data-translate-key="stat_2">🧠 AI Phân tích</span>
+                <span class="stat-pill" data-translate-key="stat_3">📥 Tải video</span>
             </div>
         </div>
         <aside class="hero-card">
@@ -611,12 +610,12 @@
             </div>
             <dl>
                 <div>
-                    <dt>Độ phủ toàn diện</dt>
-                    <dd>Tóm tắt, chỉ số tương tác và transcript được gom trong một dashboard duy nhất.</dd>
+                    <dt data-translate-key="card_dt_1">Độ phủ toàn diện</dt>
+                    <dd data-translate-key="card_dd_1">Tóm tắt, chỉ số tương tác và transcript được gom trong một dashboard duy nhất.</dd>
                 </div>
                 <div>
-                    <dt>Workflow nhanh chóng</dt>
-                    <dd>Dán liên kết, chờ Rita xử lý và lưu lịch sử để xem lại bất cứ lúc nào.</dd>
+                    <dt data-translate-key="card_dt_2">Workflow nhanh chóng</dt>
+                    <dd data-translate-key="card_dd_2">Dán liên kết, chờ Rita xử lý và lưu lịch sử để xem lại bất cứ lúc nào.</dd>
                 </div>
             </dl>
         </aside>
@@ -624,22 +623,22 @@
 
     <section class="panel">
         <div class="panel-header">
-            <h2>Phân tích video</h2>
-            <button type="button" id="help-btn" aria-label="Hướng dẫn">
+            <h2 data-translate-key="analyze_h2">Phân tích video</h2>
+            <button type="button" id="help-btn" aria-label="Hướng dẫn" data-translate-aria-label="help_aria_label">
                 ?
             </button>
         </div>
         <form id="analyze-form">
             {% csrf_token %}
             <div class="form-row">
-                <input type="url" id="tiktok-url-input" name="video_url" placeholder="https://www.tiktok.com/@username/video/..." required>
-                <button type="submit" id="analyze-btn">Lấy thông tin</button>
+                <input type="url" id="tiktok-url-input" name="video_url" placeholder="https://www.tiktok.com/@username/video/..." required data-translate-placeholder="input_placeholder">
+                <button type="submit" id="analyze-btn" data-translate-key="analyze_btn">Lấy thông tin</button>
             </div>
-            <p class="helper-text">Gợi ý: Bạn có thể dán liên kết TikTok công khai hoặc liên kết chia sẻ trực tiếp.</p>
+            <p class="helper-text" data-translate-key="helper_text">Gợi ý: Bạn có thể dán liên kết TikTok công khai hoặc liên kết chia sẻ trực tiếp.</p>
             <div class="quick-actions">
-                <span class="quick-chip">💡 Tìm insight khán giả</span>
-                <span class="quick-chip">✍️ Chuẩn bị script lại video</span>
-                <span class="quick-chip">📈 Đánh giá tỉ lệ tương tác</span>
+                <span class="quick-chip" data-translate-key="chip_1">💡 Tìm insight khán giả</span>
+                <span class="quick-chip" data-translate-key="chip_2">✍️ Chuẩn bị script lại video</span>
+                <span class="quick-chip" data-translate-key="chip_3">📈 Đánh giá tỉ lệ tương tác</span>
             </div>
         </form>
     </section>
@@ -648,7 +647,7 @@
         <div class="results-inner">
             <div id="loading-indicator">
                 <div class="spinner"></div>
-                <p>Đang lấy dữ liệu...</p>
+                <p data-translate-key="loading_text">Đang lấy dữ liệu...</p>
             </div>
 
             <div id="results-wrapper">
@@ -656,25 +655,25 @@
                     <div class="result-card video-card result-col-left">
                         <img src="https://placehold.co/600x900/111827/94a3b8?text=TikTok+Preview" id="video-cover" alt="TikTok preview" class="video-cover">
                         <div class="video-meta">
-                            <h3 class="video-title" id="video-title">Tiêu đề video sẽ hiển thị tại đây</h3>
+                            <h3 class="video-title" id="video-title" data-translate-key="video_title_placeholder">Tiêu đề video sẽ hiển thị tại đây</h3>
                             <p class="video-author" id="video-author">@creator</p>
                             <div class="stat-grid">
-                                <span class="stat-item"><i class="fas fa-play"></i> <span id="play-count">0</span> lượt xem</span>
-                                <span class="stat-item"><i class="fas fa-heart"></i> <span id="like-count">0</span> lượt thích</span>
-                                <span class="stat-item"><i class="fas fa-comment"></i> <span id="comment-count">0</span> bình luận</span>
-                                <span class="stat-item"><i class="fas fa-share"></i> <span id="share-count">0</span> chia sẻ</span>
+                                <span class="stat-item"><i class="fas fa-play"></i> <span id="play-count">0</span> <span data-translate-key="views">lượt xem</span></span>
+                                <span class="stat-item"><i class="fas fa-heart"></i> <span id="like-count">0</span> <span data-translate-key="likes">lượt thích</span></span>
+                                <span class="stat-item"><i class="fas fa-comment"></i> <span id="comment-count">0</span> <span data-translate-key="comments">bình luận</span></span>
+                                <span class="stat-item"><i class="fas fa-share"></i> <span id="share-count">0</span> <span data-translate-key="shares">chia sẻ</span></span>
                             </div>
                         </div>
-                        <a id="video-download-link" href="#" target="_blank" rel="noopener noreferrer">Tải video gốc</a>
+                        <a id="video-download-link" href="#" target="_blank" rel="noopener noreferrer" data-translate-key="download_link">Tải video gốc</a>
                     </div>
 
                     <div class="insight-columns">
                         <div class="result-card transcript-card">
-                            <h3>Transcript chi tiết</h3>
+                            <h3 data-translate-key="transcript_h3">Transcript chi tiết</h3>
                             <div id="transcript-output" class="content-box"></div>
                         </div>
                         <div class="result-card analysis-card">
-                            <h3>Phân tích từ Rita</h3>
+                            <h3 data-translate-key="analysis_h3">Phân tích từ Rita</h3>
                             <div id="analysis-output" class="content-box"></div>
                         </div>
                     </div>
@@ -685,11 +684,11 @@
 
     <section class="panel history-panel">
         <div class="history-header">
-            <h2>Lịch sử phân tích</h2>
+            <h2 data-translate-key="history_h2">Lịch sử phân tích</h2>
             <div class="history-actions">
-                <button id="select-history-btn" class="btn-action">Chọn</button>
-                <button id="delete-selected-btn" class="btn-action btn-danger" style="display: none;">Xoá đã chọn</button>
-                <button id="cancel-selection-btn" class="btn-action" style="display: none;">Hủy</button>
+                <button id="select-history-btn" class="btn-action" data-translate-key="select_btn">Chọn</button>
+                <button id="delete-selected-btn" class="btn-action btn-danger" style="display: none;" data-translate-key="delete_btn">Xoá đã chọn</button>
+                <button id="cancel-selection-btn" class="btn-action" style="display: none;" data-translate-key="cancel_btn">Hủy</button>
             </div>
         </div>
         <div id="history-list" class="history-list">
@@ -698,31 +697,31 @@
                     <input type="checkbox" class="history-checkbox" style="display: none;">
                     <img src="{{ video.cover_url }}" alt="Video cover" class="history-card-cover" onerror="this.src='https://placehold.co/400/111827/94a3b8?text=No+Cover'">
                     <p class="history-card-desc">{{ video.description|truncatechars:80 }}</p>
-                    <p class="history-card-author">bởi @{{ video.author }}</p>
+                    <p class="history-card-author"><span data-translate-key="by_author">bởi</span> @{{ video.author }}</p>
                     <div class="history-card-footer">
                         <small class="history-card-date">{{ video.created_at|date:"d/m/Y" }}</small>
-                        <a href="{{ video.video_url }}" target="_blank" rel="noopener noreferrer" class="history-card-link">Xem lại</a>
+                        <a href="{{ video.video_url }}" target="_blank" rel="noopener noreferrer" class="history-card-link" data-translate-key="review_link">Xem lại</a>
                     </div>
                 </div>
             {% empty %}
-                <p id="no-history-msg">Chưa có video nào được phân tích.</p>
+                <p id="no-history-msg" data-translate-key="no_history">Chưa có video nào được phân tích.</p>
             {% endfor %}
         </div>
     </section>
 </div>
 
 <footer class="site-footer">
-    <p>Rita có thể mắc lỗi, hãy kiểm tra kỹ thông tin quan trọng.</p>
+    <p data-translate-key="footer_text">Rita có thể mắc lỗi, hãy kiểm tra kỹ thông tin quan trọng.</p>
 </footer>
 
 <!-- Modal hướng dẫn -->
 <div id="help-modal">
     <div class="help-modal-card">
         <button id="help-modal-close-btn">&times;</button>
-        <h3>Hướng dẫn sử dụng TikTok Analyzer</h3>
-        <p><strong>Bước 1:</strong> Dán liên kết TikTok hợp lệ vào ô nhập và nhấn “Lấy thông tin”. Rita sẽ trích xuất metadata và transcript.</p>
-        <p><strong>Bước 2:</strong> Chờ vài giây để AI phân tích. Kết quả chi tiết sẽ hiển thị ở cột bên phải.</p>
-        <p><strong>Bước 3:</strong> Sử dụng lịch sử để xem lại hoặc xóa nhiều kết quả cùng lúc.</p>
+        <h3 data-translate-key="modal_h3">Hướng dẫn sử dụng TikTok Analyzer</h3>
+        <p data-translate-key="modal_p1"><strong>Bước 1:</strong> Dán liên kết TikTok hợp lệ vào ô nhập và nhấn “Lấy thông tin”. Rita sẽ trích xuất metadata và transcript.</p>
+        <p data-translate-key="modal_p2"><strong>Bước 2:</strong> Chờ vài giây để AI phân tích. Kết quả chi tiết sẽ hiển thị ở cột bên phải.</p>
+        <p data-translate-key="modal_p3"><strong>Bước 3:</strong> Sử dụng lịch sử để xem lại hoặc xóa nhiều kết quả cùng lúc.</p>
     </div>
 </div>
 {% endblock %}
@@ -731,6 +730,98 @@
     <script src="{% static 'js/tiktok_analyzer.js' %}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Add page-specific translations
+            Object.assign(translations.vi, {
+                'title': "Trình phân tích video TikTok",
+                'eyebrow': "Công cụ TikTok",
+                'h1': "Hiểu sâu mọi video trong vài giây",
+                'hero_p': "Rita trích xuất dữ liệu trực tiếp từ TikTok, tạo transcript đầy đủ và phân tích nội dung bằng AI để bạn nắm bắt insight ngay lập tức.",
+                'stat_1': "⚡ Lấy dữ liệu Realtime",
+                'stat_2': "🧠 Phân tích bằng AI",
+                'stat_3': "📥 Tải video",
+                'card_dt_1': "Độ phủ toàn diện",
+                'card_dd_1': "Tóm tắt, chỉ số tương tác và transcript được gom trong một dashboard duy nhất.",
+                'card_dt_2': "Workflow nhanh chóng",
+                'card_dd_2': "Dán liên kết, chờ Rita xử lý và lưu lịch sử để xem lại bất cứ lúc nào.",
+                'analyze_h2': "Phân tích video",
+                'help_aria_label': "Hướng dẫn",
+                'input_placeholder': "https://www.tiktok.com/@username/video/...",
+                'analyze_btn': "Lấy thông tin",
+                'helper_text': "Gợi ý: Bạn có thể dán liên kết TikTok công khai hoặc liên kết chia sẻ trực tiếp.",
+                'chip_1': "💡 Tìm insight khán giả",
+                'chip_2': "✍️ Chuẩn bị script lại video",
+                'chip_3': "📈 Đánh giá tỉ lệ tương tác",
+                'loading_text': "Đang lấy dữ liệu...",
+                'video_title_placeholder': "Tiêu đề video sẽ hiển thị tại đây",
+                'views': "lượt xem",
+                'likes': "lượt thích",
+                'comments': "bình luận",
+                'shares': "chia sẻ",
+                'download_link': "Tải video gốc",
+                'transcript_h3': "Transcript chi tiết",
+                'analysis_h3': "Phân tích từ Rita",
+                'history_h2': "Lịch sử phân tích",
+                'select_btn': "Chọn",
+                'delete_btn': "Xoá đã chọn",
+                'cancel_btn': "Hủy",
+                'by_author': "bởi",
+                'review_link': "Xem lại",
+                'no_history': "Chưa có video nào được phân tích.",
+                'footer_text': "Rita có thể mắc lỗi, hãy kiểm tra kỹ thông tin quan trọng.",
+                'modal_h3': "Hướng dẫn sử dụng TikTok Analyzer",
+                'modal_p1': "<strong>Bước 1:</strong> Dán liên kết TikTok hợp lệ vào ô nhập và nhấn “Lấy thông tin”. Rita sẽ trích xuất metadata và transcript.",
+                'modal_p2': "<strong>Bước 2:</strong> Chờ vài giây để AI phân tích. Kết quả chi tiết sẽ hiển thị ở cột bên phải.",
+                'modal_p3': "<strong>Bước 3:</strong> Sử dụng lịch sử để xem lại hoặc xóa nhiều kết quả cùng lúc."
+            });
+
+            Object.assign(translations.en, {
+                'title': "TikTok Video Analyzer",
+                'eyebrow': "TikTok Tool",
+                'h1': "Understand any video in seconds",
+                'hero_p': "Rita extracts data directly from TikTok, generates a full transcript, and analyzes the content with AI for you to capture insights instantly.",
+                'stat_1': "⚡ Realtime Fetch",
+                'stat_2': "🧠 AI Analysis",
+                'stat_3': "📥 Video Download",
+                'card_dt_1': "Comprehensive Coverage",
+                'card_dd_1': "Summaries, engagement metrics, and transcripts are all gathered in a single dashboard.",
+                'card_dt_2': "Fast Workflow",
+                'card_dd_2': "Paste a link, wait for Rita to process, and save the history to review anytime.",
+                'analyze_h2': "Analyze Video",
+                'help_aria_label': "Instructions",
+                'input_placeholder': "https://www.tiktok.com/@username/video/...",
+                'analyze_btn': "Fetch Info",
+                'helper_text': "Hint: You can paste a public TikTok link or a direct share link.",
+                'chip_1': "💡 Find audience insights",
+                'chip_2': "✍️ Prepare a video script",
+                'chip_3': "📈 Evaluate engagement rate",
+                'loading_text': "Fetching data...",
+                'video_title_placeholder': "Video title will appear here",
+                'views': "views",
+                'likes': "likes",
+                'comments': "comments",
+                'shares': "shares",
+                'download_link': "Download Original Video",
+                'transcript_h3': "Detailed Transcript",
+                'analysis_h3': "Analysis from Rita",
+                'history_h2': "Analysis History",
+                'select_btn': "Select",
+                'delete_btn': "Delete Selected",
+                'cancel_btn': "Cancel",
+                'by_author': "by",
+                'review_link': "Review",
+                'no_history': "No videos have been analyzed yet.",
+                'footer_text': "Rita can make mistakes, please double-check important information.",
+                'modal_h3': "How to use TikTok Analyzer",
+                'modal_p1': "<strong>Step 1:</strong> Paste a valid TikTok link into the input field and press “Fetch Info”. Rita will extract metadata and the transcript.",
+                'modal_p2': "<strong>Step 2:</strong> Wait a few seconds for the AI analysis. Detailed results will appear in the right column.",
+                'modal_p3': "<strong>Step 3:</strong> Use the history to review past results or delete multiple entries at once."
+            });
+            
+            // Re-apply translations
+            const currentLang = localStorage.getItem('preferredLanguage') || 'vi';
+            applyTranslations(currentLang);
+
+            // Additional script from old file
             const quickChips = document.querySelectorAll('.quick-chip');
             const urlInput = document.getElementById('tiktok-url-input');
 

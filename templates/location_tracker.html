@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Location Tracker - Rita AI Suite{% endblock %}
+{% block title %}<title data-translate-key="title">Location Tracker - Rita AI Suite</title>{% endblock %}
 
 {% block extra_css %}
     <!-- Leaflet CSS for OpenStreetMap -->
@@ -552,16 +552,16 @@
 <div class="tracker-page">
     <section class="tool-hero">
         <div class="hero-copy">
-            <span class="hero-eyebrow">
+            <span class="hero-eyebrow" data-translate-key="eyebrow">
                 <span>📍</span>
                 Location Tracker
             </span>
-            <h1>Theo dõi chuyến đi một cách lịch sự và minh bạch</h1>
-            <p>Rita tạo ra các liên kết theo dõi nhẹ nhàng để bạn kiểm tra vị trí trong thời gian thực mà vẫn tôn trọng quyền riêng tư của người dùng.</p>
+            <h1 data-translate-key="h1">Theo dõi chuyến đi một cách lịch sự và minh bạch</h1>
+            <p data-translate-key="hero_p">Rita tạo ra các liên kết theo dõi nhẹ nhàng để bạn kiểm tra vị trí trong thời gian thực mà vẫn tôn trọng quyền riêng tư của người dùng.</p>
             <div class="hero-metrics">
-                <span class="metric-chip">🔐 Tuỳ chọn yêu cầu đồng ý</span>
-                <span class="metric-chip">🛰️ Xem nhật ký vị trí trực tiếp</span>
-                <span class="metric-chip">🧾 Lưu lịch sử truy cập</span>
+                <span class="metric-chip" data-translate-key="metric_1">🔐 Tuỳ chọn yêu cầu đồng ý</span>
+                <span class="metric-chip" data-translate-key="metric_2">🛰️ Xem nhật ký vị trí trực tiếp</span>
+                <span class="metric-chip" data-translate-key="metric_3">🧾 Lưu lịch sử truy cập</span>
             </div>
         </div>
         <aside class="hero-card">
@@ -571,50 +571,50 @@
                 </svg>
             </div>
             <ul>
-                <li><strong>Cảnh báo tức thời:</strong> Sao chép link theo dõi và chia sẻ ngay lập tức.</li>
-                <li><strong>Nhật ký chuẩn:</strong> Ghi lại tọa độ, thời gian và liên kết mở Google Maps.</li>
-                <li><strong>Giữ quyền riêng tư:</strong> Bật xác nhận vị trí chỉ với một nút gạt.</li>
+                <li data-translate-key="card_li_1"><strong>Cảnh báo tức thời:</strong> Sao chép link theo dõi và chia sẻ ngay lập tức.</li>
+                <li data-translate-key="card_li_2"><strong>Nhật ký chuẩn:</strong> Ghi lại tọa độ, thời gian và liên kết mở Google Maps.</li>
+                <li data-translate-key="card_li_3"><strong>Giữ quyền riêng tư:</strong> Bật xác nhận vị trí chỉ với một nút gạt.</li>
             </ul>
         </aside>
     </section>
 
     <div class="tracker-grid">
         <div class="tracker-card">
-            <h2 class="card-title">Tạo liên kết theo dõi mới</h2>
-            <p class="card-intro">Dán URL gốc, Rita sẽ trả về link theo dõi độc nhất để bạn gửi cho người cần chia sẻ vị trí.</p>
+            <h2 class="card-title" data-translate-key="form_h2">Tạo liên kết theo dõi mới</h2>
+            <p class="card-intro" data-translate-key="form_p">Dán URL gốc, Rita sẽ trả về link theo dõi độc nhất để bạn gửi cho người cần chia sẻ vị trí.</p>
             <form id="create-link-form" method="POST" action="{% url 'core:location_tracker_dashboard' %}" class="create-link-form">
                 {% csrf_token %}
-                <input type="url" name="url" placeholder="https://example.com/checkout" required>
-                <button type="submit">Tạo liên kết</button>
+                <input type="url" name="url" placeholder="https://example.com/checkout" required data-translate-placeholder="input_placeholder">
+                <button type="submit" data-translate-key="create_link_btn">Tạo liên kết</button>
             </form>
             <div class="consent-toggle">
                 <label class="switch">
                     <input type="checkbox" name="require_consent" form="create-link-form" checked>
                     <span class="slider"></span>
                 </label>
-                <span>Bắt buộc người dùng xác nhận trước khi ghi lại vị trí</span>
+                <span data-translate-key="consent_text">Bắt buộc người dùng xác nhận trước khi ghi lại vị trí</span>
             </div>
-            <p class="helper-hint">Link theo dõi sẽ được khởi tạo ngay lập tức và xuất hiện trong danh sách lịch sử bên dưới.</p>
+            <p class="helper-hint" data-translate-key="helper_hint">Link theo dõi sẽ được khởi tạo ngay lập tức và xuất hiện trong danh sách lịch sử bên dưới.</p>
             <ul class="feature-list">
-                <li>Lưu vết tất cả lượt truy cập với tọa độ chính xác.</li>
-                <li>Chọn sao chép để gửi link rút gọn cho đối tác hoặc khách hàng.</li>
-                <li>Quản lý, xoá liên kết cũ chỉ với một cú nhấp.</li>
+                <li data-translate-key="feature_1">Lưu vết tất cả lượt truy cập với tọa độ chính xác.</li>
+                <li data-translate-key="feature_2">Chọn sao chép để gửi link rút gọn cho đối tác hoặc khách hàng.</li>
+                <li data-translate-key="feature_3">Quản lý, xoá liên kết cũ chỉ với một cú nhấp.</li>
             </ul>
         </div>
 
         <div class="tracker-card compact">
             <div class="quick-guides">
-                <h3>Nhắc nhanh</h3>
-                <p>• Bật tuỳ chọn xác nhận để đảm bảo người dùng đồng ý chia sẻ vị trí.</p>
-                <p>• Sử dụng nút <em>Copy</em> để gửi link theo dõi trọn gói cho khách hàng hoặc đối tác.</p>
-                <p>• Theo dõi bảng nhật ký để xem những lần truy cập gần nhất và mở ngay trên Google Maps.</p>
+                <h3 data-translate-key="quick_guide_h3">Nhắc nhanh</h3>
+                <p data-translate-key="quick_guide_p1">• Bật tuỳ chọn xác nhận để đảm bảo người dùng đồng ý chia sẻ vị trí.</p>
+                <p data-translate-key="quick_guide_p2">• Sử dụng nút <em>Copy</em> để gửi link theo dõi trọn gói cho khách hàng hoặc đối tác.</p>
+                <p data-translate-key="quick_guide_p3">• Theo dõi bảng nhật ký để xem những lần truy cập gần nhất và mở ngay trên Google Maps.</p>
             </div>
         </div>
     </div>
     
     <!-- Map Display -->
     <div class="tracker-card">
-        <h2 class="card-title">Bản đồ vị trí</h2>
+        <h2 class="card-title" data-translate-key="map_h2">Bản đồ vị trí</h2>
         <div id="map">
         </div>
     </div>
@@ -622,33 +622,33 @@
 
     <div class="tracker-card">
         <div class="history-header">
-            <h2>Lịch sử liên kết</h2>
+            <h2 data-translate-key="history_h2">Lịch sử liên kết</h2>
         </div>
         <div id="history-list" class="history-list">
             <!-- Items will be populated by JavaScript -->
         </div>
-        <p id="no-links-msg" class="info-text hidden">Chưa có liên kết nào được tạo.</p>
+        <p id="no-links-msg" class="info-text hidden" data-translate-key="no_links_msg">Chưa có liên kết nào được tạo.</p>
 
     </div>
 </div>
 
 <footer class="site-footer">
-    <p>Hãy đảm bảo thông báo rõ với người dùng trước khi theo dõi vị trí.</p>
+    <p data-translate-key="footer_text">Hãy đảm bảo thông báo rõ với người dùng trước khi theo dõi vị trí.</p>
 </footer>
 
 <!-- Modal xác nhận xoá -->
 <div id="delete-confirm-modal" class="modal-overlay hidden">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Xoá liên kết</h3>
+            <h3 data-translate-key="modal_h3">Xoá liên kết</h3>
             <button class="modal-close" id="modal-close-btn">&times;</button>
         </div>
         <div class="modal-body">
-            <p>Bạn có chắc chắn muốn xoá liên kết theo dõi này? Mọi nhật ký vị trí liên quan cũng sẽ bị xoá.</p>
+            <p data-translate-key="modal_p">Bạn có chắc chắn muốn xoá liên kết theo dõi này? Mọi nhật ký vị trí liên quan cũng sẽ bị xoá.</p>
         </div>
         <div class="modal-footer">
-            <button class="modal-btn btn-secondary" id="modal-cancel-btn">Huỷ</button>
-            <button class="modal-btn btn-danger" id="modal-confirm-delete-btn">Xoá</button>
+            <button class="modal-btn btn-secondary" id="modal-cancel-btn" data-translate-key="modal_cancel_btn">Huỷ</button>
+            <button class="modal-btn btn-danger" id="modal-confirm-delete-btn" data-translate-key="modal_delete_btn">Xoá</button>
         </div>
     </div>
 </div>
@@ -661,8 +661,113 @@
 document.addEventListener('DOMContentLoaded', function() {
     let map;
     let markers = [];
-    let allLinksData = []; // Cache for links data
+    let allLinksData = [];
     let pollingInterval;
+
+    // --- Translations ---
+    Object.assign(translations.vi, {
+        'title': "Theo dõi Vị trí - Rita AI Suite",
+        'eyebrow': "Theo dõi Vị trí",
+        'h1': "Theo dõi chuyến đi một cách lịch sự và minh bạch",
+        'hero_p': "Rita tạo ra các liên kết theo dõi nhẹ nhàng để bạn kiểm tra vị trí trong thời gian thực mà vẫn tôn trọng quyền riêng tư của người dùng.",
+        'metric_1': "🔐 Tuỳ chọn yêu cầu đồng ý",
+        'metric_2': "🛰️ Xem nhật ký vị trí trực tiếp",
+        'metric_3': "🧾 Lưu lịch sử truy cập",
+        'card_li_1': "<strong>Cảnh báo tức thời:</strong> Sao chép link theo dõi và chia sẻ ngay lập tức.",
+        'card_li_2': "<strong>Nhật ký chuẩn:</strong> Ghi lại tọa độ, thời gian và liên kết mở Google Maps.",
+        'card_li_3': "<strong>Giữ quyền riêng tư:</strong> Bật xác nhận vị trí chỉ với một nút gạt.",
+        'form_h2': "Tạo liên kết theo dõi mới",
+        'form_p': "Dán URL gốc, Rita sẽ trả về link theo dõi độc nhất để bạn gửi cho người cần chia sẻ vị trí.",
+        'input_placeholder': "https://example.com/checkout",
+        'create_link_btn': "Tạo liên kết",
+        'consent_text': "Bắt buộc người dùng xác nhận trước khi ghi lại vị trí",
+        'helper_hint': "Link theo dõi sẽ được khởi tạo ngay lập tức và xuất hiện trong danh sách lịch sử bên dưới.",
+        'feature_1': "Lưu vết tất cả lượt truy cập với tọa độ chính xác.",
+        'feature_2': "Chọn sao chép để gửi link rút gọn cho đối tác hoặc khách hàng.",
+        'feature_3': "Quản lý, xoá liên kết cũ chỉ với một cú nhấp.",
+        'quick_guide_h3': "Nhắc nhanh",
+        'quick_guide_p1': "• Bật tuỳ chọn xác nhận để đảm bảo người dùng đồng ý chia sẻ vị trí.",
+        'quick_guide_p2': "• Sử dụng nút <em>Copy</em> để gửi link theo dõi trọn gói cho khách hàng hoặc đối tác.",
+        'quick_guide_p3': "• Theo dõi bảng nhật ký để xem những lần truy cập gần nhất và mở ngay trên Google Maps.",
+        'map_h2': "Bản đồ vị trí",
+        'history_h2': "Lịch sử liên kết",
+        'no_links_msg': "Chưa có liên kết nào được tạo.",
+        'footer_text': "Hãy đảm bảo thông báo rõ với người dùng trước khi theo dõi vị trí.",
+        'modal_h3': "Xoá liên kết",
+        'modal_p': "Bạn có chắc chắn muốn xoá liên kết theo dõi này? Mọi nhật ký vị trí liên quan cũng sẽ bị xoá.",
+        'modal_cancel_btn': "Huỷ",
+        'modal_delete_btn': "Xoá",
+        'js_copied': "Đã copy!",
+        'js_copy': "Copy",
+        'js_copy_error': "Không thể sao chép liên kết.",
+        'js_delete_error_1': "Không thể xoá liên kết.",
+        'js_delete_error_2': "Đã xảy ra lỗi khi xoá liên kết.",
+        'js_created_at': "Tạo lúc:",
+        'js_delete': "Xoá",
+        'js_original': "Gốc:",
+        'js_tracking': "Theo dõi:",
+        'js_logs_title': "Nhật ký vị trí",
+        'js_log_count': "lượt",
+        'js_tbl_time': "Thời gian",
+        'js_tbl_lat': "Vĩ độ",
+        'js_tbl_lon': "Kinh độ",
+        'js_tbl_map': "Bản đồ",
+        'js_tbl_view': "Xem",
+        'js_no_clicks': "Chưa có lượt click nào.",
+        'js_recorded_at': "Ghi nhận lúc:"
+    });
+
+    Object.assign(translations.en, {
+        'title': "Location Tracker - Rita AI Suite",
+        'eyebrow': "Location Tracker",
+        'h1': "Track journeys with transparency and consent",
+        'hero_p': "Rita creates lightweight tracking links for you to check real-time locations while respecting user privacy.",
+        'metric_1': "🔐 Consent Option",
+        'metric_2': "🛰️ Live Location Log",
+        'metric_3': "🧾 Access History",
+        'card_li_1': "<strong>Instant Alerts:</strong> Copy the tracking link and share it immediately.",
+        'card_li_2': "<strong>Standard Logs:</strong> Records coordinates, time, and a link to open on Google Maps.",
+        'card_li_3': "<strong>Privacy First:</strong> Enable location confirmation with a single toggle.",
+        'form_h2': "Create a New Tracking Link",
+        'form_p': "Paste the original URL, and Rita will return a unique tracking link for you to send to the person sharing their location.",
+        'input_placeholder': "https://example.com/checkout",
+        'create_link_btn': "Create Link",
+        'consent_text': "Require user consent before logging location",
+        'helper_hint': "The tracking link will be created instantly and appear in the history list below.",
+        'feature_1': "Trace all visits with precise coordinates.",
+        'feature_2': "Choose 'copy' to send the short link to partners or clients.",
+        'feature_3': "Manage and delete old links with a single click.",
+        'quick_guide_h3': "Quick Guide",
+        'quick_guide_p1': "• Enable the consent option to ensure users agree to share their location.",
+        'quick_guide_p2': "• Use the <em>Copy</em> button to send the all-in-one tracking link to clients or partners.",
+        'quick_guide_p3': "• Monitor the log table to see the latest visits and open them directly on Google Maps.",
+        'map_h2': "Location Map",
+        'history_h2': "Link History",
+        'no_links_msg': "No links have been created yet.",
+        'footer_text': "Please ensure you clearly inform users before tracking their location.",
+        'modal_h3': "Delete Link",
+        'modal_p': "Are you sure you want to delete this tracking link? All associated location logs will also be deleted.",
+        'modal_cancel_btn': "Cancel",
+        'modal_delete_btn': "Delete",
+        'js_copied': "Copied!",
+        'js_copy': "Copy",
+        'js_copy_error': "Could not copy the link.",
+        'js_delete_error_1': "Failed to delete the link.",
+        'js_delete_error_2': "An error occurred while deleting the link.",
+        'js_created_at': "Created at:",
+        'js_delete': "Delete",
+        'js_original': "Original:",
+        'js_tracking': "Tracking:",
+        'js_logs_title': "Location Logs",
+        'js_log_count': "logs",
+        'js_tbl_time': "Time",
+        'js_tbl_lat': "Latitude",
+        'js_tbl_lon': "Longitude",
+        'js_tbl_map': "Map",
+        'js_tbl_view': "View",
+        'js_no_clicks': "No clicks yet.",
+        'js_recorded_at': "Recorded at:"
+    });
 
     // --- Helpers ---
     function getCookie(name) {
@@ -698,6 +803,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displayLogsOnMap(logs) {
         clearMarkers();
+        const currentLang = localStorage.getItem('preferredLanguage') || 'vi';
+        
         if (!logs || logs.length === 0) {
             map.setView([10.7769, 106.7009], 13);
             return;
@@ -710,8 +817,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!isNaN(lat) && !isNaN(lng)) {
                 const position = [lat, lng];
-                const marker = L.marker(position).addTo(map)
-                    .bindPopup(`<b>Recorded at:</b><br>${log.timestamp}`);
+                const popupText = `<b>${translations[currentLang]['js_recorded_at']}</b><br>${log.timestamp}`;
+                const marker = L.marker(position).addTo(map).bindPopup(popupText);
                 markers.push(marker);
                 latLngs.push(position);
             }
@@ -736,8 +843,8 @@ document.addEventListener('DOMContentLoaded', function() {
         event.stopPropagation();
         const button = event.currentTarget;
         const link = button.getAttribute('data-link');
+        const currentLang = localStorage.getItem('preferredLanguage') || 'vi';
         
-        // Use the 'copy' command for broader compatibility
         const textArea = document.createElement("textarea");
         textArea.value = link;
         document.body.appendChild(textArea);
@@ -745,14 +852,14 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             document.execCommand('copy');
             button.classList.add('copied');
-            button.textContent = 'Đã copy!';
+            button.textContent = translations[currentLang]['js_copied'];
             setTimeout(() => {
                 button.classList.remove('copied');
-                button.textContent = 'Copy';
+                button.textContent = translations[currentLang]['js_copy'];
             }, 2000);
         } catch (err) {
             console.error('Failed to copy text: ', err);
-            alert('Could not copy the link.');
+            alert(translations[currentLang]['js_copy_error']);
         }
         document.body.removeChild(textArea);
     }
@@ -781,6 +888,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function confirmDelete() {
         if (!linkIdToDelete) return;
+        const currentLang = localStorage.getItem('preferredLanguage') || 'vi';
         try {
             const response = await fetch(`/api/tracker-links/${linkIdToDelete}/delete/`, {
                 method: 'POST',
@@ -790,11 +898,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetchTrackerData(); // Refresh the list
             } else {
                  console.error('Failed to delete the link.');
-                 alert('Failed to delete the link.');
+                 alert(translations[currentLang]['js_delete_error_1']);
             }
         } catch (error) {
             console.error('Error deleting link:', error);
-            alert('An error occurred while deleting the link.');
+            alert(translations[currentLang]['js_delete_error_2']);
         } finally {
             closeDeleteModal();
         }
@@ -825,12 +933,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const historyList = document.getElementById('history-list');
         const noLinksMsg = document.getElementById('no-links-msg');
         if (!historyList || !noLinksMsg) return;
+        
+        const currentLang = localStorage.getItem('preferredLanguage') || 'vi';
 
-        historyList.innerHTML = ''; // Clear the list completely for a fresh render
+        historyList.innerHTML = '';
 
         if (linksData.length === 0) {
             noLinksMsg.classList.remove('hidden');
-            clearMarkers(); // Clear map if no links
+            clearMarkers();
             return;
         }
         
@@ -838,49 +948,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
         linksData.forEach(link => {
             const logsTableHtml = link.logs.map(log => {
-                 const lat = parseFloat(String(log.latitude).replace(',', '.'));
-                 const lng = parseFloat(String(log.longitude).replace(',', '.'));
-                 const mapLink = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;
-                 return `
-                     <tr>
-                         <td>${log.timestamp}</td>
-                         <td>${lat.toFixed(5)}</td>
-                         <td>${lng.toFixed(5)}</td>
-                         <td><a href="${mapLink}" target="_blank" rel="noopener noreferrer">Xem</a></td>
-                     </tr>`;
+                const lat = parseFloat(String(log.latitude).replace(',', '.'));
+                const lng = parseFloat(String(log.longitude).replace(',', '.'));
+                const mapLink = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;
+                return `
+                    <tr>
+                        <td>${log.timestamp}</td>
+                        <td>${lat.toFixed(5)}</td>
+                        <td>${lng.toFixed(5)}</td>
+                        <td><a href="${mapLink}" target="_blank" rel="noopener noreferrer">${translations[currentLang]['js_tbl_view']}</a></td>
+                    </tr>`;
             }).join('');
             
             const itemHtml = `
                 <div class="history-item" id="history-item-${link.id}" data-link-id="${link.id}">
                     <div class="info-header">
-                        <p class="info-text">Tạo lúc: ${link.created_at}</p>
-                        <button class="delete-btn" data-link-id="${link.id}">Xoá</button>
+                        <p class="info-text">${translations[currentLang]['js_created_at']} ${link.created_at}</p>
+                        <button class="delete-btn" data-link-id="${link.id}">${translations[currentLang]['js_delete']}</button>
                     </div>
                     <div class="link-display">
-                        <p class="link-text"><strong>Gốc:</strong> <a href="${link.original_url}" target="_blank" rel="noopener noreferrer">${link.original_url}</a></p>
+                        <p class="link-text"><strong>${translations[currentLang]['js_original']}</strong> <a href="${link.original_url}" target="_blank" rel="noopener noreferrer">${link.original_url}</a></p>
                     </div>
                     <div class="link-display">
-                        <p class="link-text"><strong>Theo dõi:</strong> <span>${link.full_tracking_url}</span></p>
-                        <button class="copy-btn" data-link="${link.full_tracking_url}">Copy</button>
+                        <p class="link-text"><strong>${translations[currentLang]['js_tracking']}</strong> <span>${link.full_tracking_url}</span></p>
+                        <button class="copy-btn" data-link="${link.full_tracking_url}">${translations[currentLang]['js_copy']}</button>
                     </div>
-                    <h3 class="logs-title">Nhật ký vị trí (<span class="log-count">${link.log_count}</span> lượt):</h3>
+                    <h3 class="logs-title">${translations[currentLang]['js_logs_title']} (<span class="log-count">${link.log_count}</span> ${translations[currentLang]['js_log_count']}):</h3>
                     <div class="logs-table-wrapper ${link.log_count === 0 ? 'hidden' : ''}">
                         <table class="logs-table">
                             <thead>
-                                <tr><th>Thời gian</th><th>Vĩ độ</th><th>Kinh độ</th><th>Bản đồ</th></tr>
+                                <tr>
+                                    <th>${translations[currentLang]['js_tbl_time']}</th>
+                                    <th>${translations[currentLang]['js_tbl_lat']}</th>
+                                    <th>${translations[currentLang]['js_tbl_lon']}</th>
+                                    <th>${translations[currentLang]['js_tbl_map']}</th>
+                                </tr>
                             </thead>
                             <tbody id="log-table-body-${link.id}">${logsTableHtml}</tbody>
                         </table>
                     </div>
-                    <p class="info-text no-logs-msg ${link.log_count > 0 ? 'hidden' : ''}">Chưa có lượt click nào.</p>
+                    <p class="info-text no-logs-msg ${link.log_count > 0 ? 'hidden' : ''}">${translations[currentLang]['js_no_clicks']}</p>
                 </div>`;
             historyList.insertAdjacentHTML('beforeend', itemHtml);
         });
 
-        // Re-attach all event listeners after re-rendering
         historyList.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteClick));
         historyList.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', handleCopyClick));
         historyList.querySelectorAll('.history-item').forEach(item => item.addEventListener('click', handleHistoryItemClick));
+        
+        applyTranslations(currentLang); // Apply translations to any static text that might have been re-added
     }
 
     const createLinkForm = document.getElementById('create-link-form');
@@ -888,21 +1004,20 @@ document.addEventListener('DOMContentLoaded', function() {
         createLinkForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
-            // Manually get checkbox state
             const requireConsent = this.querySelector('input[name="require_consent"]').checked;
             formData.set('require_consent', requireConsent ? 'on' : '');
 
             try {
                 const response = await fetch(this.action, {
                     method: 'POST',
-                    body: new URLSearchParams(new FormData(this)), // FormData handles checkbox correctly here
+                    body: new URLSearchParams(new FormData(this)),
                     headers: { 'X-CSRFToken': getCookie('csrftoken') },
                 });
                 if(response.ok) {
                     this.reset();
-                     const consentCheckbox = document.querySelector('input[name="require_consent"]');
-                     if (consentCheckbox) consentCheckbox.checked = true; // Reset to default
-                    fetchTrackerData(); // Refresh the list
+                    const consentCheckbox = document.querySelector('input[name="require_consent"]');
+                    if (consentCheckbox) consentCheckbox.checked = true;
+                    fetchTrackerData();
                 }
             } catch (error) {
                 console.error("Error creating link:", error);
@@ -910,11 +1025,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Initialize map on DOM load
     initMap(); 
     fetchTrackerData();
-    // Start polling
     pollingInterval = setInterval(fetchTrackerData, 5000);
+
+    // Initial translation call
+    const currentLang = localStorage.getItem('preferredLanguage') || 'vi';
+    applyTranslations(currentLang);
 });
 </script>
 {% endblock %}

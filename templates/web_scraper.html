@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Web Scraper - Rita AI Suite{% endblock %}
+{% block title %}<title data-translate-key="title">Web Scraper - Rita AI Suite</title>{% endblock %}
 
 {% block extra_css %}
     <style>
@@ -432,16 +432,16 @@
 <div class="scraper-page">
     <section class="tool-hero">
         <div class="hero-copy">
-            <span class="hero-eyebrow">
+            <span class="hero-eyebrow" data-translate-key="eyebrow">
                 <span>🌐</span>
                 Web Scraper
             </span>
-            <h1>Trích xuất dữ liệu web với Rita nhanh và chuẩn</h1>
-            <p>Nhập URL, chọn trường cần lấy và để Rita gom dữ liệu sạch, hiển thị bảng kết quả, sẵn sàng tải về JSON hoặc CSV.</p>
+            <h1 data-translate-key="h1">Trích xuất dữ liệu web với Rita nhanh và chuẩn</h1>
+            <p data-translate-key="hero_p">Nhập URL, chọn trường cần lấy và để Rita gom dữ liệu sạch, hiển thị bảng kết quả, sẵn sàng tải về JSON hoặc CSV.</p>
             <div class="hero-metrics">
-                <span class="metric-chip">⚡ Theo dõi tiến trình realtime</span>
-                <span class="metric-chip">🧠 AI tối ưu dữ liệu</span>
-                <span class="metric-chip">📥 Xuất JSON/CSV một chạm</span>
+                <span class="metric-chip" data-translate-key="metric_1">⚡ Theo dõi tiến trình realtime</span>
+                <span class="metric-chip" data-translate-key="metric_2">🧠 AI tối ưu dữ liệu</span>
+                <span class="metric-chip" data-translate-key="metric_3">📥 Xuất JSON/CSV một chạm</span>
             </div>
         </div>
         <aside class="hero-card">
@@ -453,9 +453,9 @@
                 </svg>
             </div>
             <ul>
-                <li><strong>Không cần code:</strong> Điền URL và trường cần lấy, Rita tự động làm phần còn lại.</li>
-                <li><strong>Quản lý chi phí:</strong> Theo dõi token và chi phí ngay trong bảng điều khiển.</li>
-                <li><strong>Lịch sử rõ ràng:</strong> Lưu log mỗi lần scrape để tái sử dụng hoặc xoá khi cần.</li>
+                <li data-translate-key="card_li_1"><strong>Không cần code:</strong> Điền URL và trường cần lấy, Rita tự động làm phần còn lại.</li>
+                <li data-translate-key="card_li_2"><strong>Quản lý chi phí:</strong> Theo dõi token và chi phí ngay trong bảng điều khiển.</li>
+                <li data-translate-key="card_li_3"><strong>Lịch sử rõ ràng:</strong> Lưu log mỗi lần scrape để tái sử dụng hoặc xoá khi cần.</li>
             </ul>
         </aside>
     </section>
@@ -463,51 +463,51 @@
     <div class="scraper-grid">
         <div class="control-stack">
             <div class="glass-card control-card">
-                <h3>Cấu hình thu thập</h3>
-                <p class="card-subtitle">Điền URL, thêm các trường dữ liệu mong muốn rồi bắt đầu để Rita thực thi.</p>
+                <h3 data-translate-key="config_h3">Cấu hình thu thập</h3>
+                <p class="card-subtitle" data-translate-key="config_p">Điền URL, thêm các trường dữ liệu mong muốn rồi bắt đầu để Rita thực thi.</p>
                 <form id="scrape-form">
                     <div class="form-group">
-                        <label for="url-input">URL trang web</label>
+                        <label for="url-input" data-translate-key="url_label">URL trang web</label>
                         <input type="url" id="url-input" placeholder="https://example.com" required>
                     </div>
                     <div class="form-group">
-                        <label for="fields-input">Các trường cần lấy</label>
+                        <label for="fields-input" data-translate-key="fields_label">Các trường cần lấy</label>
                         <div id="tags-input-container" class="tags-input-container">
-                            <input type="text" id="fields-input" placeholder="Nhập trường rồi nhấn Enter...">
+                            <input type="text" id="fields-input" data-translate-placeholder="fields_placeholder" placeholder="Nhập trường rồi nhấn Enter...">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="model-selection">Mô hình AI</label>
+                        <label for="model-selection" data-translate-key="model_label">Mô hình AI</label>
                         <select id="model-selection">
                             <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
                         </select>
                     </div>
-                    <button type="submit" id="start-scrape-btn" class="btn-primary">Bắt đầu trích xuất</button>
+                    <button type="submit" id="start-scrape-btn" class="btn-primary" data-translate-key="start_btn">Bắt đầu trích xuất</button>
                 </form>
             </div>
 
             <div id="usage-card" class="glass-card control-card usage-card" style="display: none;">
-                <h3>Chi phí & Token</h3>
-                <p>Input Tokens: <span id="input-tokens">0</span></p>
-                <p>Output Tokens: <span id="output-tokens">0</span></p>
-                <p>Tổng chi phí (ước tính): <span id="total-cost">$0.0000</span></p>
+                <h3 data-translate-key="usage_h3">Chi phí & Token</h3>
+                <p><span data-translate-key="usage_input">Input Tokens</span>: <span id="input-tokens">0</span></p>
+                <p><span data-translate-key="usage_output">Output Tokens</span>: <span id="output-tokens">0</span></p>
+                <p><span data-translate-key="usage_total">Tổng chi phí (ước tính)</span>: <span id="total-cost">$0.0000</span></p>
             </div>
         </div>
 
         <div class="glass-card result-card">
             <div id="results-placeholder">
-                <p>Kết quả sẽ xuất hiện tại đây sau khi quá trình hoàn tất.</p>
+                <p data-translate-key="results_placeholder">Kết quả sẽ xuất hiện tại đây sau khi quá trình hoàn tất.</p>
             </div>
             <div id="loading-indicator">
                 <div class="spinner"></div>
-                <p>Đang xử lý, vui lòng chờ...</p>
+                <p data-translate-key="loading_text">Đang xử lý, vui lòng chờ...</p>
             </div>
             <div id="results-output">
                 <div class="result-header">
-                    <h3>Kết quả trích xuất</h3>
+                    <h3 data-translate-key="results_h3">Kết quả trích xuất</h3>
                     <div class="download-buttons">
-                        <button id="download-json-btn" class="btn-secondary">Tải JSON</button>
-                        <button id="download-csv-btn" class="btn-secondary">Tải CSV</button>
+                        <button id="download-json-btn" class="btn-secondary" data-translate-key="download_json">Tải JSON</button>
+                        <button id="download-csv-btn" class="btn-secondary" data-translate-key="download_csv">Tải CSV</button>
                     </div>
                 </div>
                 <div class="table-container">
@@ -522,17 +522,17 @@
 
     <div class="history-section">
         <div class="history-header">
-            <h2>Lịch sử trích xuất</h2>
-            <button id="delete-history-btn" class="btn-danger">Xoá lịch sử</button>
+            <h2 data-translate-key="history_h2">Lịch sử trích xuất</h2>
+            <button id="delete-history-btn" class="btn-danger" data-translate-key="delete_history_btn">Xoá lịch sử</button>
         </div>
         <div class="table-container">
             <table id="history-table">
                 <thead>
                     <tr>
-                        <th>Ngày</th>
-                        <th>URL</th>
-                        <th>Trạng thái</th>
-                        <th>Hành động</th>
+                        <th data-translate-key="history_th_date">Ngày</th>
+                        <th data-translate-key="history_th_url">URL</th>
+                        <th data-translate-key="history_th_status">Trạng thái</th>
+                        <th data-translate-key="history_th_actions">Hành động</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -542,10 +542,88 @@
 </div>
 
 <footer class="site-footer">
-    <p>Rita có thể mắc lỗi, hãy kiểm tra dữ liệu quan trọng trước khi sử dụng.</p>
+    <p data-translate-key="footer_text">Rita có thể mắc lỗi, hãy kiểm tra dữ liệu quan trọng trước khi sử dụng.</p>
 </footer>
 {% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'js/scraper_script.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Object.assign(translations.vi, {
+                'title': "Web Scraper - Rita AI Suite",
+                'eyebrow': "Web Scraper",
+                'h1': "Trích xuất dữ liệu web với Rita nhanh và chuẩn",
+                'hero_p': "Nhập URL, chọn trường cần lấy và để Rita gom dữ liệu sạch, hiển thị bảng kết quả, sẵn sàng tải về JSON hoặc CSV.",
+                'metric_1': "⚡ Theo dõi tiến trình realtime",
+                'metric_2': "🧠 AI tối ưu dữ liệu",
+                'metric_3': "📥 Xuất JSON/CSV một chạm",
+                'card_li_1': "<strong>Không cần code:</strong> Điền URL và trường cần lấy, Rita tự động làm phần còn lại.",
+                'card_li_2': "<strong>Quản lý chi phí:</strong> Theo dõi token và chi phí ngay trong bảng điều khiển.",
+                'card_li_3': "<strong>Lịch sử rõ ràng:</strong> Lưu log mỗi lần scrape để tái sử dụng hoặc xoá khi cần.",
+                'config_h3': "Cấu hình thu thập",
+                'config_p': "Điền URL, thêm các trường dữ liệu mong muốn rồi bắt đầu để Rita thực thi.",
+                'url_label': "URL trang web",
+                'fields_label': "Các trường cần lấy",
+                'fields_placeholder': "Nhập trường rồi nhấn Enter...",
+                'model_label': "Mô hình AI",
+                'start_btn': "Bắt đầu trích xuất",
+                'usage_h3': "Chi phí & Token",
+                'usage_input': "Input Tokens",
+                'usage_output': "Output Tokens",
+                'usage_total': "Tổng chi phí (ước tính)",
+                'results_placeholder': "Kết quả sẽ xuất hiện tại đây sau khi quá trình hoàn tất.",
+                'loading_text': "Đang xử lý, vui lòng chờ...",
+                'results_h3': "Kết quả trích xuất",
+                'download_json': "Tải JSON",
+                'download_csv': "Tải CSV",
+                'history_h2': "Lịch sử trích xuất",
+                'delete_history_btn': "Xoá lịch sử",
+                'history_th_date': "Ngày",
+                'history_th_url': "URL",
+                'history_th_status': "Trạng thái",
+                'history_th_actions': "Hành động",
+                'footer_text': "Rita có thể mắc lỗi, hãy kiểm tra dữ liệu quan trọng trước khi sử dụng."
+            });
+
+            Object.assign(translations.en, {
+                'title': "Web Scraper - Rita AI Suite",
+                'eyebrow': "Web Scraper",
+                'h1': "Extract web data with Rita, fast and accurate",
+                'hero_p': "Enter a URL, select the fields to extract, and let Rita gather clean data, display it in a results table, ready to download as JSON or CSV.",
+                'metric_1': "⚡ Real-time progress tracking",
+                'metric_2': "🧠 AI-powered data optimization",
+                'metric_3': "📥 One-click JSON/CSV export",
+                'card_li_1': "<strong>No code required:</strong> Enter the URL and desired fields, and Rita handles the rest.",
+                'card_li_2': "<strong>Cost Management:</strong> Track token usage and costs directly in the dashboard.",
+                'card_li_3': "<strong>Clear History:</strong> Logs of every scrape are saved for reuse or deletion as needed.",
+                'config_h3': "Scraping Configuration",
+                'config_p': "Enter the URL, add the desired data fields, and start the process for Rita to execute.",
+                'url_label': "Website URL",
+                'fields_label': "Fields to extract",
+                'fields_placeholder': "Enter a field and press Enter...",
+                'model_label': "AI Model",
+                'start_btn': "Start Extraction",
+                'usage_h3': "Cost & Tokens",
+                'usage_input': "Input Tokens",
+                'usage_output': "Output Tokens",
+                'usage_total': "Total Cost (estimated)",
+                'results_placeholder': "Results will appear here after the process is complete.",
+                'loading_text': "Processing, please wait...",
+                'results_h3': "Extraction Results",
+                'download_json': "Download JSON",
+                'download_csv': "Download CSV",
+                'history_h2': "Extraction History",
+                'delete_history_btn': "Delete History",
+                'history_th_date': "Date",
+                'history_th_url': "URL",
+                'history_th_status': "Status",
+                'history_th_actions': "Actions",
+                'footer_text': "Rita can make mistakes, please double-check important data before use."
+            });
+            
+            const currentLang = localStorage.getItem('preferredLanguage') || 'vi';
+            applyTranslations(currentLang);
+        });
+    </script>
 {% endblock %}

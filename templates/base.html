@@ -1,4 +1,3 @@
-<!-- File: Rita_All_Django/templates/base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="vi">
@@ -9,14 +8,93 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
-    <!-- Link to the single, consolidated CSS file -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
     <link rel="icon" href="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" type="image/x-icon">
     
-    <!-- Block for page-specific extra CSS -->
+    <style>
+        /* New Styles for Centered Navigation and Language Dropdown */
+        .nav-center-group {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem; /* Adjust space between nav and language switcher */
+        }
+
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 0.5rem 0.8rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .lang-dropdown-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+        
+        .lang-dropdown-btn .fa-chevron-down {
+            font-size: 0.7rem;
+            transition: transform 0.3s ease;
+        }
+
+        .language-dropdown.open .lang-dropdown-btn .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .lang-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            background-color: #1a1a2e; /* Dark background */
+            min-width: 160px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            z-index: 100;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .language-dropdown.open .lang-dropdown-content {
+            display: block;
+        }
+
+        .lang-option {
+            color: var(--text-secondary);
+            padding: 10px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .lang-option:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -33,40 +111,179 @@
                     <div class="logo-text">Rita AI Suite</div>
                 </a>
                 
-                <nav class="nav-menu-desktop">
-                    <a href="{% url 'core:chat_view' %}" class="nav-link {% if request.resolver_match.url_name == 'chat_view' %}active{% endif %}">Chat</a>
-                    <a href="{% url 'core:tiktok_analyzer_view' %}" class="nav-link {% if request.resolver_match.url_name == 'tiktok_analyzer_view' %}active{% endif %}">TikTok Analyzer</a>
-                    <a href="{% url 'core:location_tracker_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'location_tracker_dashboard' %}active{% endif %}">Location Tracker</a>
-                    <a href="{% url 'core:web_scraper_view' %}" class="nav-link {% if request.resolver_match.url_name == 'web_scraper_view' %}active{% endif %}">Web Scraper</a>
-                    <a href="{% url 'core:about_view' %}" class="nav-link {% if request.resolver_match.url_name == 'about_view' %}active{% endif %}">About</a>
-                </nav>
+                <div class="nav-center-group">
+                    {% if user.is_authenticated %}
+                    <nav class="nav-menu-desktop">
+                        <a href="{% url 'core:chat_view' %}" class="nav-link {% if request.resolver_match.url_name == 'chat_view' %}active{% endif %}" data-translate-key="nav_chat">AI Chat</a>
+                        <a href="{% url 'core:tiktok_analyzer_view' %}" class="nav-link {% if request.resolver_match.url_name == 'tiktok_analyzer_view' %}active{% endif %}" data-translate-key="nav_tiktok">Phân tích TikTok</a>
+                        <a href="{% url 'core:location_tracker_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'location_tracker_dashboard' %}active{% endif %}" data-translate-key="nav_location">Theo dõi Vị trí</a>
+                        <a href="{% url 'core:web_scraper_view' %}" class="nav-link {% if request.resolver_match.url_name == 'web_scraper_view' %}active{% endif %}" data-translate-key="nav_scraper">Trích xuất Web</a>
+                        <a href="{% url 'core:about_view' %}" class="nav-link {% if request.resolver_match.url_name == 'about_view' %}active{% endif %}" data-translate-key="nav_about">Giới thiệu</a>
+                    </nav>
+                    {% endif %}
+
+                    <!-- Language Dropdown -->
+                    <div class="language-dropdown">
+                        <button id="lang-dropdown-btn" class="lang-dropdown-btn">
+                            <i class="fas fa-globe"></i>
+                            <span id="current-lang-text">VI</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="lang-dropdown-content" class="lang-dropdown-content">
+                            <a href="#" class="lang-option" data-lang="vi">Tiếng Việt (VI)</a>
+                            <a href="#" class="lang-option" data-lang="en">English (EN)</a>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="user-menu">
                     {% if user.is_authenticated %}
                     <div class="dropdown">
                         <button class="dropdown-btn">
-                            Hello, <strong>{{ user.username }}</strong>
+                            <span data-translate-key="greeting">Xin chào</span>, <strong>{{ user.username }}</strong>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
                         <div class="dropdown-content">
-                            <a href="{% url 'core:profile_view' %}">Profile</a>
-                            <a href="{% url 'core:logout_view' %}">Logout</a>
+                            <a href="{% url 'core:profile_view' %}" data-translate-key="profile">Hồ sơ</a>
+                            <a href="{% url 'core:logout_view' %}" data-translate-key="logout">Đăng xuất</a>
                         </div>
                     </div>
                     {% else %}
-                        <a href="{% url 'core:login_view' %}" class="nav-btn">Login</a>
+                        <a href="{% url 'core:login_view' %}" class="nav-btn" data-translate-key="login_register">Đăng nhập / Đăng ký</a>
                     {% endif %}
                 </div>
             </div>
         </header>
 
         <main class="main-content">
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
             {% block content %}
             {% endblock %}
         </main>
     </div>
     
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    <script>
+        // Global translations object. Child templates will add to this.
+        const translations = {
+            vi: {
+                nav_chat: "AI Chat",
+                nav_tiktok: "Phân tích TikTok",
+                nav_location: "Theo dõi Vị trí",
+                nav_scraper: "Trích xuất Web",
+                nav_about: "Giới thiệu",
+                greeting: "Xin chào",
+                profile: "Hồ sơ",
+                logout: "Đăng xuất",
+                login_register: "Đăng nhập / Đăng ký",
+            },
+            en: {
+                nav_chat: "AI Chat",
+                nav_tiktok: "TikTok Analyzer",
+                nav_location: "Location Tracker",
+                nav_scraper: "Web Scraper",
+                nav_about: "About",
+                greeting: "Hello",
+                profile: "Profile",
+                logout: "Logout",
+                login_register: "Login / Register",
+            }
+        };
+
+        function applyTranslations(lang) {
+            if (!['vi', 'en'].includes(lang)) return;
+
+            // Update page lang attribute
+            document.documentElement.lang = lang;
+
+            // Find all translatable elements in the document
+            const translatableElements = document.querySelectorAll('[data-translate-key]');
+            
+            translatableElements.forEach(el => {
+                const key = el.dataset.translateKey;
+                if (translations[lang] && translations[lang][key]) {
+                    const icon = el.querySelector('i, svg, code, strong, span');
+                    if (icon && (el.firstChild === icon || el.firstChild.contains(icon))) {
+                        const textNode = document.createTextNode(' ' + translations[lang][key]);
+                        // Clear existing text nodes, preserving the icon
+                        Array.from(el.childNodes).forEach(child => {
+                            if (child.nodeType === Node.TEXT_NODE) {
+                                el.removeChild(child);
+                            }
+                        });
+                        el.appendChild(textNode);
+                    } else {
+                        el.textContent = translations[lang][key];
+                    }
+                }
+            });
+
+            // Handle attribute translations
+            const translatableAttributes = document.querySelectorAll('[data-translate-placeholder], [data-translate-title]');
+            translatableAttributes.forEach(el => {
+                if(el.dataset.translatePlaceholder) {
+                    const key = el.dataset.translatePlaceholder;
+                    if(translations[lang][key]) el.placeholder = translations[lang][key];
+                }
+                if(el.dataset.translateTitle) {
+                    const key = el.dataset.translateTitle;
+                    if(translations[lang][key]) el.title = translations[lang][key];
+                }
+            });
+
+            // Update the dropdown button text
+            const currentLangText = document.getElementById('current-lang-text');
+            if (currentLangText) {
+                currentLangText.textContent = lang.toUpperCase();
+            }
+        }
+
+        function setLanguage(lang) {
+            localStorage.setItem('preferredLanguage', lang);
+            applyTranslations(lang);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const langDropdown = document.querySelector('.language-dropdown');
+            const langDropdownBtn = document.getElementById('lang-dropdown-btn');
+            const langOptions = document.querySelectorAll('.lang-option');
+
+            if (langDropdownBtn) {
+                langDropdownBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    langDropdown.classList.toggle('open');
+                });
+            }
+
+            langOptions.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const lang = e.currentTarget.dataset.lang;
+                    setLanguage(lang);
+                    langDropdown.classList.remove('open');
+                });
+            });
+
+            // Close dropdown if clicking outside
+            document.addEventListener('click', () => {
+                if (langDropdown && langDropdown.classList.contains('open')) {
+                    langDropdown.classList.remove('open');
+                }
+            });
+
+            // Apply saved language on initial load
+            const savedLang = localStorage.getItem('preferredLanguage') || 'vi';
+            setLanguage(savedLang);
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

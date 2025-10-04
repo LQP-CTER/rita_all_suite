@@ -1,7 +1,7 @@
 ﻿{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Hồ sơ của bạn{% endblock %}
+{% block title %}<title data-translate-key="title">Hồ sơ của bạn</title>{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/profile_style.css' %}">
@@ -12,15 +12,15 @@
     <section class="profile-hero">
         <div class="hero-summary">
             <div class="profile-avatar">{{ user.profile.full_name|default:user.username|first|upper }}</div>
-            <h1>Xin chào, {{ user.profile.full_name|default:user.username }}</h1>
-            <p>Quản lý thông tin cá nhân, cập nhật mật khẩu và theo dõi những hoạt động gần đây của bạn trong Rita.</p>
+            <h1><span data-translate-key="greeting">Xin chào</span>, {{ user.profile.full_name|default:user.username }}</h1>
+            <p data-translate-key="hero_p">Quản lý thông tin cá nhân, cập nhật mật khẩu và theo dõi những hoạt động gần đây của bạn trong Rita.</p>
         </div>
         <aside class="hero-stats">
-            <h2>Thông tin nhanh</h2>
+            <h2 data-translate-key="quick_info">Thông tin nhanh</h2>
             <div class="stat-list">
                 <span>📧 {{ user.email }}</span>
-                <span>🆔 Tên đăng nhập: {{ user.username }}</span>
-                <span>🗓 Thành viên từ: {{ user.date_joined|date:"d/m/Y" }}</span>
+                <span>🆔 <span data-translate-key="username_label">Tên đăng nhập</span>: {{ user.username }}</span>
+                <span>🗓 <span data-translate-key="member_since_label">Thành viên từ</span>: {{ user.date_joined|date:"d/m/Y" }}</span>
             </div>
         </aside>
     </section>
@@ -36,23 +36,23 @@
     <section class="profile-forms">
         <article class="profile-card">
             <header>
-                <h2>Thông tin cá nhân</h2>
+                <h2 data-translate-key="personal_info_h2">Thông tin cá nhân</h2>
                 <button id="edit-profile-btn" type="button" class="profile-toggle">
-                    <span>Chỉnh sửa</span>
+                    <span data-translate-key="edit_btn">Chỉnh sửa</span>
                 </button>
             </header>
 
             <div id="view-profile-info" class="profile-info">
                 <div class="info-field">
-                    <span>Họ và tên</span>
+                    <span data-translate-key="full_name_label">Họ và tên</span>
                     <strong>{{ user.profile.full_name|default:"Chưa cập nhật" }}</strong>
                 </div>
                 <div class="info-field">
-                    <span>Ngày sinh</span>
+                    <span data-translate-key="dob_label">Ngày sinh</span>
                     <strong>{{ user.profile.date_of_birth|date:"d/m/Y"|default:"Chưa cập nhật" }}</strong>
                 </div>
                 <div class="info-field">
-                    <span>Email</span>
+                    <span data-translate-key="email_label">Email</span>
                     <strong>{{ user.email }}</strong>
                 </div>
             </div>
@@ -62,22 +62,22 @@
                 <input type="hidden" name="form_type" value="update_profile">
                 {{ profile_form.as_p }}
                 <div class="form-actions">
-                    <button type="button" id="cancel-edit-btn" class="btn-secondary">Huỷ</button>
-                    <button type="submit" class="btn-primary">Lưu thay đổi</button>
+                    <button type="button" id="cancel-edit-btn" class="btn-secondary" data-translate-key="cancel_btn">Huỷ</button>
+                    <button type="submit" class="btn-primary" data-translate-key="save_changes_btn">Lưu thay đổi</button>
                 </div>
             </form>
         </article>
 
         <article class="profile-card">
             <header>
-                <h2>Đổi mật khẩu</h2>
+                <h2 data-translate-key="change_password_h2">Đổi mật khẩu</h2>
             </header>
             <form method="post" action="{% url 'core:profile_view' %}">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="change_password">
                 {{ password_form.as_p }}
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary">Đổi mật khẩu</button>
+                    <button type="submit" class="btn-primary" data-translate-key="change_password_btn">Đổi mật khẩu</button>
                 </div>
             </form>
         </article>
@@ -87,4 +87,101 @@
 
 {% block extra_js %}
     <script src="{% static 'js/profile.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Object.assign(translations.vi, {
+                'title': "Hồ sơ của bạn",
+                'greeting': "Xin chào",
+                'hero_p': "Quản lý thông tin cá nhân, cập nhật mật khẩu và theo dõi những hoạt động gần đây của bạn trong Rita.",
+                'quick_info': "Thông tin nhanh",
+                'username_label': "Tên đăng nhập",
+                'member_since_label': "Thành viên từ",
+                'personal_info_h2': "Thông tin cá nhân",
+                'edit_btn': "Chỉnh sửa",
+                'full_name_label': "Họ và tên",
+                'dob_label': "Ngày sinh",
+                'email_label': "Email",
+                'not_updated': "Chưa cập nhật",
+                'cancel_btn': "Huỷ",
+                'save_changes_btn': "Lưu thay đổi",
+                'change_password_h2': "Đổi mật khẩu",
+                'change_password_btn': "Đổi mật khẩu",
+                // Form labels
+                'label_full_name': "Họ và tên",
+                'label_date_of_birth': "Ngày sinh",
+                'label_old_password': "Mật khẩu cũ",
+                'label_new_password1': "Mật khẩu mới",
+                'label_new_password2': "Xác nhận mật khẩu mới"
+            });
+
+            Object.assign(translations.en, {
+                'title': "Your Profile",
+                'greeting': "Hello",
+                'hero_p': "Manage your personal information, update your password, and track your recent activities within Rita.",
+                'quick_info': "Quick Info",
+                'username_label': "Username",
+                'member_since_label': "Member since",
+                'personal_info_h2': "Personal Information",
+                'edit_btn': "Edit",
+                'full_name_label': "Full name",
+                'dob_label': "Date of birth",
+                'email_label': "Email",
+                'not_updated': "Not updated",
+                'cancel_btn': "Cancel",
+                'save_changes_btn': "Save Changes",
+                'change_password_h2': "Change Password",
+                'change_password_btn': "Change Password",
+                // Form labels
+                'label_full_name': "Full name",
+                'label_date_of_birth': "Date of birth",
+                'label_old_password': "Old password",
+                'label_new_password1': "New password",
+                'label_new_password2': "New password confirmation"
+            });
+
+            // Special handler for Django Form labels which are not in the initial translations object
+            // This needs to run before applyTranslations
+            const lang = localStorage.getItem('preferredLanguage') || 'vi';
+            const profileForm = document.getElementById('edit-profile-form');
+            if (profileForm) {
+                const fullNameLabel = profileForm.querySelector('label[for="id_full_name"]');
+                if (fullNameLabel) fullNameLabel.dataset.translateKey = "label_full_name";
+
+                const dobLabel = profileForm.querySelector('label[for="id_date_of_birth"]');
+                if (dobLabel) dobLabel.dataset.translateKey = "label_date_of_birth";
+            }
+            
+            const passwordForm = document.querySelector('form [name="form_type"][value="change_password"]').closest('form');
+            if (passwordForm) {
+                 const oldPassLabel = passwordForm.querySelector('label[for="id_old_password"]');
+                 if(oldPassLabel) oldPassLabel.dataset.translateKey = "label_old_password";
+
+                 const newPass1Label = passwordForm.querySelector('label[for="id_new_password1"]');
+                 if(newPass1Label) newPass1Label.dataset.translateKey = "label_new_password1";
+
+                 const newPass2Label = passwordForm.querySelector('label[for="id_new_password2"]');
+                 if(newPass2Label) newPass2Label.dataset.translateKey = "label_new_password2";
+            }
+            
+            // Custom function to handle default text values that are not empty
+            function applyProfileSpecificTranslations(lang) {
+                document.querySelectorAll('#view-profile-info strong').forEach(el => {
+                    const originalText = el.textContent.trim();
+                    if (originalText === translations['vi']['not_updated'] || originalText === translations['en']['not_updated']) {
+                        el.textContent = translations[lang]['not_updated'];
+                    }
+                });
+            }
+
+            // Override the global applyTranslations to include our custom logic
+            const originalApplyTranslations = window.applyTranslations;
+            window.applyTranslations = function(lang) {
+                originalApplyTranslations(lang); // Call the base function
+                applyProfileSpecificTranslations(lang); // Call our specific function
+            };
+            
+            const currentLang = localStorage.getItem('preferredLanguage') || 'vi';
+            applyTranslations(currentLang);
+        });
+    </script>
 {% endblock %}

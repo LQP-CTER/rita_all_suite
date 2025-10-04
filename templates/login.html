@@ -4,13 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rita AI Suite - Đăng nhập & Đăng ký</title>
+    <title data-translate-key="title">Rita AI Suite - Đăng nhập & Đăng ký</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
     <link rel="icon" href="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" type="image/x-icon">
+    <style>
+        /* Styles for the language switcher, copied from homepage.html */
+        .lang-switcher-wrapper {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        .lang-switcher {
+            display: flex;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 4px;
+            align-items: center;
+        }
+        .lang-btn {
+            background-color: transparent;
+            border: none;
+            color: #a0aec0;
+            padding: 6px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+        .lang-btn.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 <body>
 {% with current_tab=initial_tab|default:'login' %}
@@ -21,19 +55,26 @@
                     <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita AI Suite logo">
                     <span style="color: white;">Rita AI Suite</span>
                 </a>
-                <h1>Gia nhập hệ sinh thái Rita</h1>
-                <p>Trải nghiệm bộ công cụ AI giúp bạn phân tích dữ liệu, theo dõi chiến dịch và tự động hóa công việc.</p>
+                <h1 data-translate-key="info_title">Gia nhập hệ sinh thái Rita</h1>
+                <p data-translate-key="info_subtitle">Trải nghiệm bộ công cụ AI giúp bạn phân tích dữ liệu, theo dõi chiến dịch và tự động hóa công việc.</p>
                 <ul class="auth-benefits" style="color: white;">
-                    <li>Giao diện thống nhất cho mọi sản phẩm AI của bạn</li>
-                    <li>Bảo mật nhiều lớp với xác thực an toàn</li>
-                    <li>Cập nhật liên tục các tính năng phân tích mới</li>
+                    <li data-translate-key="benefit_1">Giao diện thống nhất cho mọi sản phẩm AI của bạn</li>
+                    <li data-translate-key="benefit_2">Bảo mật nhiều lớp với xác thực an toàn</li>
+                    <li data-translate-key="benefit_3">Cập nhật liên tục các tính năng phân tích mới</li>
                 </ul>
                 <p class="auth-note" style="color: white;">
-                    Chưa chắc chắn? <a href="{% url 'core:about_view' %}">Khám phá Rita AI Suite</a>.
+                    <span data-translate-key="note_text">Chưa chắc chắn?</span> <a href="{% url 'core:about_view' %}" data-translate-key="note_link">Khám phá Rita AI Suite</a>.
                 </p>
             </aside>
 
             <div class="auth-card" data-initial-tab="{{ current_tab }}">
+                <div class="lang-switcher-wrapper">
+                    <div class="lang-switcher">
+                        <button id="lang-vi" class="lang-btn active">VI</button>
+                        <button id="lang-en" class="lang-btn">EN</button>
+                    </div>
+                </div>
+
                 {% if messages %}
                 <div class="messages-container">
                     {% for message in messages %}
@@ -45,14 +86,14 @@
                 {% endif %}
 
                 <div class="auth-tabs">
-                    <button type="button" class="auth-tab {% if current_tab == 'login' %}active{% endif %}" data-auth-tab="login">Đăng nhập</button>
-                    <button type="button" class="auth-tab {% if current_tab == 'register' %}active{% endif %}" data-auth-tab="register">Đăng ký</button>
+                    <button type="button" class="auth-tab {% if current_tab == 'login' %}active{% endif %}" data-auth-tab="login" data-translate-key="tab_login">Đăng nhập</button>
+                    <button type="button" class="auth-tab {% if current_tab == 'register' %}active{% endif %}" data-auth-tab="register" data-translate-key="tab_register">Đăng ký</button>
                 </div>
 
                 <div class="auth-panels">
                     <div class="auth-panel {% if current_tab == 'login' %}active{% endif %}" data-auth-panel="login">
-                        <h2>Chào mừng trở lại</h2>
-                        <p class="auth-subtitle">Đăng nhập để tiếp tục cuộc trò chuyện cùng Rita.</p>
+                        <h2 data-translate-key="login_title">Chào mừng trở lại</h2>
+                        <p class="auth-subtitle" data-translate-key="login_subtitle">Đăng nhập để tiếp tục cuộc trò chuyện cùng Rita.</p>
                         <form method="post" action="{% url 'core:login_view' %}" id="sign-in-form">
                             {% csrf_token %}
                             {% for field in login_form %}
@@ -66,15 +107,15 @@
                                 </div>
                             {% endfor %}
                             <div class="form-meta">
-                                <a href="{% url 'password_reset' %}">Quên mật khẩu?</a>
+                                <a href="{% url 'password_reset' %}" data-translate-key="forgot_password">Quên mật khẩu?</a>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-full">Đăng nhập</button>
+                            <button type="submit" class="btn btn-primary btn-full" data-translate-key="login_button">Đăng nhập</button>
                         </form>
                     </div>
 
                     <div class="auth-panel {% if current_tab == 'register' %}active{% endif %}" data-auth-panel="register">
-                        <h2>Tạo tài khoản mới</h2>
-                        <p class="auth-subtitle">Chỉ vài bước để bắt đầu khai thác toàn bộ sức mạnh của Rita.</p>
+                        <h2 data-translate-key="register_title">Tạo tài khoản mới</h2>
+                        <p class="auth-subtitle" data-translate-key="register_subtitle">Chỉ vài bước để bắt đầu khai thác toàn bộ sức mạnh của Rita.</p>
                         <form method="post" action="{% url 'core:register' %}" id="sign-up-form">
                             {% csrf_token %}
                             {% for field in registration_form %}
@@ -87,7 +128,7 @@
                                     <div class="form-error" id="{{ field.name }}-error">{% if field.errors %}{{ field.errors.0 }}{% endif %}</div>
                                 </div>
                             {% endfor %}
-                            <button type="submit" class="btn btn-primary btn-full">Tạo tài khoản</button>
+                            <button type="submit" class="btn btn-primary btn-full" data-translate-key="register_button">Tạo tài khoản</button>
                         </form>
                     </div>
                 </div>
@@ -98,10 +139,113 @@
     <script src="{% static 'js/account_script.js' %}"></script>
     
     <script>
-    // Đoạn mã này sẽ chạy sau khi trang và các script khác đã tải xong.
-    // Nó sẽ xóa các trình xử lý sự kiện 'submit' mà file account_script.js đã thêm vào,
-    // buộc form phải gửi theo cách thông thường của trình duyệt và đính kèm CSRF token.
-    document.addEventListener('DOMContentLoaded', function() {
+    // Language switcher logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const translations = {
+            vi: {
+                title: "Rita AI Suite - Đăng nhập & Đăng ký",
+                info_title: "Gia nhập hệ sinh thái Rita",
+                info_subtitle: "Trải nghiệm bộ công cụ AI giúp bạn phân tích dữ liệu, theo dõi chiến dịch và tự động hóa công việc.",
+                benefit_1: "Giao diện thống nhất cho mọi sản phẩm AI của bạn",
+                benefit_2: "Bảo mật nhiều lớp với xác thực an toàn",
+                benefit_3: "Cập nhật liên tục các tính năng phân tích mới",
+                note_text: "Chưa chắc chắn?",
+                note_link: "Khám phá Rita AI Suite",
+                tab_login: "Đăng nhập",
+                tab_register: "Đăng ký",
+                login_title: "Chào mừng trở lại",
+                login_subtitle: "Đăng nhập để tiếp tục cuộc trò chuyện cùng Rita.",
+                forgot_password: "Quên mật khẩu?",
+                login_button: "Đăng nhập",
+                register_title: "Tạo tài khoản mới",
+                register_subtitle: "Chỉ vài bước để bắt đầu khai thác toàn bộ sức mạnh của Rita.",
+                register_button: "Tạo tài khoản",
+                // Django form labels
+                label_username: "Tên đăng nhập",
+                label_password: "Mật khẩu",
+                label_email: "Địa chỉ email",
+                label_password1: "Mật khẩu",
+                label_password2: "Xác nhận mật khẩu"
+            },
+            en: {
+                title: "Rita AI Suite - Login & Register",
+                info_title: "Join the Rita Ecosystem",
+                info_subtitle: "Experience the AI toolkit that helps you analyze data, track campaigns, and automate tasks.",
+                benefit_1: "A unified interface for all your AI products",
+                benefit_2: "Multi-layered security with secure authentication",
+                benefit_3: "Continuous updates with new analysis features",
+                note_text: "Not sure yet?",
+                note_link: "Explore Rita AI Suite",
+                tab_login: "Login",
+                tab_register: "Register",
+                login_title: "Welcome back",
+                login_subtitle: "Log in to continue your conversation with Rita.",
+                forgot_password: "Forgot password?",
+                login_button: "Login",
+                register_title: "Create a new account",
+                register_subtitle: "Just a few steps to start harnessing the full power of Rita.",
+                register_button: "Create Account",
+                // Django form labels
+                label_username: "Username",
+                label_password: "Password",
+                label_email: "Email address",
+                label_password1: "Password",
+                label_password2: "Password confirmation"
+            }
+        };
+
+        const langViBtn = document.getElementById('lang-vi');
+        const langEnBtn = document.getElementById('lang-en');
+        const translatableElements = document.querySelectorAll('[data-translate-key]');
+
+        const setLanguage = (lang) => {
+            if (!['vi', 'en'].includes(lang)) return;
+
+            // Translate elements with data-translate-key
+            translatableElements.forEach(el => {
+                const key = el.dataset.translateKey;
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            // Manually translate Django-generated form labels
+            const formLabels = {
+                'id_username': translations[lang].label_username,
+                'id_password': translations[lang].label_password,
+                'id_email': translations[lang].label_email,
+                'id_password1': translations[lang].label_password1,
+                'id_password2': translations[lang].label_password2
+            };
+
+            for (const [fieldId, labelText] of Object.entries(formLabels)) {
+                const labelElement = document.querySelector(`label[for="${fieldId}"]`);
+                if (labelElement) {
+                    labelElement.textContent = labelText;
+                }
+            }
+
+            // Update UI and save preference
+            localStorage.setItem('preferredLanguage', lang);
+            
+            if (lang === 'vi') {
+                langViBtn.classList.add('active');
+                langEnBtn.classList.remove('active');
+                document.documentElement.lang = 'vi';
+            } else {
+                langEnBtn.classList.add('active');
+                langViBtn.classList.remove('active');
+                document.documentElement.lang = 'en';
+            }
+        };
+
+        langViBtn.addEventListener('click', () => setLanguage('vi'));
+        langEnBtn.addEventListener('click', () => setLanguage('en'));
+
+        const savedLang = localStorage.getItem('preferredLanguage') || 'vi';
+        setLanguage(savedLang);
+
+        // --- Form submission override script ---
         const signInForm = document.getElementById('sign-in-form');
         if (signInForm) {
             const newSignInForm = signInForm.cloneNode(true);

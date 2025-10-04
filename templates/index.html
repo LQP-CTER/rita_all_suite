@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Rita Chat Studio{% endblock %}
+{% block title %}<title data-translate-key="title">Rita Chat Studio</title>{% endblock %}
 
 {% block extra_css %}
     <style>
@@ -24,8 +24,6 @@
             flex: 1; /* Cho phép phần nội dung chính co giãn */
             min-height: 0; /* Quan trọng để flexbox co giãn đúng cách */
         }
-
-        /* Styles for the new header card */
         .tool-hero {
             display: flex;
             gap: 2.5rem;
@@ -81,7 +79,6 @@
             font-size: 0.95rem;
             margin: 0;
         }
-        /* New styles for hero graphic */
         .hero-graphic {
             position: relative;
             z-index: 1;
@@ -275,7 +272,6 @@
             color: #0b0c12;
             border: none;
         }
-        /* Styles for chat placeholder */
         .chat-placeholder {
             flex-grow: 1;
             display: flex;
@@ -408,13 +404,13 @@
 
         @media (max-width: 1200px) {
             .hero-graphic {
-                display: none; /* Hide graphic on smaller screens to save space */
+                display: none;
             }
         }
 
         @media (max-width: 900px) {
             .chat-shell { grid-template-columns: 1fr; }
-            .chat-sidebar { display: none; } /* Hide sidebar on smaller screens */
+            .chat-sidebar { display: none; }
         }
     </style>
 {% endblock %}
@@ -422,12 +418,12 @@
 {% block content %}
 <section class="tool-hero">
     <div class="hero-copy">
-        <span class="hero-eyebrow">
+        <span class="hero-eyebrow" data-translate-key="hero_eyebrow">
             <span>💬</span>
             Chat Studio
         </span>
-        <h1>Trợ lý AI cá nhân của bạn</h1>
-        <p>Tương tác với Rita để trò chuyện thông minh, phân tích tệp và nhận thông tin từ web. Bắt đầu bằng cách nhập yêu cầu của bạn bên dưới hoặc chọn một gợi ý nhanh.</p>
+        <h1 data-translate-key="hero_title">Trợ lý AI cá nhân của bạn</h1>
+        <p data-translate-key="hero_subtitle">Tương tác với Rita để trò chuyện thông minh, phân tích tệp và nhận thông tin từ web. Bắt đầu bằng cách nhập yêu cầu của bạn bên dưới hoặc chọn một gợi ý nhanh.</p>
     </div>
     <div class="hero-graphic">
         <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
@@ -467,11 +463,12 @@
         <div class="sidebar-card">
             <div class="sidebar-actions">
                 <button id="refresh-btn" class="action-btn">
-                    <i class="fas fa-sync-alt"></i> Trò chuyện mới
+                    <i class="fas fa-sync-alt"></i>
+                    <span data-translate-key="new_chat">Trò chuyện mới</span>
                 </button>
             </div>
             <div class="search-toggle-wrapper">
-                <label for="search-web-toggle">Tìm kiếm web</label>
+                <label for="search-web-toggle" data-translate-key="web_search">Tìm kiếm web</label>
                 <label class="switch">
                     <input type="checkbox" id="search-web-toggle" name="search_web">
                     <span class="slider"></span>
@@ -479,16 +476,16 @@
             </div>
         </div>
         <div class="sidebar-card">
-            <h3>Gợi ý nhanh</h3>
+            <h3 data-translate-key="quick_prompts">Gợi ý nhanh</h3>
             <div class="prompt-chips">
-                <button class="prompt-chip" data-prompt="Giải thích về điện toán lượng tử một cách đơn giản">Giải thích về điện toán lượng tử</button>
-                <button class="prompt-chip" data-prompt="Đề xuất một vài ý tưởng sáng tạo cho sinh nhật của một đứa trẻ 10 tuổi">Ý tưởng cho tiệc sinh nhật</button>
-                <button class="prompt-chip" data-prompt="Viết một script Python để sắp xếp danh sách các dictionary theo một key cụ thể">Script Python để sắp xếp</button>
+                <button class="prompt-chip" data-prompt-vi="Giải thích về điện toán lượng tử một cách đơn giản" data-prompt-en="Explain quantum computing in simple terms" data-translate-key="prompt_1">Giải thích về điện toán lượng tử</button>
+                <button class="prompt-chip" data-prompt-vi="Đề xuất một vài ý tưởng sáng tạo cho sinh nhật của một đứa trẻ 10 tuổi" data-prompt-en="Suggest some creative ideas for a 10-year-old's birthday" data-translate-key="prompt_2">Ý tưởng cho tiệc sinh nhật</button>
+                <button class="prompt-chip" data-prompt-vi="Viết một script Python để sắp xếp danh sách các dictionary theo một key cụ thể" data-prompt-en="Write a Python script to sort a list of dictionaries by a specific key" data-translate-key="prompt_3">Script Python để sắp xếp</button>
             </div>
         </div>
         <div class="sidebar-card">
-            <h3>Bạn có biết?</h3>
-            <p>Bạn có thể tải lên tối đa 5 tệp (mỗi tệp không quá 10MB), bao gồm hình ảnh, tệp văn bản và PDF. Rita sẽ phân tích nội dung để đưa ra câu trả lời chính xác hơn.</p>
+            <h3 data-translate-key="did_you_know">Bạn có biết?</h3>
+            <p data-translate-key="did_you_know_p">Bạn có thể tải lên tối đa 5 tệp (mỗi tệp không quá 10MB), bao gồm hình ảnh, tệp văn bản và PDF. Rita sẽ phân tích nội dung để đưa ra câu trả lời chính xác hơn.</p>
         </div>
     </aside>
 
@@ -497,8 +494,8 @@
             {% if not chat_history %}
             <div class="chat-placeholder" id="chat-placeholder">
                 <img src="https://res.cloudinary.com/dd7gti2kn/image/upload/v1752353858/Rita_logo__gjytjk.png" alt="Rita Logo" class="placeholder-logo">
-                <h2>Tôi có thể giúp gì cho bạn hôm nay?</h2>
-                <p>Bắt đầu cuộc trò chuyện mới hoặc thử một gợi ý nhanh.</p>
+                <h2 data-translate-key="placeholder_title">Tôi có thể giúp gì cho bạn hôm nay?</h2>
+                <p data-translate-key="placeholder_subtitle">Bắt đầu cuộc trò chuyện mới hoặc thử một gợi ý nhanh.</p>
             </div>
             {% endif %}
             {% for message in chat_history %}
@@ -521,29 +518,90 @@
             <div id="file-info-container"></div>
             <form id="chat-form" class="chat-input-form" enctype="multipart/form-data">
                 {% csrf_token %}
-                <button type="button" class="icon-btn" id="upload-btn" title="Đính kèm tệp">
+                <button type="button" class="icon-btn" id="upload-btn" title="Đính kèm tệp" data-translate-title="attach_files_title">
                     <i class="fas fa-paperclip"></i>
                 </button>
-                <textarea name="message" id="message-input" placeholder="Nhập yêu cầu của bạn..." rows="1"></textarea>
-                <button type="submit" id="send-btn" title="Gửi" disabled>
+                <textarea name="message" id="message-input" placeholder="Nhập yêu cầu của bạn..." rows="1" data-translate-placeholder="input_placeholder"></textarea>
+                <button type="submit" id="send-btn" title="Gửi" disabled data-translate-title="send_button_title">
                     <i class="fas fa-paper-plane"></i>
                 </button>
                 <input type="file" id="file-input" multiple hidden>
             </form>
             <div class="input-hints">
-                <span><code>Shift</code> + <code>Enter</code> để xuống dòng</span>
-                <span><i class="fas fa-bolt"></i> Nhấn gợi ý để tự động điền</span>
-                <span><i class="fas fa-shield-check"></i> Tệp của bạn được bảo mật</span>
+                <span data-translate-key="hint_newline"><code>Shift</code> + <code>Enter</code> để xuống dòng</span>
+                <span data-translate-key="hint_prompt"><i class="fas fa-bolt"></i> Nhấn gợi ý để tự động điền</span>
+                <span data-translate-key="hint_secure"><i class="fas fa-shield-check"></i> Tệp của bạn được bảo mật</span>
             </div>
         </div>
     </section>
 </div>
 
 <footer class="site-footer">
-    <p>Rita có thể mắc lỗi - hãy kiểm tra lại các thông tin quan trọng. © 2025 Lequyphat</p>
+    <p data-translate-key="footer_text">Rita có thể mắc lỗi - hãy kiểm tra lại các thông tin quan trọng. © 2025 Lequyphat</p>
 </footer>
 {% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add page-specific translations to the global translations object from base.html
+            Object.assign(translations.vi, {
+                'title': "Rita Chat Studio",
+                'hero_eyebrow': "Chat Studio",
+                'hero_title': "Trợ lý AI cá nhân của bạn",
+                'hero_subtitle': "Tương tác với Rita để trò chuyện thông minh, phân tích tệp và nhận thông tin từ web. Bắt đầu bằng cách nhập yêu cầu của bạn bên dưới hoặc chọn một gợi ý nhanh.",
+                'new_chat': "Trò chuyện mới",
+                'web_search': "Tìm kiếm web",
+                'quick_prompts': "Gợi ý nhanh",
+                'prompt_1': "Giải thích về điện toán lượng tử",
+                'prompt_2': "Ý tưởng cho tiệc sinh nhật",
+                'prompt_3': "Script Python để sắp xếp",
+                'did_you_know': "Bạn có biết?",
+                'did_you_know_p': "Bạn có thể tải lên tối đa 5 tệp (mỗi tệp không quá 10MB), bao gồm hình ảnh, tệp văn bản và PDF. Rita sẽ phân tích nội dung để đưa ra câu trả lời chính xác hơn.",
+                'placeholder_title': "Tôi có thể giúp gì cho bạn hôm nay?",
+                'placeholder_subtitle': "Bắt đầu cuộc trò chuyện mới hoặc thử một gợi ý nhanh.",
+                'attach_files_title': "Đính kèm tệp",
+                'input_placeholder': "Nhập yêu cầu của bạn...",
+                'send_button_title': "Gửi",
+                'hint_newline': "Shift + Enter để xuống dòng",
+                'hint_prompt': "Nhấn gợi ý để tự động điền",
+                'hint_secure': "Tệp của bạn được bảo mật",
+                'footer_text': "Rita có thể mắc lỗi - hãy kiểm tra lại các thông tin quan trọng. © 2025 Lequyphat"
+            });
+            Object.assign(translations.en, {
+                'title': "Rita Chat Studio",
+                'hero_eyebrow': "Chat Studio",
+                'hero_title': "Your Personal AI Assistant",
+                'hero_subtitle': "Interact with Rita for intelligent conversations, file analysis, and web insights. Get started by typing your request below or selecting a quick prompt.",
+                'new_chat': "New Chat",
+                'web_search': "Web Search",
+                'quick_prompts': "Quick Prompts",
+                'prompt_1': "Explain quantum computing",
+                'prompt_2': "Birthday party ideas",
+                'prompt_3': "Python script for sorting",
+                'did_you_know': "Did you know?",
+                'did_you_know_p': "You can upload up to 5 files (max 10MB each), including images, text files, and PDFs. Rita will analyze the content to provide more accurate answers.",
+                'placeholder_title': "How can I help you today?",
+                'placeholder_subtitle': "Start a new conversation or try a quick prompt.",
+                'attach_files_title': "Attach files",
+                'input_placeholder': "Enter your request...",
+                'send_button_title': "Send",
+                'hint_newline': "Shift + Enter for a new line",
+                'hint_prompt': "Click a prompt to auto-fill",
+                'hint_secure': "Your files are secure",
+                'footer_text': "Rita can make mistakes - please double-check important information. © 2025 Lequyphat"
+            });
+
+            // Since the base script has already run, we re-apply translations 
+            // to include the new ones from this page.
+            const currentLang = localStorage.getItem('preferredLanguage') || 'vi';
+            applyTranslations(currentLang);
+
+            const promptChips = document.querySelectorAll('.prompt-chip');
+            promptChips.forEach(chip => {
+                chip.setAttribute('data-prompt', chip.getAttribute(`data-prompt-${currentLang}`));
+            });
+        });
+    </script>
 {% endblock %}
