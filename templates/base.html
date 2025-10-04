@@ -204,30 +204,28 @@
             document.documentElement.lang = lang;
 
             // Find all translatable elements in the document
-            const translatableElements = document.querySelectorAll('[data-translate-key]');
-            
-            translatableElements.forEach(el => {
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
                 const key = el.dataset.translateKey;
                 if (translations[lang] && translations[lang][key]) {
-                    const icon = el.querySelector('i, svg, code, strong, span');
-                    if (icon && (el.firstChild === icon || el.firstChild.contains(icon))) {
-                        const textNode = document.createTextNode(' ' + translations[lang][key]);
-                        // Clear existing text nodes, preserving the icon
-                        Array.from(el.childNodes).forEach(child => {
+                    // This logic attempts to preserve leading icons/elements
+                    const firstChildNode = el.childNodes[0];
+                    if (firstChildNode && (firstChildNode.nodeType === 1 || (firstChildNode.nodeType === 3 && firstChildNode.textContent.trim() === ''))) {
+                         const textNode = document.createTextNode(' ' + translations[lang][key]);
+                         // Clear existing text nodes, preserving non-text nodes
+                         Array.from(el.childNodes).forEach(child => {
                             if (child.nodeType === Node.TEXT_NODE) {
                                 el.removeChild(child);
                             }
-                        });
-                        el.appendChild(textNode);
+                         });
+                         el.appendChild(textNode);
                     } else {
-                        el.textContent = translations[lang][key];
+                         el.innerHTML = translations[lang][key];
                     }
                 }
             });
 
             // Handle attribute translations
-            const translatableAttributes = document.querySelectorAll('[data-translate-placeholder], [data-translate-title]');
-            translatableAttributes.forEach(el => {
+            document.querySelectorAll('[data-translate-placeholder], [data-translate-title], [data-translate-aria-label]').forEach(el => {
                 if(el.dataset.translatePlaceholder) {
                     const key = el.dataset.translatePlaceholder;
                     if(translations[lang][key]) el.placeholder = translations[lang][key];
@@ -236,18 +234,36 @@
                     const key = el.dataset.translateTitle;
                     if(translations[lang][key]) el.title = translations[lang][key];
                 }
+                 if(el.dataset.translateAriaLabel) {
+                    const key = el.dataset.translateAriaLabel;
+                    if(translations[lang][key]) el.setAttribute('aria-label', translations[lang][key]);
+                }
             });
 
-            // Update the dropdown button text
-            const currentLangText = document.getElementById('current-lang-text');
-            if (currentLangText) {
-                currentLangText.textContent = lang.toUpperCase();
+             // Handle document title from translation object
+            if (translations[lang] && translations[lang]['title']) {
+                document.title = translations[lang]['title'];
             }
         }
 
         function setLanguage(lang) {
             localStorage.setItem('preferredLanguage', lang);
+            
+            // Update dropdown button text
+            const currentLangText = document.getElementById('current-lang-text');
+            if (currentLangText) {
+                currentLangText.textContent = lang.toUpperCase();
+            }
+
+            // Update active state on options
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.lang === lang);
+            });
+
             applyTranslations(lang);
+            
+            // Dispatch a custom event to notify other scripts
+            document.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: lang } }));
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -280,7 +296,8 @@
 
             // Apply saved language on initial load
             const savedLang = localStorage.getItem('preferredLanguage') || 'vi';
-            setLanguage(savedLang);
+            // Defer the initial translation slightly to ensure child scripts have loaded their translations
+            setTimeout(() => setLanguage(savedLang), 0);
         });
     </script>
 
